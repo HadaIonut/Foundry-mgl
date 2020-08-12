@@ -7,5 +7,5 @@ Hooks.once('init', () => {
 
 Hooks.once('renderActorSheet', (args) => {
     debug(args);
-    args.object.data.items[20].data.target.value = 30;
+    args.object.data.items[20].data.target.value = 15;
 });
