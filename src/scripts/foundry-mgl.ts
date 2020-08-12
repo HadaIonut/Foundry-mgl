@@ -1,5 +1,5 @@
 import Utils from "./Utils";
-import conversionEngine from "./ConversionEngine";
+import Dnd5eConverter from "./Dnd5eConverter";
 
 const debug = Utils.debug.bind(Utils);
 
@@ -8,6 +8,6 @@ Hooks.once('init', () => {
 });
 
 Hooks.once('renderActorSheet', (args) => {
-    args.object.data = conversionEngine.toMetricConverter(args.object.data);
+    args = Dnd5eConverter.toMetricConverter5e(args.object.data);
     debug(args);
 });
