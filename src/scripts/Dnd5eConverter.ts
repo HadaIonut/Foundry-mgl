@@ -28,16 +28,10 @@ class Dnd5eConverter {
         if (distance?.long)
             distance.long = ConversionEngine.convertDistanceFromImperialToMetric(distance.long,distance.units);
 
-        distance.value = ConversionEngine.convertDistanceFromImperialToMetric(distance.value, distance.units);
-        if (distance?.long)
-            distance.long = ConversionEngine.convertDistanceFromImperialToMetric(distance.long, distance.units);
-
         distance.units = ConversionEngine.convertDistanceStringToMetric(distance.units);
 
         return distance;
     }
-
-
 
     public toMetricConverter5e(data: any): any {
         if (data.converted) return data;

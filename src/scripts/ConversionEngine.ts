@@ -73,7 +73,7 @@ class ConversionEngine {
      * @param ftString - the imperial unit to convert
      */
     public convertDistanceStringToMetric(ftString: string): string {
-        return this._distanceToMetricMap[ftString];
+        return this._distanceToMetricMap[ftString] || '';
     }
 
     /**
