@@ -1,4 +1,6 @@
 import Utils from "./Utils";
+import conversionEngine from "./ConversionEngine";
+
 const debug = Utils.debug.bind(Utils);
 
 Hooks.once('init', () => {
@@ -7,5 +9,5 @@ Hooks.once('init', () => {
 
 Hooks.once('renderActorSheet', (args) => {
     debug(args);
-    args.object.data.items[20].data.target.value = 15;
+    args.object.data = conversionEngine.toMetricConverter(args.object.data);
 });
