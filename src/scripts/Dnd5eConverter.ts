@@ -37,22 +37,33 @@ class Dnd5eConverter {
         return distance;
     }
 
+
+
     public toMetricConverter5e(data: any): any {
+        if (data.converted) return data;
+
         const items = data.items;
         items.forEach((item) => {
             const target = item.data.target;
             const range = item.data.range;
             if (!target) return
 
-
             item.data.target = this._convertDistance(target);
             item.data.range = this._convertDistance(range);
-
 
             item.labels.target = this._labelConverter(item.labels.target);
             item.labels.range = this._labelConverter(item.labels.range);
         })
+
         data.data.attributes.speed.value = this._labelConverter(data.data.attributes.speed.value);
+
+        const specialSpeed = data.data.attributes.speed.special;
+        const replacedSpecialSpeed = ConversionEngine.imperialReplacer(specialSpeed,/(?<value>[0-9]+) (?<unit>[\w]+)/g)
+        data.data.attributes.speed.special = replacedSpecialSpeed;
+
+        data.data.traits.senses = ConversionEngine.imperialReplacer(data.data.traits.senses,/(?<value>[0-9]+) (?<unit>[\w]+)/g)
+
+        data.converted = true;
         return data;
     }
 }

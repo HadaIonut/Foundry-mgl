@@ -63,7 +63,7 @@ class ConversionEngine {
      *
      * @param unit - the unit that is in a non standard form
      */
-    public _convertDistanceUnitStringToStandard (unit: string): string {
+    public _convertDistanceUnitStringToStandard(unit: string): string {
         return this._typesOfUnitsMap[unit];
     }
 
@@ -87,6 +87,20 @@ class ConversionEngine {
         if (convertedToStandard === "feet") return this._convertDistanceFromFeetToMeters(distance);
         if (convertedToStandard === "mile") return this._convertDistanceFromMilesToKilometers(distance)
 
+    }
+
+    /**
+     * Replaces an imperial value with a metric one
+     *
+     * @param toReplace - string that contains an imperial value
+     * @param replaceRegex - regex to replace the imperial value
+     */
+    public imperialReplacer(toReplace: string, replaceRegex: RegExp): string {
+        return toReplace.replace(replaceRegex, (element: string, value: string, unit: string): string => {
+            const replacedValue = this.convertDistanceFromImperialToMetric(value, unit);
+            const replacedUnit = this.convertDistanceStringToMetric(unit);
+            return replacedValue + ' ' + replacedUnit;
+        })
     }
 }
 

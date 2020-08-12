@@ -7,7 +7,8 @@ Hooks.once('init', () => {
     console.log('ceapa');
 });
 
-Hooks.once('renderActorSheet', (args) => {
-    args = Dnd5eConverter.toMetricConverter5e(args.object.data);
+Hooks.on('renderActorSheet', (args) => {
+    debug(args);
+    args.object.data = Dnd5eConverter.toMetricConverter5e(args.object.data);
     debug(args);
 });
