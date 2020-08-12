@@ -8,6 +8,6 @@ Hooks.once('init', () => {
 });
 
 Hooks.once('renderActorSheet', (args) => {
-    debug(args);
     args.object.data = conversionEngine.toMetricConverter(args.object.data);
+    debug(args);
 });

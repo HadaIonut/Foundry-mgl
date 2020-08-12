@@ -13,6 +13,7 @@ class ConversionEngine {
         "ft.": "m.",
         "ft": "m",
         "feet": "meters",
+        "Feet": "Meters",
         "foot": "meter",
         "mile": "kilometres",
         "miles": "kilometres"
@@ -49,12 +50,12 @@ class ConversionEngine {
     }
 
     private _convertDistance(distance: any): any {
-        if (distance.units == 'ft'){
+        if (distance.units == 'ft') {
             distance.value = this._convertDistanceFromFeetToMeters(distance.value);
             if (distance?.long) distance.long = this._convertDistanceFromFeetToMeters(distance.long);
         }
 
-        if (distance.units == 'mile'){
+        if (distance.units == 'mile') {
             distance.value = this._convertDistanceFromMilesToKilometers(distance.value);
             if (distance?.long) distance.long = this._convertDistanceFromMilesToKilometers(distance.long);
         }
@@ -62,6 +63,17 @@ class ConversionEngine {
         distance.units = this._convertDistanceStringToMetric(distance.units);
 
         return distance;
+    }
+
+    private _labelConverter(label: string): any {
+        const labelRegex = /(?<value>[0-9]+) (?<unit>[\w]+)/;
+        const matchedLabel = label.match(labelRegex)?.groups;
+        if (!matchedLabel) return label;
+        const unit = this._distanceToMetricMap[matchedLabel.unit];
+
+        if (!unit) return label;
+        if (unit == "Meters") return  this._convertDistanceFromFeetToMeters(matchedLabel.value) + ' ' + unit;
+
     }
 
     public toMetricConverter(data: any): any {
@@ -73,8 +85,11 @@ class ConversionEngine {
 
 
             item.data.target = this._convertDistance(target);
-            item.data.range = this._convertDistance(range)
+            item.data.range = this._convertDistance(range);
 
+
+            item.labels.target = this._labelConverter(item.labels.target);
+            item.labels.range = this._labelConverter(item.labels.range);
         })
 
         return data;
