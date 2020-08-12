@@ -1,0 +1,15 @@
+{
+  "name": "foundry-mgl",
+  "title": "Foundry Meters, Grams & Liters",
+  "description": "",
+  "authors": ["HadaIonut"],
+  "version": "0.0.1",
+  "esmodules": ["scripts/foundry-mgl.js"],
+  "styles": ["styles/foundry-mgl.css"],
+  "minimumCoreVersion": "0.7.0",
+  "compatibleCoreVersion": "0.7.0",
+  "url": "",
+  "manifest": "",
+  "download": "",
+  "changelog": ""
+}
