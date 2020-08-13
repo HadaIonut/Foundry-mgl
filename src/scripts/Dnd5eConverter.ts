@@ -73,8 +73,10 @@ class Dnd5eConverter {
         return data;
     }
 
-    public updater(actor: any) {
-        this._toMetricConverter5e(actor.object, actor.object.data);
+    public async updater(actor: any) {
+        actor.object.data = this._toMetricConverter5e(actor.object, actor.object.data);
+
+        const updated = await actor.object.update(actor.object.data);
     }
 }
 
