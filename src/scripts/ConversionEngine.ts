@@ -102,6 +102,14 @@ class ConversionEngine {
             return replacedValue + ' ' + replacedUnit;
         })
     }
+
+    public async updateItem(actor: any) {
+        const act = actor.object.data
+        const item = act.items.find(i => i.name === "Magic Sword +2");
+        if (!item) return;
+        const update = {_id: item._id, name: "Magic Sword +3"}
+        const out = await actor.object.updateEmbeddedEntity("OwnedItem", update);
+    }
 }
 
 export default ConversionEngine.getInstance();

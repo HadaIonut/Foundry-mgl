@@ -33,21 +33,22 @@ class Dnd5eConverter {
         return distance;
     }
 
-    private _itemsConverter(items: any): any {
-        items.forEach((item) => {
+    private _itemsConverter(actor: any, items: any): any {
+        items.forEach(async (item) => {
+            let updatedItem = item;
             const target = item.data.target;
             const range = item.data.range;
             if (!target) return
 
-            item.data.target = this._convertDistance(target);
-            item.data.range = this._convertDistance(range);
+            updatedItem.data.target = this._convertDistance(target);
+            updatedItem.data.range = this._convertDistance(range);
 
-            item.labels.target = this._labelConverter(item.labels.target);
-            item.labels.range = this._labelConverter(item.labels.range);
+            updatedItem.labels.target = this._labelConverter(item.labels.target);
+            updatedItem.labels.range = this._labelConverter(item.labels.range);
+
+            await actor.updateEmbeddedEntity("OwnedItem", updatedItem);
         })
-        return items;
     }
-
 
     private _speedConverter(speed: any): any {
         speed.value = this._labelConverter(speed.value);
@@ -58,11 +59,11 @@ class Dnd5eConverter {
         return speed;
     }
 
-    public toMetricConverter5e(data: any): any {
+    private _toMetricConverter5e(actor: any, data: any): any {
         if (data.converted) return data;
 
         const items = data.items;
-        data.items = this._itemsConverter(items);
+        this._itemsConverter(actor, items);
 
         data.data.attributes.speed = this._speedConverter(data.data.attributes.speed);
 
@@ -70,6 +71,10 @@ class Dnd5eConverter {
 
         data.converted = true;
         return data;
+    }
+
+    public updater(actor: any) {
+        this._toMetricConverter5e(actor.object, actor.object.data);
     }
 }
 

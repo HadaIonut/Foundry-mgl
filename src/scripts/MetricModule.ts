@@ -1,3 +1,6 @@
+import Dnd5eConverter from "./Dnd5eConverter";
+import ConversionEngine from "./ConversionEngine";
+
 class MetricModule {
     private static _instance: MetricModule;
 
@@ -15,24 +18,18 @@ class MetricModule {
             return;
         }
         let button = $(`<a class="popout" style><i class="fas fa-ruler"></i>${game.i18n.localize("Metrificator")}</a>`);
-        button.on('click', (event) => this._updateItem(actor));
+        button.on('click', (event) => Dnd5eConverter.updater(actor));
+        //button.on('click', (event) => ConversionEngine.updateItem(actor));
         element.after(button);
     }
 
     public onRenderActorSheet(obj, html) {
         let element = html.find(".window-header .window-title")
-        //console.log(obj.object.data._id)
         MetricModule.addButton(element, obj);
 
     }
 
-    private static async _updateItem(actor: any) {
-        const act = actor.object.data
-        const item = act.items.find(i => i.name === "Greatsword");
-        if (!item) return;
-        const update = {_id: item._id, name: "Magic Sword +1"};
-        const updated = await actor.object.updateEmbeddedEntity("OwnedItem", update); // Updates one EmbeddedEntity
-    }
+
 }
 
 export default MetricModule.getInstance();
