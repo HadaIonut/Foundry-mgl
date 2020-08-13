@@ -26,17 +26,14 @@ class Dnd5eConverter {
     private _convertDistance(distance: any): any {
         distance.value = ConversionEngine.convertDistanceFromImperialToMetric(distance.value, distance.units);
         if (distance?.long)
-            distance.long = ConversionEngine.convertDistanceFromImperialToMetric(distance.long,distance.units);
+            distance.long = ConversionEngine.convertDistanceFromImperialToMetric(distance.long, distance.units);
 
         distance.units = ConversionEngine.convertDistanceStringToMetric(distance.units);
 
         return distance;
     }
 
-    public toMetricConverter5e(data: any): any {
-        if (data.converted) return data;
-
-        const items = data.items;
+    private _itemsConverter(items: any): any {
         items.forEach((item) => {
             const target = item.data.target;
             const range = item.data.range;
@@ -48,14 +45,28 @@ class Dnd5eConverter {
             item.labels.target = this._labelConverter(item.labels.target);
             item.labels.range = this._labelConverter(item.labels.range);
         })
+        return items;
+    }
 
-        data.data.attributes.speed.value = this._labelConverter(data.data.attributes.speed.value);
 
-        const specialSpeed = data.data.attributes.speed.special;
-        const replacedSpecialSpeed = ConversionEngine.imperialReplacer(specialSpeed,/(?<value>[0-9]+) (?<unit>[\w]+)/g)
-        data.data.attributes.speed.special = replacedSpecialSpeed;
+    private _speedConverter(speed: any): any {
+        speed.value = this._labelConverter(speed.value);
 
-        data.data.traits.senses = ConversionEngine.imperialReplacer(data.data.traits.senses,/(?<value>[0-9]+) (?<unit>[\w]+)/g)
+        const specialSpeed = speed.special;
+        speed.special = ConversionEngine.imperialReplacer(specialSpeed, /(?<value>[0-9]+) (?<unit>[\w]+)/g);
+
+        return speed;
+    }
+
+    public toMetricConverter5e(data: any): any {
+        if (data.converted) return data;
+
+        const items = data.items;
+        data.items = this._itemsConverter(items);
+
+        data.data.attributes.speed = this._speedConverter(data.data.attributes.speed);
+
+        data.data.traits.senses = ConversionEngine.imperialReplacer(data.data.traits.senses, /(?<value>[0-9]+) (?<unit>[\w]+)/g)
 
         data.converted = true;
         return data;
