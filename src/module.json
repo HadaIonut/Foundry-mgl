@@ -7,11 +7,11 @@
   "esmodules": ["scripts/foundry-mgl.js"],
   "styles": ["styles/foundry-mgl.css"],
   "languages":
-    {
+    [{
       "lang": "en",
       "name": "English",
       "path": "lang/en.json"
-    },
+    }],
   "minimumCoreVersion": "0.7.0",
   "compatibleCoreVersion": "0.7.0",
   "url": "",

@@ -84,6 +84,8 @@ class Dnd5eConverter {
     public async updater(actor: any) {
         actor.object.data = this._toMetricConverter5e(actor.object.data);
 
+        console.log(game.i18n.localize("lbs."))
+
         await actor.object.update(actor.object.data);
     }
 }
