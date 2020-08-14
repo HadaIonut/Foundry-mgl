@@ -1,19 +1,26 @@
 import Utils from "./Utils";
-import Dnd5eConverter from "./Dnd5eConverter";
 import MetricModule from "./MetricModule";
+// @ts-ignore
+import { DND5E } from "../../../systems/dnd5e/module/config.js";
 
 const debug = Utils.debug.bind(Utils);
 
-Hooks.once('init', () => {
-    console.log('ceapa');
+Hooks.on('init', () => {
+    debug("Changing labels 'Feet' and 'Miles' to 'Meters' and 'Kilometers'.")
+    DND5E.distanceUnits["m"] = game.i18n.localize("metricsystem.meters");
+    DND5E.distanceUnits["km"] = game.i18n.localize("metricsystem.kilometers");
+    debug("Changing encumbrance calculation.")
+    DND5E.encumbrance["currencyPerWeight"] = 100;
+    DND5E.encumbrance["strMultiplier"] = 7.5;
+
+});
+
+Hooks.on('ready', () => {
+    debug("Changing label 'lbs.' to 'kg'.")
+    // @ts-ignore
+    game.i18n.translations.DND5E["AbbreviationLbs"] = 'kg';
 });
 
 
 Hooks.on('renderActorSheet', MetricModule.onRenderActorSheet);
 
-/*
-Hooks.on('renderActorSheet', (args) => {
-    debug(args);
-    args.object.data = Dnd5eConverter.toMetricConverter5e(args.object.data);
-    debug(args);
-});*/

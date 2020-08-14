@@ -31,6 +31,13 @@ class ConversionEngine {
         "miles": "mile",
     };
 
+    private _weightToKilogramsMap: { [key: string]: string } = {
+        "lb.": "kg.",
+        "lbs.": "kg.",
+        "pounds": "kilograms",
+        "pound": "kilogram"
+    };
+
     private _roundUp(nr: number): number {
         return Math.round((nr + Number.EPSILON) * 100) / 100;
     }
@@ -42,6 +49,16 @@ class ConversionEngine {
     private _convertStringToNumber(toConvert: string): number {
         const numberToReturn = Number(this._cleanCommas(toConvert));
         return isNaN(numberToReturn) ? -1 : numberToReturn;
+    }
+
+    /**
+     * Converts strings or numbers from pounds to kilograms
+     *
+     * @param weightString - string or number to be converted
+     */
+    public convertWeightFromPoundsToKilograms(weightString: string | number): number {
+        let weight = typeof weightString === 'number'? weightString : this._convertStringToNumber(weightString);
+        return weight / 2;
     }
 
     /**
@@ -78,7 +95,16 @@ class ConversionEngine {
     }
 
     /**
-     * Converts units from imperial to metric
+     * Converts weight units from imperial to metric
+     *
+     * @param ftString - the imperial unit to convert
+     */
+    public convertWeightStringToKilograms(lbString: string): string {
+        return this._weightToKilogramsMap[lbString] || 'lb.';
+    }
+
+    /**
+     * Converts distance units from imperial to metric
      *
      * @param ftString - the imperial unit to convert
      */

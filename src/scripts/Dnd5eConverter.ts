@@ -48,6 +48,9 @@ class Dnd5eConverter {
 
             item.labels.target = this._labelConverter(item.labels.target);
             item.labels.range = this._labelConverter(item.labels.range);
+
+            item.data.weight = ConversionEngine.convertWeightFromPoundsToKilograms(item.data.weight);
+            item.totalWeight = ConversionEngine.convertWeightFromPoundsToKilograms(item.totalWeight);
         })
         return items;
     }
