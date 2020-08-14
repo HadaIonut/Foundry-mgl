@@ -44,14 +44,24 @@ class ConversionEngine {
         return isNaN(numberToReturn) ? -1 : numberToReturn;
     }
 
-    private _convertDistanceFromFeetToMeters(distance: string | number): number {
+    /**
+     * Converts strings or numbers from feet to meters
+     *
+     * @param distance - string or number to be converted
+     */
+    public convertDistanceFromFeetToMeters(distance: string | number): number {
         let dist = typeof distance === 'number' ? distance : this._convertStringToNumber(distance);
         dist /= 5;
 
         return this._roundUp(dist + dist / 2);
     }
 
-    private _convertDistanceFromMilesToKilometers(distance: string | number): number {
+    /**
+     * Converts strings or numbers from miles to km
+     *
+     * @param distance - string or number to be converted
+     */
+    public convertDistanceFromMilesToKilometers(distance: string | number): number {
         const dist = typeof distance === 'number' ? distance : this._convertStringToNumber(distance);
 
         return this._roundUp(dist * 1.6);
@@ -84,8 +94,8 @@ class ConversionEngine {
      */
     public convertDistanceFromImperialToMetric(distance: string | number, unit: string): number {
         const convertedToStandard = this._convertDistanceUnitStringToStandard(unit);
-        if (convertedToStandard === "feet") return this._convertDistanceFromFeetToMeters(distance);
-        if (convertedToStandard === "mile") return this._convertDistanceFromMilesToKilometers(distance)
+        if (convertedToStandard === "feet") return this.convertDistanceFromFeetToMeters(distance);
+        if (convertedToStandard === "mile") return this.convertDistanceFromMilesToKilometers(distance)
 
     }
 
@@ -101,14 +111,6 @@ class ConversionEngine {
             const replacedUnit = this.convertDistanceStringToMetric(unit);
             return replacedValue + ' ' + replacedUnit;
         })
-    }
-
-    public async updateItem(actor: any) {
-        const act = actor.object.data
-        const item = act.items.find(i => i.name === "Magic Sword +2");
-        if (!item) return;
-        const update = {_id: item._id, name: "Magic Sword +3"}
-        const out = await actor.object.updateEmbeddedEntity("OwnedItem", update);
     }
 }
 

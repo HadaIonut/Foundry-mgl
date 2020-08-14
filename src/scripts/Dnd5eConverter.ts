@@ -12,15 +12,19 @@ class Dnd5eConverter {
     }
 
     private _labelConverter(label: string): any {
-        const labelRegex = /(?<value>[0-9]+) (?<unit>[\w]+)/;
+        const labelRegex = /((?<valueOpt>[0-9]+) \/ )?(?<value>[0-9]+) (?<unit>[\w]+)/;
         const matchedLabel = label.match(labelRegex)?.groups;
         if (!matchedLabel) return label;
         const unit = ConversionEngine.convertDistanceStringToMetric(matchedLabel.unit);
+        let convertedLabel = '';
 
         if (!unit) return label;
-        if (unit === 'Meters' || unit === 'm')
-            return ConversionEngine.convertDistanceFromImperialToMetric(matchedLabel.value, matchedLabel.unit) + ' ' + unit;
-
+        if (unit === 'Meters' || unit === 'm') {
+            if (matchedLabel.valueOpt)
+                convertedLabel += ConversionEngine.convertDistanceFromFeetToMeters(matchedLabel.valueOpt) + ' /';
+            convertedLabel += ConversionEngine.convertDistanceFromImperialToMetric(matchedLabel.value, matchedLabel.unit) + ' ' + unit;
+        }
+        return convertedLabel;
     }
 
     private _convertDistance(distance: any): any {
@@ -33,21 +37,19 @@ class Dnd5eConverter {
         return distance;
     }
 
-    private _itemsConverter(actor: any, items: any): any {
+    private _itemsConverter(items: any): any {
         items.forEach(async (item) => {
-            let updatedItem = item;
             const target = item.data.target;
             const range = item.data.range;
             if (!target) return
 
-            updatedItem.data.target = this._convertDistance(target);
-            updatedItem.data.range = this._convertDistance(range);
+            item.data.target = this._convertDistance(target);
+            item.data.range = this._convertDistance(range)
 
-            updatedItem.labels.target = this._labelConverter(item.labels.target);
-            updatedItem.labels.range = this._labelConverter(item.labels.range);
-
-            await actor.updateEmbeddedEntity("OwnedItem", updatedItem);
+            item.labels.target = this._labelConverter(item.labels.target);
+            item.labels.range = this._labelConverter(item.labels.range);
         })
+        return items;
     }
 
     private _speedConverter(speed: any): any {
@@ -59,11 +61,11 @@ class Dnd5eConverter {
         return speed;
     }
 
-    private _toMetricConverter5e(actor: any, data: any): any {
+    private _toMetricConverter5e(data: any): any {
         if (data.converted) return data;
 
         const items = data.items;
-        this._itemsConverter(actor, items);
+        data.items = this._itemsConverter(items);
 
         data.data.attributes.speed = this._speedConverter(data.data.attributes.speed);
 
@@ -74,9 +76,9 @@ class Dnd5eConverter {
     }
 
     public async updater(actor: any) {
-        actor.object.data = this._toMetricConverter5e(actor.object, actor.object.data);
+        actor.object.data = this._toMetricConverter5e(actor.object.data);
 
-        const updated = await actor.object.update(actor.object.data);
+        await actor.object.update(actor.object.data);
     }
 }
 

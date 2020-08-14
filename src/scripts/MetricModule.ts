@@ -13,13 +13,10 @@ class MetricModule {
     }
 
     static addButton(element, actor) {
-        // Can't find it?
-        if (element.length != 1) {
-            return;
-        }
-        let button = $(`<a class="popout" style><i class="fas fa-ruler"></i>${game.i18n.localize("Metrificator")}</a>`);
-        button.on('click', (event) => Dnd5eConverter.updater(actor));
-        //button.on('click', (event) => ConversionEngine.updateItem(actor));
+        if (element.length != 1) return;
+
+        let button = $(`<a class="popout" style><i class="fas fa-ruler"></i>Metrificator</a>`);
+        button.on('click', () => Dnd5eConverter.updater(actor));
         element.after(button);
     }
 
