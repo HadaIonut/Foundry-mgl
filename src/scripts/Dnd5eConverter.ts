@@ -67,6 +67,9 @@ class Dnd5eConverter {
     private _toMetricConverter5e(data: any): any {
         if (data.converted) return data;
 
+        // @ts-ignore
+        game.i18n.translations.DND5E["AbbreviationLbs"] = 'kg';
+
         const items = data.items;
         data.items = this._itemsConverter(items);
 

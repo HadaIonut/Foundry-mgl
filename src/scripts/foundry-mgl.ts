@@ -15,12 +15,5 @@ Hooks.on('init', () => {
 
 });
 
-Hooks.on('ready', () => {
-    debug("Changing label 'lbs.' to 'kg'.")
-    // @ts-ignore
-    game.i18n.translations.DND5E["AbbreviationLbs"] = 'kg';
-});
-
-
 Hooks.on('renderActorSheet', MetricModule.onRenderActorSheet);
 
