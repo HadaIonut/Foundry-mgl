@@ -57,6 +57,8 @@ class ConversionEngine {
      * @param weightString - string or number to be converted
      */
     public convertWeightFromPoundsToKilograms(weightString: string | number): number {
+        if (!weightString) return;
+
         let weight = typeof weightString === 'number'? weightString : this._convertStringToNumber(weightString);
         return weight / 2;
     }
