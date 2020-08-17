@@ -37,6 +37,38 @@ class Dnd5eConverter {
         return distance;
     }
 
+    private _convertDistanceFromFeetToMetersInText(text: string): string {
+        text = text.replace(/([0-9]{1,3}(,[0-9]{3})+) (feet)/g, (_0, number: string, _1, label: string) => {
+            return ConversionEngine.convertDistanceFromFeetToMeters(number) + " " + ConversionEngine.convertDistanceStringToMetric(label);
+        });
+        text = text.replace(/([0-9]+)( |&nbsp;)(feet)/g, (_0, number: string, _1 ,label: string) => {
+            return ConversionEngine.convertDistanceFromFeetToMeters(number) + " " + ConversionEngine.convertDistanceStringToMetric(label);
+        });
+        text = text.replace(/([0-9]+)( |&nbsp;)(inch)/g, (_0, number: string, _1 ,label: string) => {
+            return ConversionEngine.convertDistanceFromInchToCentimeters(number) + " " + ConversionEngine.convertDistanceStringToMetric(label);
+        });
+        text = text.replace(/([0-9]+)( |&nbsp;)(foot)/g, (_0, number: string, _1 ,label: string) => {
+            return ConversionEngine.convertDistanceFromFeetToMeters(number) + "-" + ConversionEngine.convertDistanceStringToMetric(label);
+        });
+        text = text.replace(/([0-9]+)(-|-­)(foot)/g, (_0, number: string, _1 ,label: string) => {
+            return ConversionEngine.convertDistanceFromFeetToMeters(number) + "-" + ConversionEngine.convertDistanceStringToMetric(label);
+        });
+        text = text.replace(/([0-9]+)( |&nbsp;)(ft.)/g, (_0, number: string, _1 ,label: string) => {
+            return ConversionEngine.convertDistanceFromFeetToMeters(number) + " " + ConversionEngine.convertDistanceStringToMetric(label);
+        });
+        text = text.replace(/([0-9]+) cubic (foot)/g, (_0, number: string, _1) => {
+            // TODO Replace this to be generic
+            return ConversionEngine.convertDistanceFromFeetToMeters(number) + " cubic " + ConversionEngine.convertDistanceStringToMetric("feet");
+        });
+        text = text.replace(/(range of )([0-9]+)\/([0-9]+)/g, (_0, words: string, smallRange: string, bigRange: string) => {
+            return words + ConversionEngine.convertDistanceFromFeetToMeters(smallRange) + "/" + ConversionEngine.convertDistanceFromFeetToMeters(bigRange);
+        });
+        text = text.replace(/(range )([0-9]+)\/([0-9]+)/g, (_0, words: string, smallRange: string, bigRange: string) => {
+            return words + ConversionEngine.convertDistanceFromFeetToMeters(smallRange) + "/" + ConversionEngine.convertDistanceFromFeetToMeters(bigRange);
+        });
+        return text;
+    }
+
     private _itemsConverter(items: any): any {
         items.forEach(async (item) => {
             const target = item.data.target;
@@ -51,6 +83,8 @@ class Dnd5eConverter {
 
             item.data.weight = ConversionEngine.convertWeightFromPoundsToKilograms(item.data.weight);
             item.totalWeight = ConversionEngine.convertWeightFromPoundsToKilograms(item.totalWeight);
+
+            item.data.description.value = this._convertDistanceFromFeetToMetersInText(item.data.description.value);
         })
         return items;
     }

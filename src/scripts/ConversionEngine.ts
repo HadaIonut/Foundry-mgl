@@ -10,6 +10,7 @@ class ConversionEngine {
     }
 
     private _distanceToMetricMap: { [key: string]: string } = {
+        "inch": "centimeters",
         "ft.": "m.",
         "ft": "m",
         "feet": "meters",
@@ -43,6 +44,7 @@ class ConversionEngine {
     }
 
     private _cleanCommas(text: string): string {
+        if (!text) return
         return text.replace(",", "");
     }
 
@@ -61,6 +63,18 @@ class ConversionEngine {
 
         let weight = typeof weightString === 'number'? weightString : this._convertStringToNumber(weightString);
         return weight / 2;
+    }
+
+    /**
+     * Converts strings or numbers from inch to centimeters
+     *
+     * @param distance - string or number to be converted
+     */
+
+    public convertDistanceFromInchToCentimeters(distance: string | number): number {
+        let dist = typeof distance === 'number' ? distance : this._convertStringToNumber(distance);
+
+        return this._roundUp(dist * 2.5);
     }
 
     /**
