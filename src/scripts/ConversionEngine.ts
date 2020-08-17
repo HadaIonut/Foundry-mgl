@@ -113,7 +113,7 @@ class ConversionEngine {
     /**
      * Converts weight units from imperial to metric
      *
-     * @param ftString - the imperial unit to convert
+     * @param lbString - the imperial unit to convert
      */
     public convertWeightStringToKilograms(lbString: string): string {
         return this._weightToKilogramsMap[lbString] || 'lb.';
