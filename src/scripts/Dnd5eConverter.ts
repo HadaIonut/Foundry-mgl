@@ -79,9 +79,6 @@ class Dnd5eConverter {
             item.data.target = this._convertDistance(target);
             item.data.range = this._convertDistance(range)
 
-            //item.labels.target = this._labelConverter(item.labels.target);
-            //item.labels.range = this._labelConverter(item.labels.range);
-
             item.data.weight = ConversionEngine.convertWeightFromPoundsToKilograms(item.data.weight);
             item.totalWeight = ConversionEngine.convertWeightFromPoundsToKilograms(item.totalWeight);
 
@@ -100,8 +97,6 @@ class Dnd5eConverter {
     }
 
     private _toMetricConverter5e(data: any): any {
-        if (data.converted) return data;
-
         const items = data.items;
         data.items = this._itemsConverter(items);
 
@@ -109,12 +104,10 @@ class Dnd5eConverter {
 
         data.data.traits.senses = ConversionEngine.imperialReplacer(data.data.traits.senses, /(?<value>[0-9]+) (?<unit>[\w]+)/g)
 
-        data.converted = true;
         return data;
     }
 
     public async updater(actor: any) {
-        if (actor.object.converted) return;
         const actorClone = await actor.object.clone({}, {temporary: true});
         actorClone.data = this._toMetricConverter5e(actorClone.data);
 
