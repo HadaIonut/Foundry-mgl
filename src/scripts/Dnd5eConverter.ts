@@ -50,7 +50,7 @@ class Dnd5eConverter {
         text = text.replace(/([0-9]+)( |&nbsp;)(foot)/g, (_0, number: string, _1 ,label: string) => {
             return ConversionEngine.convertDistanceFromFeetToMeters(number) + "-" + ConversionEngine.convertDistanceStringToMetric(label);
         });
-        text = text.replace(/([0-9]+)(-|-­)(foot)/g, (_0, number: string, _1 ,label: string) => {
+        text = text.replace(/([0-9]+)([\W\D\S]){1,2}(foot)/g, (_0, number: string, separator: string ,label: string) => {
             return ConversionEngine.convertDistanceFromFeetToMeters(number) + "-" + ConversionEngine.convertDistanceStringToMetric(label);
         });
         text = text.replace(/([0-9]+)( |&nbsp;)(ft.)/g, (_0, number: string, _1 ,label: string) => {
@@ -70,8 +70,7 @@ class Dnd5eConverter {
     }
 
     private _itemsConverter(items: any): any {
-        items.forEach(async (item) => {
-
+        items.forEach((item) => {
             const target = item.data.target;
             const range = item.data.range;
             if (!target) return
@@ -88,10 +87,11 @@ class Dnd5eConverter {
     }
 
     private _speedConverter(speed: any): any {
-        speed.value = this._labelConverter(speed.value);
+        //speed.value = this._labelConverter(speed.value);
+        speed.value = ConversionEngine.imperialReplacer(speed.value, /(?<value>[0-9]+) (?<unit>[\w]+)/g)
 
         const specialSpeed = speed.special;
-        speed.special = ConversionEngine.imperialReplacer(specialSpeed, /(?<value>[0-9]+) (?<unit>[\w]+)/g);
+        speed.special = ConversionEngine.imperialReplacer(specialSpeed, /(?<value>[0-9]+ ?)(?<unit>[\w]+)/g);
 
         return speed;
     }
@@ -102,7 +102,7 @@ class Dnd5eConverter {
 
         data.data.attributes.speed = this._speedConverter(data.data.attributes.speed);
 
-        data.data.traits.senses = ConversionEngine.imperialReplacer(data.data.traits.senses, /(?<value>[0-9]+) (?<unit>[\w]+)/g)
+        data.data.traits.senses = ConversionEngine.imperialReplacer(data.data.traits.senses, /(?<value>[0-9]+ ?)(?<unit>[\w]+)/g)
 
         return data;
     }
