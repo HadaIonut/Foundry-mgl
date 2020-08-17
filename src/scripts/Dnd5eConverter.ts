@@ -71,6 +71,7 @@ class Dnd5eConverter {
 
     private _itemsConverter(items: any): any {
         items.forEach(async (item) => {
+
             const target = item.data.target;
             const range = item.data.range;
             if (!target) return
@@ -78,8 +79,8 @@ class Dnd5eConverter {
             item.data.target = this._convertDistance(target);
             item.data.range = this._convertDistance(range)
 
-            item.labels.target = this._labelConverter(item.labels.target);
-            item.labels.range = this._labelConverter(item.labels.range);
+            //item.labels.target = this._labelConverter(item.labels.target);
+            //item.labels.range = this._labelConverter(item.labels.range);
 
             item.data.weight = ConversionEngine.convertWeightFromPoundsToKilograms(item.data.weight);
             item.totalWeight = ConversionEngine.convertWeightFromPoundsToKilograms(item.totalWeight);
@@ -101,9 +102,6 @@ class Dnd5eConverter {
     private _toMetricConverter5e(data: any): any {
         if (data.converted) return data;
 
-        // @ts-ignore
-        game.i18n.translations.DND5E["AbbreviationLbs"] = 'kg';
-
         const items = data.items;
         data.items = this._itemsConverter(items);
 
@@ -116,11 +114,11 @@ class Dnd5eConverter {
     }
 
     public async updater(actor: any) {
-        actor.object.data = this._toMetricConverter5e(actor.object.data);
+        if (actor.object.converted) return;
+        const actorClone = await actor.object.clone({}, {temporary: true});
+        actorClone.data = this._toMetricConverter5e(actorClone.data);
 
-        console.log(game.i18n.localize("lbs."))
-
-        await actor.object.update(actor.object.data);
+        await actor.object.update(actorClone.data);
     }
 }
 

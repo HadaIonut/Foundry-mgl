@@ -15,5 +15,12 @@ Hooks.on('init', () => {
 
 });
 
+Hooks.on('ready', () => {
+    console.log("Metric System | Changing label 'lbs.' to 'kg'.")
+    // @ts-ignore
+    game.i18n.translations.DND5E["AbbreviationLbs"] = 'kg';
+});
+
+
 Hooks.on('renderActorSheet', MetricModule.onRenderActorSheet);
 

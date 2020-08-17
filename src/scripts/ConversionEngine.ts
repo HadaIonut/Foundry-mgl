@@ -125,7 +125,7 @@ class ConversionEngine {
      * @param ftString - the imperial unit to convert
      */
     public convertDistanceStringToMetric(ftString: string): string {
-        return this._distanceToMetricMap[ftString] || '';
+        return this._distanceToMetricMap[ftString] || ftString;
     }
 
     /**
@@ -134,11 +134,11 @@ class ConversionEngine {
      * @param distance - value to be converted
      * @param unit - "feet" or "mile"
      */
-    public convertDistanceFromImperialToMetric(distance: string | number, unit: string): number {
+    public convertDistanceFromImperialToMetric(distance: string | number, unit: string): string | number {
         const convertedToStandard = this._convertDistanceUnitStringToStandard(unit);
         if (convertedToStandard === "feet") return this.convertDistanceFromFeetToMeters(distance);
-        if (convertedToStandard === "mile") return this.convertDistanceFromMilesToKilometers(distance)
-
+        if (convertedToStandard === "mile") return this.convertDistanceFromMilesToKilometers(distance);
+        return distance;
     }
 
     /**
