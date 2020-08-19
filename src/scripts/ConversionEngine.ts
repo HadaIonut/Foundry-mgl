@@ -84,9 +84,8 @@ class ConversionEngine {
      */
     public convertDistanceFromFeetToMeters(distance: string | number): number {
         let dist = typeof distance === 'number' ? distance : this._convertStringToNumber(distance);
-        dist /= 5;
 
-        return this._roundUp(dist + dist / 2);
+        return this._roundUp(dist * 0.3);
     }
 
     /**
