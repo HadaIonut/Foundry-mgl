@@ -9,6 +9,14 @@ class ConversionEngine {
         return ConversionEngine._instance;
     }
 
+    //TODO: make this a setting
+    private _conversionMultipliers: { [key: string]: number } = {
+        "inch": 2.5,
+        "feet": 0.3,
+        "mile": 1.6,
+        "pound": 0.5
+    }
+
     private _distanceToMetricMap: { [key: string]: string } = {
         "inch": "centimeters",
         "ft.": "m.",
@@ -53,7 +61,6 @@ class ConversionEngine {
         return isNaN(numberToReturn) ? -1 : numberToReturn;
     }
 
-    //TODO: export multiplier
     private _convertUsingMultiplier(toBeConverted: string | number, multiplier: number): number {
         if (!toBeConverted) return ;
         const toConvert = typeof toBeConverted === 'number' ? toBeConverted : this._convertStringToNumber(toBeConverted);
@@ -62,12 +69,31 @@ class ConversionEngine {
     }
 
     /**
+     * Returns the conversion multiplier
+     * The default fields are: inch, feet, mile, pound
+     *
+     * @param field - unit conversion multiplier
+     */
+    public getConversionMultipliers(field: string): number {
+        return this._conversionMultipliers[field];
+    }
+
+    /**
+     * Sets the conversion multiplier
+     *
+     * @param field - unit to set
+     * @param value - value to set the unit to
+     */
+    public setConversionMultipliers(field: string, value: number) {
+        this._conversionMultipliers[field] = value;
+    }
+    /**
      * Converts strings or numbers from pounds to kilograms
      *
      * @param weightString - string or number to be converted
      */
     public convertWeightFromPoundsToKilograms(weightString: string | number): number {
-        return this._convertUsingMultiplier(weightString, 0.5);
+        return this._convertUsingMultiplier(weightString, this.getConversionMultipliers('pound'));
     }
 
     /**
@@ -76,7 +102,7 @@ class ConversionEngine {
      * @param distance - string or number to be converted
      */
     public convertDistanceFromInchToCentimeters(distance: string | number): number {
-        return this._convertUsingMultiplier(distance, 2.5);
+        return this._convertUsingMultiplier(distance, this.getConversionMultipliers('inch'));
     }
 
     /**
@@ -85,7 +111,7 @@ class ConversionEngine {
      * @param distance - string or number to be converted
      */
     public convertDistanceFromFeetToMeters(distance: string | number): number {
-        return this._convertUsingMultiplier(distance, 0.3);
+        return this._convertUsingMultiplier(distance, this.getConversionMultipliers('feet'));
     }
 
     /**
@@ -94,7 +120,7 @@ class ConversionEngine {
      * @param distance - string or number to be converted
      */
     public convertDistanceFromMilesToKilometers(distance: string | number): number {
-        return this._convertUsingMultiplier(distance, 1.6);
+        return this._convertUsingMultiplier(distance, this.getConversionMultipliers('mile'));
     }
 
     /**
