@@ -53,16 +53,21 @@ class ConversionEngine {
         return isNaN(numberToReturn) ? -1 : numberToReturn;
     }
 
+    //TODO: export multiplier
+    private _convertUsingMultiplier(toBeConverted: string | number, multiplier: number): number {
+        if (!toBeConverted) return ;
+        const toConvert = typeof toBeConverted === 'number' ? toBeConverted : this._convertStringToNumber(toBeConverted);
+
+        return this._roundUp(toConvert * multiplier);
+    }
+
     /**
      * Converts strings or numbers from pounds to kilograms
      *
      * @param weightString - string or number to be converted
      */
     public convertWeightFromPoundsToKilograms(weightString: string | number): number {
-        if (!weightString) return;
-
-        let weight = typeof weightString === 'number'? weightString : this._convertStringToNumber(weightString);
-        return weight / 2;
+        return this._convertUsingMultiplier(weightString, 0.5);
     }
 
     /**
@@ -70,11 +75,8 @@ class ConversionEngine {
      *
      * @param distance - string or number to be converted
      */
-
     public convertDistanceFromInchToCentimeters(distance: string | number): number {
-        let dist = typeof distance === 'number' ? distance : this._convertStringToNumber(distance);
-
-        return this._roundUp(dist * 2.5);
+        return this._convertUsingMultiplier(distance, 2.5);
     }
 
     /**
@@ -83,9 +85,7 @@ class ConversionEngine {
      * @param distance - string or number to be converted
      */
     public convertDistanceFromFeetToMeters(distance: string | number): number {
-        let dist = typeof distance === 'number' ? distance : this._convertStringToNumber(distance);
-
-        return this._roundUp(dist * 0.3);
+        return this._convertUsingMultiplier(distance, 0.3);
     }
 
     /**
@@ -94,9 +94,7 @@ class ConversionEngine {
      * @param distance - string or number to be converted
      */
     public convertDistanceFromMilesToKilometers(distance: string | number): number {
-        const dist = typeof distance === 'number' ? distance : this._convertStringToNumber(distance);
-
-        return this._roundUp(dist * 1.6);
+        return this._convertUsingMultiplier(distance, 1.6);
     }
 
     /**

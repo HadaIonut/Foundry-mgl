@@ -87,7 +87,6 @@ class Dnd5eConverter {
     }
 
     private _speedConverter(speed: any): any {
-        //speed.value = this._labelConverter(speed.value);
         speed.value = ConversionEngine.imperialReplacer(speed.value, /(?<value>[0-9]+) (?<unit>[\w]+)/g)
 
         const specialSpeed = speed.special;
