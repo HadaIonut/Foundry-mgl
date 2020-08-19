@@ -2,6 +2,8 @@ import Utils from "./Utils";
 import MetricModule from "./MetricModule";
 // @ts-ignore
 import { DND5E } from "../../../systems/dnd5e/module/config.js";
+import Settings from "./Settings";
+import ConversionEngine from "./ConversionEngine";
 
 const debug = Utils.debug.bind(Utils);
 
@@ -13,6 +15,7 @@ Hooks.on('init', () => {
     DND5E.encumbrance["currencyPerWeight"] = 100;
     DND5E.encumbrance["strMultiplier"] = 7.5;
 
+    Settings.registerSettings();
 });
 
 Hooks.on('ready', () => {
