@@ -19,12 +19,13 @@ Hooks.on('init', () => {
 });
 
 Hooks.on('ready', () => {
-    debug("Metric System | Changing label 'lbs.' to 'kg'.");
+    debug("Changing label 'lbs.' to 'kg'.");
     // @ts-ignore
     game.i18n.translations.DND5E["AbbreviationLbs"] = 'kg';
 });
 
 Hooks.on('preCreateScene', (scenedata) => {
+    if (!Settings.getSetting("sceneConversion")) return
     debug("New Scene: changing gridUnits to 'm' and gridDistance to '1.5'.");
     scenedata.gridDistance = Settings.getSetting("sceneGridDistance");
     scenedata.gridUnits = Settings.getSetting("sceneGridUnits");

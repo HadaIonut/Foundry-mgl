@@ -11,8 +11,22 @@ export default {
         },
     },
     {
+        key: "sceneConversion",
+        data: {
+            name: "Enable scene conversion: ",
+            hint: "This setting allows automatic conversion of scene settings.",
+            type: Boolean,
+            default: true,
+            scope: "world",
+            config: true,
+            restricted: true,
+        }
+    },
+    {
         key: "sceneGridDistance",
         data: {
+            name: "Scene grid distance: ",
+            hint: "Converted size for a single square.",
             type: Number,
             default: 1.5,
             scope: "world",
@@ -24,6 +38,7 @@ export default {
     {
         key: "sceneGridUnits",
         data: {
+            name: "Scene grid units: ",
             type: String,
             default: "m",
             scope: "world",
@@ -31,6 +46,6 @@ export default {
             restricted: true,
         }
 
-    }
+    },
     ]
 }
