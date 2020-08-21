@@ -37,19 +37,16 @@ class Dnd5eConverter {
         return distance;
     }
 
-    private _convertDistanceFromFeetToMetersInText(text: string): string {
+    private _convertText(text: string): string {
         text = text.replace(/([0-9]{1,3}(,[0-9]{3})+) (feet)/g, (_0, number: string, _1, label: string) => {
             return ConversionEngine.convertDistanceFromFeetToMeters(number) + " " + ConversionEngine.convertDistanceStringToMetric(label);
         });
         text = text.replace(/([0-9]+)([\W\D\S]|&nbsp;| cubic ){1,2}(feet|inch|foot|ft\.)/g, (_0, number: string, separator: string ,label: string) => {
             return ConversionEngine.convertDistanceFromFeetToMeters(number) + separator + ConversionEngine.convertDistanceStringToMetric(label);
         });
-        text = text.replace(/(range of )([0-9]+)\/([0-9]+)/g, (_0, words: string, smallRange: string, bigRange: string) => {
-            return words + ConversionEngine.convertDistanceFromFeetToMeters(smallRange) + "/" + ConversionEngine.convertDistanceFromFeetToMeters(bigRange);
-        });
-        text = text.replace(/(range )([0-9]+)\/([0-9]+)/g, (_0, words: string, smallRange: string, bigRange: string) => {
-            return words + ConversionEngine.convertDistanceFromFeetToMeters(smallRange) + "/" + ConversionEngine.convertDistanceFromFeetToMeters(bigRange);
-        });
+        text = text.replace(/([0-9]+)(&nbsp;| )(pounds)/g, (_0, number: string, separator: string ,label: string) =>{
+            return ConversionEngine.convertWeightFromPoundsToKilograms(number) + " " + ConversionEngine.convertWeightStringToKilograms(label)
+        })
         return text;
     }
 
@@ -65,9 +62,9 @@ class Dnd5eConverter {
             item.data.weight = ConversionEngine.convertWeightFromPoundsToKilograms(item.data.weight);
             item.totalWeight = ConversionEngine.convertWeightFromPoundsToKilograms(item.totalWeight);
 
-            item.data.description.value = this._convertDistanceFromFeetToMetersInText(item.data.description.value);
+            item.data.description.value = this._convertText(item.data.description.value);
         })
-        return items;
+        return items
     }
 
     private _speedConverter(speed: any): any {
