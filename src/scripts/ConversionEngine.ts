@@ -12,17 +12,6 @@ class ConversionEngine {
         return ConversionEngine._instance;
     }
 
-    //TODO: make this a setting
-    private _conversionMultipliers: { [key: string]: number } = {
-        "inch": 2.5,
-        "feet": 0.3,
-        "mile": 1.6,
-        "pound": 0.5
-    }
-
-    get conversionMultipliers(): { [p: string]: number } {
-        return this._conversionMultipliers;
-    }
     private _distanceToMetricMap: { [key: string]: string } = {
         "inch": "centimeters",
         "ft.": "m.",
