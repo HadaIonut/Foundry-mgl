@@ -19,10 +19,16 @@ Hooks.on('init', () => {
 });
 
 Hooks.on('ready', () => {
-    console.log("Metric System | Changing label 'lbs.' to 'kg'.")
+    debug("Metric System | Changing label 'lbs.' to 'kg'.")
     // @ts-ignore
     game.i18n.translations.DND5E["AbbreviationLbs"] = 'kg';
 });
+
+Hooks.on('preCreateScene', (scenedata) => {
+    debug("New Scene: changing gridUnits to 'm' and gridDistance to '1.5'.")
+    scenedata.gridDistance = 1.5
+    scenedata.gridUnits = "m"
+})
 
 
 Hooks.on('renderActorSheet', MetricModule.onRenderActorSheet);

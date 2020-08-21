@@ -35,19 +35,42 @@ class Settings {
         });
     }
 
+    /**
+     * Returns a setting
+     *
+     * @param key
+     */
+
     public getSetting(key: string): any {
         return this._getSetting(key);
     }
 
+    /**
+     * Sets a setting
+     *
+     * @param key - key of the setting
+     * @param data - data to store
+     */
     public setSetting(key: string, data: any): Promise<any> {
         return game.settings.set(utils.moduleName, key, data);
     }
 
+    /**
+     * Returns the multiplier for converting a unit
+     *
+     * @param unit
+     */
     public getMultiplier(unit: string): number{
         const multipliers = this._getMultipliers();
         return multipliers[unit];
     }
 
+    /**
+     * Sets a units multiplier
+     *
+     * @param unit - unit
+     * @param value - multiplier
+     */
     public setMultiplier(unit: string, value: number) {
         let multipliers = this._getMultipliers();
         multipliers[unit] = value;
