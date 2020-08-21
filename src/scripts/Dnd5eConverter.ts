@@ -41,20 +41,11 @@ class Dnd5eConverter {
         text = text.replace(/([0-9]{1,3}(,[0-9]{3})+) (feet)/g, (_0, number: string, _1, label: string) => {
             return ConversionEngine.convertDistanceFromFeetToMeters(number) + " " + ConversionEngine.convertDistanceStringToMetric(label);
         });
-        text = text.replace(/([0-9]+)( |&nbsp;)(feet)/g, (_0, number: string, _1 ,label: string) => {
+        text = text.replace(/([0-9]+)( |&nbsp;)(feet|inch|foot|ft\.)/g, (_0, number: string, _1 ,label: string) => {
             return ConversionEngine.convertDistanceFromFeetToMeters(number) + " " + ConversionEngine.convertDistanceStringToMetric(label);
-        });
-        text = text.replace(/([0-9]+)( |&nbsp;)(inch)/g, (_0, number: string, _1 ,label: string) => {
-            return ConversionEngine.convertDistanceFromInchToCentimeters(number) + " " + ConversionEngine.convertDistanceStringToMetric(label);
-        });
-        text = text.replace(/([0-9]+)( |&nbsp;)(foot)/g, (_0, number: string, _1 ,label: string) => {
-            return ConversionEngine.convertDistanceFromFeetToMeters(number) + "-" + ConversionEngine.convertDistanceStringToMetric(label);
         });
         text = text.replace(/([0-9]+)([\W\D\S]){1,2}(foot)/g, (_0, number: string, separator: string ,label: string) => {
             return ConversionEngine.convertDistanceFromFeetToMeters(number) + "-" + ConversionEngine.convertDistanceStringToMetric(label);
-        });
-        text = text.replace(/([0-9]+)( |&nbsp;)(ft.)/g, (_0, number: string, _1 ,label: string) => {
-            return ConversionEngine.convertDistanceFromFeetToMeters(number) + " " + ConversionEngine.convertDistanceStringToMetric(label);
         });
         text = text.replace(/([0-9]+) cubic (foot)/g, (_0, number: string, _1) => {
             // TODO Replace this to be generic
