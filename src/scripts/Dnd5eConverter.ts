@@ -51,7 +51,11 @@ class Dnd5eConverter {
     }
 
     private _itemsConverter(items: any): any {
-        items.forEach((item) => {
+        items.forEach( (item) => {
+            if (item?.flags["foundry-mgl"]?.converted) return
+
+            item.data.description.value = this._convertText(item.data.description.value);
+
             const target = item.data.target;
             const range = item.data.range;
             if (!target) return
@@ -61,10 +65,14 @@ class Dnd5eConverter {
 
             item.data.weight = ConversionEngine.convertWeightFromPoundsToKilograms(item.data.weight);
             item.totalWeight = ConversionEngine.convertWeightFromPoundsToKilograms(item.totalWeight);
-
-            item.data.description.value = this._convertText(item.data.description.value);
         })
         return items
+    }
+
+    private async _itemsFlagger(entries): Promise<void> {
+        for (let entry = 0; entry<entries.length; entry++)
+            await entries[entry].setFlag("foundry-mgl", "converted", true)
+
     }
 
     private _speedConverter(speed: any): any {
@@ -76,9 +84,11 @@ class Dnd5eConverter {
         return speed;
     }
 
-    private _toMetricConverter5e(data: any): any {
+    private _toMetricConverter5e(data: any, actor): any {
         const items = data.items;
+
         data.items = this._itemsConverter(items);
+        this._itemsFlagger(actor.items.entries);
 
         data.data.attributes.speed = this._speedConverter(data.data.attributes.speed);
 
@@ -88,10 +98,11 @@ class Dnd5eConverter {
     }
 
     public async updater(actor: any) {
-        const actorClone = await actor.object.clone({}, {temporary: true});
-        actorClone.data = this._toMetricConverter5e(actorClone.data);
+        const actorClone = await actor.object.clone({_id: actor.object.data._id}, {temporary: true});
+        actorClone.data._id = actor.object.data._id;
+        actorClone.data = this._toMetricConverter5e(actorClone.data, actor.object);
 
-        await actor.object.update(actorClone.data);
+        const updated = await actor.object.update(actorClone.data);
     }
 }
 
