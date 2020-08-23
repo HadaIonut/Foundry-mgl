@@ -57,7 +57,7 @@ class ConversionEngine {
     }
 
     private _convertUsingMultiplier(toBeConverted: string | number, multiplier: number): number {
-        if (!toBeConverted) return ;
+        if (!toBeConverted) return;
         const toConvert = typeof toBeConverted === 'number' ? toBeConverted : this._convertStringToNumber(toBeConverted);
 
         return this._roundUp(toConvert * multiplier);
@@ -150,6 +150,7 @@ class ConversionEngine {
         return toReplace.replace(replaceRegex, (element: string, value: string, unit: string): string => {
             const replacedValue = this.convertDistanceFromImperialToMetric(value, unit);
             const replacedUnit = this.convertDistanceStringToMetric(unit);
+            if (replacedUnit === unit) return element;
             return replacedValue + ' ' + replacedUnit;
         })
     }
