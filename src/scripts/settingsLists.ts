@@ -26,7 +26,7 @@ export default {
         key: "sceneGridDistance",
         data: {
             name: "Scene grid distance: ",
-            hint: "Converted size for a single square.",
+            hint: "Converted size for a single square. Warning: This does not affect conversion on the sheet",
             type: Number,
             default: 1.5,
             scope: "world",
@@ -39,6 +39,7 @@ export default {
         key: "sceneGridUnits",
         data: {
             name: "Scene grid units: ",
+            hint: "Warning: This does not affect conversion on the sheet",
             type: String,
             default: "m",
             scope: "world",
