@@ -34,3 +34,5 @@ Hooks.on('preCreateScene', (scenedata) => {
 
 Hooks.on('renderActorSheet', MetricModule.onRenderActorSheet);
 
+Hooks.on('renderItemSheet', MetricModule.onRenderItemSheet);
+

@@ -41,10 +41,13 @@ class Dnd5eConverter {
         text = text.replace(/([0-9]{1,3}(,[0-9]{3})+) (feet)/g, (_0, number: string, _1, label: string) => {
             return ConversionEngine.convertDistanceFromFeetToMeters(number) + " " + ConversionEngine.convertDistanceStringToMetric(label);
         });
+        text = text.replace(/([0-9]+)\/([0-9]+) (feet|inch|foot|ft\.)/g, (_0, firstNumber: string, secondNumber: string, label: string) => {
+            return ConversionEngine.convertDistanceFromFeetToMeters(firstNumber) + '/' + ConversionEngine.convertDistanceFromFeetToMeters(secondNumber) + ' ' + ConversionEngine.convertDistanceStringToMetric(label);
+        });
         text = text.replace(/([0-9]+)([\W\D\S]|&nbsp;| cubic ){1,2}(feet|inch|foot|ft\.)/g, (_0, number: string, separator: string ,label: string) => {
             return ConversionEngine.convertDistanceFromFeetToMeters(number) + separator + ConversionEngine.convertDistanceStringToMetric(label);
         });
-        text = text.replace(/([0-9]+)(&nbsp;| )(pounds)/g, (_0, number: string, separator: string ,label: string) =>{
+        text = text.replace(/([0-9]+)(&nbsp;| )(pounds|lb)/g, (_0, number: string, separator: string ,label: string) =>{
             return ConversionEngine.convertWeightFromPoundsToKilograms(number) + " " + ConversionEngine.convertWeightStringToKilograms(label)
         })
         return text;
@@ -61,7 +64,7 @@ class Dnd5eConverter {
             if (!target) return
 
             item.data.target = this._convertDistance(target);
-            item.data.range = this._convertDistance(range)
+            item.data.range = this._convertDistance(range);
 
             item.data.weight = ConversionEngine.convertWeightFromPoundsToKilograms(item.data.weight);
             item.totalWeight = ConversionEngine.convertWeightFromPoundsToKilograms(item.totalWeight);
@@ -72,7 +75,6 @@ class Dnd5eConverter {
     private async _itemsFlagger(entries): Promise<void> {
         for (let entry = 0; entry<entries.length; entry++)
             await entries[entry].setFlag("foundry-mgl", "converted", true)
-
     }
 
     private _speedConverter(speed: any): any {
@@ -97,12 +99,28 @@ class Dnd5eConverter {
         return data;
     }
 
-    public async updater(actor: any) {
+    public async actorUpdater(actor: any) {
         const actorClone = await actor.object.clone({_id: actor.object.data._id}, {temporary: true});
         actorClone.data._id = actor.object.data._id;
         actorClone.data = this._toMetricConverter5e(actorClone.data, actor.object);
 
         const updated = await actor.object.update(actorClone.data);
+    }
+
+    public async itemUpdater (item: any) {
+        if (item.object.getFlag("foundry-mgl", "converted")) return;
+        const itemClone = await item.object.clone({}, {temporary: true})
+
+        itemClone.data.data.description.value = this._convertText(itemClone.data.data.description.value);
+
+        itemClone.data.data.target = this._convertDistance(itemClone.data.data.target);
+        itemClone.data.data.range = this._convertDistance(itemClone.data.data.range);
+        itemClone.data.data.weight = ConversionEngine.convertWeightFromPoundsToKilograms(itemClone.data.data.weight);
+
+        item.object.labels.range = this._labelConverter(item.object.labels.range);
+
+        await item.object.setFlag("foundry-mgl", "converted", true);
+        await item.object.update(itemClone.data);
     }
 }
 

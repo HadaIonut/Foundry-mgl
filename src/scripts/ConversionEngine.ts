@@ -36,6 +36,7 @@ class ConversionEngine {
     };
 
     private _weightToKilogramsMap: { [key: string]: string } = {
+        "lb": "kg",
         "lb.": "kg.",
         "lbs.": "kg.",
         "pounds": "kilograms",
