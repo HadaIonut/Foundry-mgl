@@ -60,7 +60,7 @@ class Settings {
      *
      * @param unit
      */
-    public getMultiplier(unit: string): number{
+    public getMultiplier(unit: string): number {
         const multipliers = this._getMultipliers();
         return multipliers[unit];
     }

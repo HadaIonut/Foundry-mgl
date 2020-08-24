@@ -17,7 +17,7 @@ class MetricModule {
 
         let button = $(`<a class="popout" style><i class="fas fa-ruler"></i>Metrificator</a>`);
         button.on('click', () => {
-           type === 'actor' ? Dnd5eConverter.actorUpdater(actor) : Dnd5eConverter.itemUpdater(actor);
+            type === 'actor' ? Dnd5eConverter.actorUpdater(actor) : Dnd5eConverter.itemUpdater(actor);
         });
 
         element.after(button);

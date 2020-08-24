@@ -1,7 +1,7 @@
 import Utils from "./Utils";
 import MetricModule from "./MetricModule";
 // @ts-ignore
-import { DND5E } from "../../../systems/dnd5e/module/config.js";
+import {DND5E} from "../../../systems/dnd5e/module/config.js";
 import Settings from "./Settings";
 
 const debug = Utils.debug.bind(Utils);

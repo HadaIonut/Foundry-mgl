@@ -59,10 +59,10 @@ class Dnd5eConverter {
         text = text.replace(/([0-9]+)\/([0-9]+) (feet|inch|foot|ft\.)/g, (_0, firstNumber: string, secondNumber: string, label: string) => {
             return ConversionEngine.convertDistanceFromFeetToMeters(firstNumber) + '/' + ConversionEngine.convertDistanceFromFeetToMeters(secondNumber) + ' ' + ConversionEngine.convertDistanceStringToMetric(label);
         });
-        text = text.replace(/([0-9]+)([\W\D\S]|&nbsp;| cubic ){1,2}(feet|inch|foot|ft\.)/g, (_0, number: string, separator: string ,label: string) => {
+        text = text.replace(/([0-9]+)([\W\D\S]|&nbsp;| cubic ){1,2}(feet|inch|foot|ft\.)/g, (_0, number: string, separator: string, label: string) => {
             return ConversionEngine.convertDistanceFromFeetToMeters(number) + separator + ConversionEngine.convertDistanceStringToMetric(label);
         });
-        text = text.replace(/([0-9]+)(&nbsp;| )(pounds|lb)/g, (_0, number: string, separator: string ,label: string) =>{
+        text = text.replace(/([0-9]+)(&nbsp;| )(pounds|lb)/g, (_0, number: string, separator: string, label: string) => {
             return ConversionEngine.convertWeightFromPoundsToKilograms(number) + " " + ConversionEngine.convertWeightStringToKilograms(label)
         })
         return text;
@@ -73,8 +73,8 @@ class Dnd5eConverter {
      *
      * @param items - items array to be converted (can be found at actor.data.items)
      */
-    private _itemsConverter(items: any): any {
-        items.forEach( (item) => {
+    private _itemsConverter(items: Array<any>): any {
+        items.forEach((item) => {
             if (item?.flags["foundry-mgl"]?.converted) return
 
             item.data.description.value = this._convertText(item.data.description.value);
@@ -97,8 +97,8 @@ class Dnd5eConverter {
      *
      * @param entries - array of items from the items map (can be found at actor.items.entries)
      */
-    private async _itemsFlagger(entries): Promise<void> {
-        for (let entry = 0; entry<entries.length; entry++)
+    private async _itemsFlagger(entries: Array<any>): Promise<void> {
+        for (let entry = 0; entry < entries.length; entry++)
             await entries[entry].setFlag("foundry-mgl", "converted", true)
     }
 
@@ -122,7 +122,7 @@ class Dnd5eConverter {
      * @param data -  actor data to be converted (can be found at actor.data)
      * @param actor - actor object for setting flags
      */
-    private _toMetricConverter5e(data: any, actor): any {
+    private _toMetricConverter5e(data: any, actor: any): any {
         const items = data.items;
 
         data.items = this._itemsConverter(items);
@@ -148,12 +148,13 @@ class Dnd5eConverter {
         await actor.object.update(actorClone.data);
     }
 
+
     /**
      * Main function for updating a specific item
      *
      * @param item - item to be converted
      */
-    public async itemUpdater (item: any) {
+    public async itemUpdater(item: any) {
         if (item.object.getFlag("foundry-mgl", "converted")) return;
         const itemClone = await item.object.clone({}, {temporary: true})
 
