@@ -12,6 +12,9 @@ class ConversionEngine {
         return ConversionEngine._instance;
     }
 
+    /**
+     * Map of distance imperial to distance metric units
+     */
     private _distanceToMetricMap: { [key: string]: string } = {
         "inch": "centimeters",
         "ft.": "m.",
@@ -23,6 +26,9 @@ class ConversionEngine {
         "miles": "kilometres"
     };
 
+    /**
+     * Map of imperial distances to a standard
+     */
     private _typesOfUnitsMap: { [key: string]: string } = {
         "ft.": "feet",
         "ft": "feet",
@@ -35,6 +41,9 @@ class ConversionEngine {
         "miles": "mile",
     };
 
+    /**
+     * Map of all weight imperial writings to all weight metric writings
+     */
     private _weightToKilogramsMap: { [key: string]: string } = {
         "lb": "kg",
         "lb.": "kg.",
@@ -57,6 +66,13 @@ class ConversionEngine {
         return isNaN(numberToReturn) ? -1 : numberToReturn;
     }
 
+    /**
+     * Converts a given string/number using the specified modifier
+     *
+     * @param toBeConverted - string to be converted
+     * @param multiplier
+     * @private
+     */
     private _convertUsingMultiplier(toBeConverted: string | number, multiplier: number): number {
         if (!toBeConverted) return;
         const toConvert = typeof toBeConverted === 'number' ? toBeConverted : this._convertStringToNumber(toBeConverted);

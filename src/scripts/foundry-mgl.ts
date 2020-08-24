@@ -3,10 +3,12 @@ import MetricModule from "./MetricModule";
 // @ts-ignore
 import { DND5E } from "../../../systems/dnd5e/module/config.js";
 import Settings from "./Settings";
-import ConversionEngine from "./ConversionEngine";
 
 const debug = Utils.debug.bind(Utils);
 
+/**
+ * Defines distance units and sets encumbrance
+ */
 Hooks.on('init', () => {
     debug("Changing labels 'Feet' and 'Miles' to 'Meters' and 'Kilometers'.")
     DND5E.distanceUnits["m"] = game.i18n.localize("metricsystem.meters");
@@ -18,17 +20,25 @@ Hooks.on('init', () => {
     Settings.registerSettings();
 });
 
+/**
+ * Changes labels from lbs. to kg.
+ */
 Hooks.on('ready', () => {
     debug("Changing label 'lbs.' to 'kg'.");
     // @ts-ignore
     game.i18n.translations.DND5E["AbbreviationLbs"] = 'kg';
 });
 
+/**
+ * Makes default scene settings to be converted
+ */
 Hooks.on('preCreateScene', (scenedata) => {
+    const gridDist = Settings.getSetting("sceneGridDistance");
+    const gridUnits = Settings.getSetting("sceneGridUnits");
     if (!Settings.getSetting("sceneConversion")) return
-    debug("New Scene: changing gridUnits to 'm' and gridDistance to '1.5'.");
-    scenedata.gridDistance = Settings.getSetting("sceneGridDistance");
-    scenedata.gridUnits = Settings.getSetting("sceneGridUnits");
+    debug(`New Scene: changing gridUnits to '${gridUnits}' and gridDistance to '${gridDist}'.`);
+    scenedata.gridDistance = gridDist;
+    scenedata.gridUnits = gridUnits;
 })
 
 

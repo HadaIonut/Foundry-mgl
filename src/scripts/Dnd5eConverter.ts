@@ -11,6 +11,11 @@ class Dnd5eConverter {
         return Dnd5eConverter._instance;
     }
 
+    /**
+     * Converts item labels to metric
+     *
+     * @param label - the label of an item (can be found at actor.data.items.label)
+     */
     private _labelConverter(label: string): any {
         const labelRegex = /((?<valueOpt>[0-9]+) \/ )?(?<value>[0-9]+) (?<unit>[\w]+)/;
         const matchedLabel = label.match(labelRegex)?.groups;
@@ -27,6 +32,11 @@ class Dnd5eConverter {
         return convertedLabel;
     }
 
+    /**
+     * Converts range and target structures to metric
+     *
+     * @param distance - object to be converted (format can be found at actor.data.items[0].range)
+     */
     private _convertDistance(distance: any): any {
         distance.value = ConversionEngine.convertDistanceFromImperialToMetric(distance.value, distance.units);
         if (distance?.long)
@@ -37,6 +47,11 @@ class Dnd5eConverter {
         return distance;
     }
 
+    /**
+     * Converts text containing imperial units to metric
+     *
+     * @param text - text containing imperial units
+     */
     private _convertText(text: string): string {
         text = text.replace(/([0-9]{1,3}(,[0-9]{3})+) (feet)/g, (_0, number: string, _1, label: string) => {
             return ConversionEngine.convertDistanceFromFeetToMeters(number) + " " + ConversionEngine.convertDistanceStringToMetric(label);
@@ -53,6 +68,11 @@ class Dnd5eConverter {
         return text;
     }
 
+    /**
+     * Converts all the items and spells from an actor
+     *
+     * @param items - items array to be converted (can be found at actor.data.items)
+     */
     private _itemsConverter(items: any): any {
         items.forEach( (item) => {
             if (item?.flags["foundry-mgl"]?.converted) return
@@ -72,11 +92,21 @@ class Dnd5eConverter {
         return items
     }
 
+    /**
+     * Flags all items and spells with the converted tag
+     *
+     * @param entries - array of items from the items map (can be found at actor.items.entries)
+     */
     private async _itemsFlagger(entries): Promise<void> {
         for (let entry = 0; entry<entries.length; entry++)
             await entries[entry].setFlag("foundry-mgl", "converted", true)
     }
 
+    /**
+     * Converts the speed to metric
+     *
+     * @param speed - speed + special speed object as found on the actor object
+     */
     private _speedConverter(speed: any): any {
         speed.value = ConversionEngine.imperialReplacer(speed.value, /(?<value>[0-9]+) (?<unit>[\w]+)/g)
 
@@ -86,6 +116,12 @@ class Dnd5eConverter {
         return speed;
     }
 
+    /**
+     * Converts the items, senses and speeds of an actor to metric
+     *
+     * @param data -  actor data to be converted (can be found at actor.data)
+     * @param actor - actor object for setting flags
+     */
     private _toMetricConverter5e(data: any, actor): any {
         const items = data.items;
 
@@ -99,14 +135,24 @@ class Dnd5eConverter {
         return data;
     }
 
+    /**
+     * Main function for updating a specific actor
+     *
+     * @param actor - actor to be converted
+     */
     public async actorUpdater(actor: any) {
         const actorClone = await actor.object.clone({_id: actor.object.data._id}, {temporary: true});
         actorClone.data._id = actor.object.data._id;
         actorClone.data = this._toMetricConverter5e(actorClone.data, actor.object);
 
-        const updated = await actor.object.update(actorClone.data);
+        await actor.object.update(actorClone.data);
     }
 
+    /**
+     * Main function for updating a specific item
+     *
+     * @param item - item to be converted
+     */
     public async itemUpdater (item: any) {
         if (item.object.getFlag("foundry-mgl", "converted")) return;
         const itemClone = await item.object.clone({}, {temporary: true})
