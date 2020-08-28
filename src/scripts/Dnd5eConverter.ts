@@ -17,6 +17,7 @@ class Dnd5eConverter {
      * @param label - the label of an item (can be found at actor.data.items.label)
      */
     private _labelConverter(label: string): any {
+        if (!label) return;
         const labelRegex = /((?<valueOpt>[0-9]+) \/ )?(?<value>[0-9]+) (?<unit>[\w]+)/;
         const matchedLabel = label.match(labelRegex)?.groups;
         if (!matchedLabel) return label;
@@ -38,6 +39,7 @@ class Dnd5eConverter {
      * @param distance - object to be converted (format can be found at actor.data.items[0].range)
      */
     private _convertDistance(distance: any): any {
+        if (!distance) return;
         distance.value = ConversionEngine.convertDistanceFromImperialToMetric(distance.value, distance.units);
         if (distance?.long)
             distance.long = ConversionEngine.convertDistanceFromImperialToMetric(distance.long, distance.units);
