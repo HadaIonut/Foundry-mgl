@@ -53,9 +53,22 @@ const numbersMerger = () => {
     Object.assign(allTheNumbers, compositions());
 }
 
+const isKeyWord = (word: string):boolean => {
+    if (word === 'several') return true;
+    return false;
+}
+
+/**
+ * So this function does something, that is for sure
+ * But it's been 40 minutes since i worked on it and i have no idea what exactly it does
+ *
+ * @param word1
+ * @param word2
+ */
 const numberSelecter = (word1: string, word2: string): number | string => {
     numbersMerger();
     let text = '';
+    if (isKeyWord(word1)) return `${word1} ${word2}`;
     if (allTheNumbers[word1]) {
         text += `${word1} `;
         word1 = '';

@@ -71,6 +71,9 @@ class Dnd5eConverter {
         text = text.replace(/([0-9]+)(&nbsp;| |-)(pounds|lb|pound)/g, (_0, number: string, separator: string, label: string) => {
             return ConversionEngine.convertWeightFromPoundsToKilograms(number) + " " + ConversionEngine.convertWeightStringToKilograms(label)
         })
+        text = text.replace(/(several \w+ )(feet|yards)/g, (_0, several, unit)=>{
+            return several + ConversionEngine.convertDistanceStringToMetric(unit);
+        })
         return text;
     }
 

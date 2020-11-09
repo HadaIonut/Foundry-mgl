@@ -23,7 +23,8 @@ class ConversionEngine {
         "Feet": "Meters",
         "foot": "meter",
         "mile": "kilometres",
-        "miles": "kilometres"
+        "miles": "kilometres",
+        "yards": "meters"
     };
 
     /**
