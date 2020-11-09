@@ -17,7 +17,7 @@ class MetricModule {
 
         let button = $(`<a class="popout" style><i class="fas fa-ruler"></i>Metrificator</a>`);
         button.on('click', () => {
-            type === 'actor' ? Dnd5eConverter.actorUpdater(actor) : Dnd5eConverter.itemUpdater(actor);
+            type === 'actor' ? Dnd5eConverter.actorUpdater(actor) : type === 'item' ? Dnd5eConverter.itemUpdater(actor) : Dnd5eConverter.journalUpdater(actor);
         });
 
         element.after(button);
@@ -30,8 +30,13 @@ class MetricModule {
     }
 
     public onRenderItemSheet(obj, html) {
-        let element = html.find(".window-header .window-title")
+        let element = html.find(".window-header .window-title");
         MetricModule.addButton(element, obj.object, "item");
+    }
+
+    public onRenderJurnalSheet(obj, html) {
+        let element = html.find(".window-header .window-title");
+        MetricModule.addButton(element, obj.object, "sheet");
     }
 
 

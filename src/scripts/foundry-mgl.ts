@@ -46,3 +46,5 @@ Hooks.on('renderActorSheet', MetricModule.onRenderActorSheet);
 
 Hooks.on('renderItemSheet', MetricModule.onRenderItemSheet);
 
+Hooks.on('renderJournalSheet', MetricModule.onRenderJurnalSheet);
+

@@ -1,4 +1,5 @@
 import ConversionEngine from "./ConversionEngine";
+import {numberSelecter} from "./WordsToNumbers";
 
 class Dnd5eConverter {
     private static _instance: Dnd5eConverter;
@@ -55,6 +56,9 @@ class Dnd5eConverter {
      * @param text - text containing imperial units
      */
     private _convertText(text: string): string {
+        text = text.replace(/([0-9]{1,3}(,[0-9]{3})+) (pounds)/g, (_0, number: string, _1, label: string) => {
+            return ConversionEngine.convertWeightFromPoundsToKilograms(number) + " " + ConversionEngine.convertWeightStringToKilograms(label);
+        });
         text = text.replace(/([0-9]{1,3}(,[0-9]{3})+) (feet)/g, (_0, number: string, _1, label: string) => {
             return ConversionEngine.convertDistanceFromFeetToMeters(number) + " " + ConversionEngine.convertDistanceStringToMetric(label);
         });
@@ -64,8 +68,15 @@ class Dnd5eConverter {
         text = text.replace(/([0-9]+)([\W\D\S]|&nbsp;| cubic ){1,2}(feet|inch|foot|ft\.)/g, (_0, number: string, separator: string, label: string) => {
             return ConversionEngine.convertDistanceFromFeetToMeters(number) + separator + ConversionEngine.convertDistanceStringToMetric(label);
         });
-        text = text.replace(/([0-9]+)(&nbsp;| )(pounds|lb)/g, (_0, number: string, separator: string, label: string) => {
+        text = text.replace(/([0-9]+)(&nbsp;| |-)(pounds|lb|pound)/g, (_0, number: string, separator: string, label: string) => {
             return ConversionEngine.convertWeightFromPoundsToKilograms(number) + " " + ConversionEngine.convertWeightStringToKilograms(label)
+        })
+        return text;
+    }
+
+    private numberWordsReplacer(text: string): string {
+        text = text.replace(/(\w+ )?(\w+)([ -])(feet|foot)/g, (_0, wordNumber1, wordNumber2, separator, unit) => {
+            return numberSelecter(wordNumber1 ? wordNumber1?.toLowerCase().replace(' ', '') : '', wordNumber2?.toLowerCase()) + separator + unit
         })
         return text;
     }
@@ -146,6 +157,15 @@ class Dnd5eConverter {
 
         await item.setFlag("Foundry-MGL", "converted", true);
         await item.update(itemClone.data);
+    }
+
+    public async journalUpdater(journal) {
+        const journalClone = await journal.clone({}, {temporary: true});
+
+        journalClone.data.content = this.numberWordsReplacer(journalClone.data.content);
+        journalClone.data.content = this._convertText(journalClone.data.content);
+
+        await journal.update(journalClone.data);
     }
 }
 
