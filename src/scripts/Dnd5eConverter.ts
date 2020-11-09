@@ -94,6 +94,7 @@ class Dnd5eConverter {
             ConversionEngine.convertDistanceFromImperialToMetric(speed[key], units);
         })
         speed.units = ConversionEngine.convertDistanceStringToMetric(speed.units);
+
         return speed;
     }
 
@@ -117,10 +118,11 @@ class Dnd5eConverter {
      */
     public async actorUpdater(actor: any) {
         const actorClone = await actor.object.clone({_id: actor.object.data._id}, {temporary: true});
-        actorClone.data._id = actor.object.data._id;
+
         actorClone.data = await this._toMetricConverter5e(actorClone.data, actor.object);
 
         await actor.object.update(actorClone.data);
+
         await this._itemsConverter(actor.object.items.entries);
     }
 

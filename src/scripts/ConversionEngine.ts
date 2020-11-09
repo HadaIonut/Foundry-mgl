@@ -158,6 +158,7 @@ class ConversionEngine {
         const convertedToStandard = this._convertDistanceUnitStringToStandard(unit);
         if (convertedToStandard === "feet") return this.convertDistanceFromFeetToMeters(distance);
         if (convertedToStandard === "mile") return this.convertDistanceFromMilesToKilometers(distance);
+        if (convertedToStandard === 'inch') return this.convertDistanceFromInchToCentimeters(distance);
         return distance;
     }
 
