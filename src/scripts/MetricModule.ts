@@ -31,7 +31,7 @@ class MetricModule {
 
     public onRenderItemSheet(obj, html) {
         let element = html.find(".window-header .window-title")
-        MetricModule.addButton(element, obj, "item");
+        MetricModule.addButton(element, obj.object, "item");
     }
 
 

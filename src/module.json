@@ -2,7 +2,7 @@
   "name": "Foundry-MGL",
   "title": "Foundry Meters, Grams & Liters",
   "description": "An expandable module that allows system agnostic conversion to metric",
-  "authors": ["HadaIonut"],
+  "author": ["HadaIonut"],
   "version": "0.0.1",
   "esmodules": ["scripts/foundry-mgl.js"],
   "styles": ["styles/foundry-mgl.css"],
@@ -13,7 +13,7 @@
       "path": "lang/en.json"
     }],
   "minimumCoreVersion": "0.6.5",
-  "compatibleCoreVersion": "0.7.0",
+  "compatibleCoreVersion": "0.7.6",
   "url": "",
   "manifest": "",
   "download": "",

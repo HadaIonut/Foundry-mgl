@@ -75,33 +75,8 @@ class Dnd5eConverter {
      *
      * @param items - items array to be converted (can be found at actor.data.items)
      */
-    private _itemsConverter(items: Array<any>): any {
-        items.forEach((item) => {
-            if (item?.flags["foundry-mgl"]?.converted) return
-
-            item.data.description.value = this._convertText(item.data.description.value);
-
-            const target = item.data.target;
-            const range = item.data.range;
-            if (!target) return
-
-            item.data.target = this._convertDistance(target);
-            item.data.range = this._convertDistance(range);
-
-            item.data.weight = ConversionEngine.convertWeightFromPoundsToKilograms(item.data.weight);
-            item.totalWeight = ConversionEngine.convertWeightFromPoundsToKilograms(item.totalWeight);
-        })
-        return items
-    }
-
-    /**
-     * Flags all items and spells with the converted tag
-     *
-     * @param entries - array of items from the items map (can be found at actor.items.entries)
-     */
-    private async _itemsFlagger(entries: Array<any>): Promise<void> {
-        for (let entry = 0; entry < entries.length; entry++)
-            await entries[entry].setFlag("foundry-mgl", "converted", true)
+    private async _itemsConverter(items: Array<any>): Promise<void> {
+        for (const item of items) await this.itemUpdater(item);
     }
 
     /**
@@ -110,11 +85,15 @@ class Dnd5eConverter {
      * @param speed - speed + special speed object as found on the actor object
      */
     private _speedConverter(speed: any): any {
-        speed.value = ConversionEngine.imperialReplacer(speed.value, /(?<value>[0-9]+) (?<unit>[\w]+)/g)
+        if (!ConversionEngine.isMetric(speed.units)) return speed;
 
-        const specialSpeed = speed.special;
-        speed.special = ConversionEngine.imperialReplacer(specialSpeed, /(?<value>[0-9]+ ?)(?<unit>[\w]+)/g);
+        const units = speed.units;
+        Object.keys(speed).forEach((key) => {
+            if (key == 'units') return;
 
+            ConversionEngine.convertDistanceFromImperialToMetric(speed[key], units);
+        })
+        speed.units = ConversionEngine.convertDistanceStringToMetric(speed.units);
         return speed;
     }
 
@@ -124,14 +103,8 @@ class Dnd5eConverter {
      * @param data -  actor data to be converted (can be found at actor.data)
      * @param actor - actor object for setting flags
      */
-    private _toMetricConverter5e(data: any, actor: any): any {
-        const items = data.items;
-
-        data.items = this._itemsConverter(items);
-        this._itemsFlagger(actor.items.entries);
-
-        data.data.attributes.speed = this._speedConverter(data.data.attributes.speed);
-
+    private async _toMetricConverter5e(data: any, actor: any): Promise<any> {
+        data.data.attributes.movement = this._speedConverter(data.data.attributes.movement);
         data.data.traits.senses = ConversionEngine.imperialReplacer(data.data.traits.senses, /(?<value>[0-9]+ ?)(?<unit>[\w]+)/g)
 
         return data;
@@ -145,9 +118,10 @@ class Dnd5eConverter {
     public async actorUpdater(actor: any) {
         const actorClone = await actor.object.clone({_id: actor.object.data._id}, {temporary: true});
         actorClone.data._id = actor.object.data._id;
-        actorClone.data = this._toMetricConverter5e(actorClone.data, actor.object);
+        actorClone.data = await this._toMetricConverter5e(actorClone.data, actor.object);
 
         await actor.object.update(actorClone.data);
+        await this._itemsConverter(actor.object.items.entries);
     }
 
 
@@ -157,8 +131,8 @@ class Dnd5eConverter {
      * @param item - item to be converted
      */
     public async itemUpdater(item: any) {
-        if (item.object.getFlag("foundry-mgl", "converted")) return;
-        const itemClone = await item.object.clone({}, {temporary: true})
+        if (item.getFlag("Foundry-MGL", "converted")) return;
+        const itemClone = await item.clone({}, {temporary: true})
 
         itemClone.data.data.description.value = this._convertText(itemClone.data.data.description.value);
 
@@ -166,10 +140,10 @@ class Dnd5eConverter {
         itemClone.data.data.range = this._convertDistance(itemClone.data.data.range);
         itemClone.data.data.weight = ConversionEngine.convertWeightFromPoundsToKilograms(itemClone.data.data.weight);
 
-        item.object.labels.range = this._labelConverter(item.object.labels.range);
+        if (item.labels) item.labels.range = this._labelConverter(item.labels.range);
 
-        await item.object.setFlag("foundry-mgl", "converted", true);
-        await item.object.update(itemClone.data);
+        await item.setFlag("Foundry-MGL", "converted", true);
+        await item.update(itemClone.data);
     }
 }
 

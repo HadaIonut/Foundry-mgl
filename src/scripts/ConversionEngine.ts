@@ -80,6 +80,10 @@ class ConversionEngine {
         return this._roundUp(toConvert * multiplier);
     }
 
+    public isMetric(checkString: string): boolean {
+        return !!this._distanceToMetricMap[checkString];
+    }
+
     /**
      * Converts strings or numbers from pounds to kilograms
      *
