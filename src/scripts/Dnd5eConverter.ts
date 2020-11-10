@@ -56,38 +56,24 @@ class Dnd5eConverter {
      * @param text - text containing imperial units
      */
     private _convertText(text: string): string {
-        text = text.replace(/(\b[^\d\W]+\b )?(\b[^\d\W]+\b)([ -])(feet|foot)/g, (_0, wordNumber1, wordNumber2, separator, unit) => {
+        return text.replace(/(\b[^\d\W]+\b )?(\b[^\d\W]+\b)([ -])(feet|foot)/g, (_0, wordNumber1, wordNumber2, separator, unit) => {
             const selectedNumber = numberSelector(wordNumber1 ? wordNumber1?.toLowerCase().replace(' ', '') : '', wordNumber2?.toLowerCase());
             if (selectedNumber.number) {
                 const convertedValue = convertValueToMetric(selectedNumber.number, unit);
-
                 return selectedNumber.text + numberToWords(Math.ceil(Number(convertedValue))) + separator + convertStringFromImperialToMetric(unit);
             }
-
             return selectedNumber.text + separator + unit;
-        })
-        text = text.replace(/([0-9]+) (to|and) ([0-9]+) (feet|inch|foot|ft\.)/g, (_0, number1, separatorWord, number2, units)=> {
+        }).replace(/([0-9]+) (to|and) ([0-9]+) (feet|inch|foot|ft\.)/g, (_0, number1, separatorWord, number2, units)=> {
             return convertValueToMetric(number1, units) + ` ${separatorWord} ` + convertValueToMetric(number2, units) + ` ${units}`;
-        })
-        text = text.replace(/([0-9]{1,3}(,[0-9]{3})+) (pounds)/g, (_0, number: string, _1, label: string) => {
-            return convertValueToMetric(number,label) + " " + convertStringFromImperialToMetric(label);
-        });
-        text = text.replace(/([0-9]{1,3}(,[0-9]{3})+)([ -])(feet|foot)/g, (_0, number: string, _1, separator ,label: string) => {
+        }).replace(/([0-9]{1,3}(,[0-9]{3})+)([ -])(feet|foot|pounds)/g, (_0, number: string, _1, separator ,label: string) => {
             return convertValueToMetric(number, label) + separator + convertStringFromImperialToMetric(label);
-        });
-        text = text.replace(/([0-9]+)\/([0-9]+) (feet|inch|foot|ft\.)/g, (_0, firstNumber: string, secondNumber: string, label: string) => {
+        }).replace(/([0-9]+)\/([0-9]+) (feet|inch|foot|ft\.)/g, (_0, firstNumber: string, secondNumber: string, label: string) => {
             return convertValueToMetric(firstNumber, label) + '/' + convertValueToMetric(secondNumber, label) + ' ' + convertStringFromImperialToMetric(label);
-        });
-        text = text.replace(/([0-9]+)([\W\D\S]|&nbsp;| cubic ){1,2}(feet|inch|foot|ft\.)/g, (_0, number: string, separator: string, label: string) => {
+        }).replace(/([0-9]+)([\W\D\S]|&nbsp;| cubic |-){1,2}(feet|inch|foot|ft\.|pounds|lbs\.|pound|lbs|lb)/g, (_0, number: string, separator: string, label: string) => {
             return convertValueToMetric(number, label) + separator + convertStringFromImperialToMetric(label);
-        });
-        text = text.replace(/([0-9]+)(&nbsp;| |-)(pounds|lb|pound)/g, (_0, number: string, separator: string, label: string) => {
-            return convertValueToMetric(number, label) + " " + convertStringFromImperialToMetric(label)
-        })
-        text = text.replace(/(several \w+ )(feet|yards)/g, (_0, several, unit)=>{
+        }).replace(/(several \w+ )(feet|yards)/g, (_0, several, unit)=>{
             return several + convertStringFromImperialToMetric(unit);
         })
-        return text;
     }
 
     /**
