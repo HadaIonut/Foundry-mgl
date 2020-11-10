@@ -1,5 +1,6 @@
 import {numberSelector, numberToWords} from "./WordsToNumbers";
 import {convertValueToMetric, convertStringFromImperialToMetric, isMetric, imperialReplacer} from "./ConversionEngineNew";
+import Settings from "./Settings";
 
 class Dnd5eConverter {
     private static _instance: Dnd5eConverter;
@@ -160,6 +161,21 @@ class Dnd5eConverter {
         journalClone.data.content = this._convertText(journalClone.data.content);
 
         await journal.update(journalClone.data);
+    }
+
+    public async allScenesUpdater() {
+        for (const scene of game.scenes.entities) {
+            // @ts-ignore
+            if (scene._view === true) continue;
+            const sceneClone = await scene.clone({}, {temporary: true});
+            // @ts-ignore
+            sceneClone.data.gridDistance = Settings.getSetting('sceneGridDistance');
+            // @ts-ignore
+            sceneClone.data.gridUnits = Settings.getSetting('sceneGridUnits');
+
+            const newScene = await scene.update(sceneClone.data);
+            console.log(newScene);
+        }
     }
 }
 
