@@ -1,5 +1,5 @@
 import ConversionEngine from "./ConversionEngine";
-import {numberSelecter} from "./WordsToNumbers";
+import {numberSelector, numberToWords} from "./WordsToNumbers";
 
 class Dnd5eConverter {
     private static _instance: Dnd5eConverter;
@@ -56,11 +56,24 @@ class Dnd5eConverter {
      * @param text - text containing imperial units
      */
     private _convertText(text: string): string {
+        text = text.replace(/(\b[^\d\W]+\b )?(\b[^\d\W]+\b)([ -])(feet|foot)/g, (_0, wordNumber1, wordNumber2, separator, unit) => {
+            const selectedNumber = numberSelector(wordNumber1 ? wordNumber1?.toLowerCase().replace(' ', '') : '', wordNumber2?.toLowerCase());
+            if (selectedNumber.number) {
+                const convertedValue = ConversionEngine.convertDistanceFromImperialToMetric(selectedNumber.number, unit);
+
+                return selectedNumber.text + numberToWords(Math.ceil(Number(convertedValue))) + separator + ConversionEngine.convertDistanceStringToMetric(unit);
+            }
+
+            return selectedNumber.text + separator + unit;
+        })
+        text = text.replace(/([0-9]+) (to|and) ([0-9]+) (feet|inch|foot|ft\.)/g, (_0, number1, separatorWord, number2, units)=> {
+            return ConversionEngine.convertDistanceFromImperialToMetric(number1, units) + ` ${separatorWord} ` + ConversionEngine.convertDistanceFromImperialToMetric(number2, units) + ` ${units}`;
+        })
         text = text.replace(/([0-9]{1,3}(,[0-9]{3})+) (pounds)/g, (_0, number: string, _1, label: string) => {
             return ConversionEngine.convertWeightFromPoundsToKilograms(number) + " " + ConversionEngine.convertWeightStringToKilograms(label);
         });
-        text = text.replace(/([0-9]{1,3}(,[0-9]{3})+) (feet)/g, (_0, number: string, _1, label: string) => {
-            return ConversionEngine.convertDistanceFromFeetToMeters(number) + " " + ConversionEngine.convertDistanceStringToMetric(label);
+        text = text.replace(/([0-9]{1,3}(,[0-9]{3})+)([ -])(feet|foot)/g, (_0, number: string, _1, separator ,label: string) => {
+            return ConversionEngine.convertDistanceFromFeetToMeters(number) + separator + ConversionEngine.convertDistanceStringToMetric(label);
         });
         text = text.replace(/([0-9]+)\/([0-9]+) (feet|inch|foot|ft\.)/g, (_0, firstNumber: string, secondNumber: string, label: string) => {
             return ConversionEngine.convertDistanceFromFeetToMeters(firstNumber) + '/' + ConversionEngine.convertDistanceFromFeetToMeters(secondNumber) + ' ' + ConversionEngine.convertDistanceStringToMetric(label);
@@ -73,13 +86,6 @@ class Dnd5eConverter {
         })
         text = text.replace(/(several \w+ )(feet|yards)/g, (_0, several, unit)=>{
             return several + ConversionEngine.convertDistanceStringToMetric(unit);
-        })
-        return text;
-    }
-
-    private numberWordsReplacer(text: string): string {
-        text = text.replace(/(\w+ )?(\w+)([ -])(feet|foot)/g, (_0, wordNumber1, wordNumber2, separator, unit) => {
-            return numberSelecter(wordNumber1 ? wordNumber1?.toLowerCase().replace(' ', '') : '', wordNumber2?.toLowerCase()) + separator + unit
         })
         return text;
     }
@@ -165,7 +171,6 @@ class Dnd5eConverter {
     public async journalUpdater(journal) {
         const journalClone = await journal.clone({}, {temporary: true});
 
-        journalClone.data.content = this.numberWordsReplacer(journalClone.data.content);
         journalClone.data.content = this._convertText(journalClone.data.content);
 
         await journal.update(journalClone.data);

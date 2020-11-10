@@ -53,7 +53,7 @@ const numbersMerger = () => {
     Object.assign(allTheNumbers, compositions());
 }
 
-const isKeyWord = (word: string):boolean => {
+const isKeyWord = (word: string): boolean => {
     if (word === 'several') return true;
     return false;
 }
@@ -65,10 +65,14 @@ const isKeyWord = (word: string):boolean => {
  * @param word1
  * @param word2
  */
-const numberSelecter = (word1: string, word2: string): number | string => {
+const numberSelector = (word1: string, word2: string) => {
     numbersMerger();
     let text = '';
-    if (isKeyWord(word1)) return `${word1} ${word2}`;
+    let outObject = {
+        text: `${word1} ${word2}`,
+        number: null
+    }
+    if (isKeyWord(word1)) return outObject;
     if (allTheNumbers[word1]) {
         text += `${word1} `;
         word1 = '';
@@ -77,8 +81,18 @@ const numberSelecter = (word1: string, word2: string): number | string => {
         text += word2;
         word2 = ''
     }
-    for (const numbers in allTheNumbers) if (text === numbers) return word1 + word2 + allTheNumbers[numbers];
-    return `${word1} ${word2}`;
+    for (const numbers in allTheNumbers) if (text === numbers) {
+        outObject.text = word1 + word2;
+        outObject.number = allTheNumbers[numbers];
+        return outObject;
+    }
+    return outObject;
 }
 
-export {numberSelecter};
+const numberToWords = (number) => {
+    numbersMerger();
+    for (const numbers in allTheNumbers) if (allTheNumbers[numbers] === number) return numbers;
+    return number;
+}
+
+export {numberSelector, numberToWords};
