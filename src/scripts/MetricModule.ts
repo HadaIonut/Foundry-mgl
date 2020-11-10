@@ -16,7 +16,22 @@ class MetricModule {
 
         let button = $(`<a class="popout" style><i class="fas fa-ruler"></i>Metrificator</a>`);
         button.on('click', () => {
-            type === 'actor' ? Dnd5eConverter.actorUpdater(actor) : type === 'item' ? Dnd5eConverter.itemUpdater(actor) : Dnd5eConverter.journalUpdater(actor);
+            ui.notifications.warn(`Metrifying the ${type}, hold on tight.`);
+            switch (type) {
+                case 'actor':
+                    Dnd5eConverter.actorUpdater(actor).then(()=>
+                        ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
+                    break;
+                case 'item':
+                    Dnd5eConverter.itemUpdater(actor).then(()=>
+                        ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
+                    break;
+                case 'sheet':
+                    Dnd5eConverter.journalUpdater(actor).then(()=>
+                        ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
+                    break;
+            }
+
         });
 
         element.after(button);
