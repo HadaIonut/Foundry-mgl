@@ -1,5 +1,4 @@
 import Dnd5eConverter from "./Dnd5eConverter";
-import ConversionEngine from "./ConversionEngine";
 
 class MetricModule {
     private static _instance: MetricModule;

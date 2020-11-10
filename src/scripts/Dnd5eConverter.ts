@@ -1,5 +1,5 @@
-import ConversionEngine from "./ConversionEngine";
 import {numberSelector, numberToWords} from "./WordsToNumbers";
+import {convertValueToMetric, convertStringFromImperialToMetric, isMetric, imperialReplacer} from "./ConversionEngineNew";
 
 class Dnd5eConverter {
     private static _instance: Dnd5eConverter;
@@ -22,14 +22,14 @@ class Dnd5eConverter {
         const labelRegex = /((?<valueOpt>[0-9]+) \/ )?(?<value>[0-9]+) (?<unit>[\w]+)/;
         const matchedLabel = label.match(labelRegex)?.groups;
         if (!matchedLabel) return label;
-        const unit = ConversionEngine.convertDistanceStringToMetric(matchedLabel.unit);
+        const unit = convertStringFromImperialToMetric(matchedLabel.unit);
         let convertedLabel = '';
 
         if (!unit) return label;
         if (unit === 'Meters' || unit === 'm') {
             if (matchedLabel.valueOpt)
-                convertedLabel += ConversionEngine.convertDistanceFromFeetToMeters(matchedLabel.valueOpt) + ' /';
-            convertedLabel += ConversionEngine.convertDistanceFromImperialToMetric(matchedLabel.value, matchedLabel.unit) + ' ' + unit;
+                convertedLabel += convertValueToMetric(matchedLabel.valueOpt, matchedLabel.unit) + ' /';
+            convertedLabel += convertValueToMetric(matchedLabel.value, matchedLabel.unit) + ' ' + unit;
         }
         return convertedLabel;
     }
@@ -41,11 +41,11 @@ class Dnd5eConverter {
      */
     private _convertDistance(distance: any): any {
         if (!distance) return;
-        distance.value = ConversionEngine.convertDistanceFromImperialToMetric(distance.value, distance.units);
+        distance.value = convertValueToMetric(distance.value, distance.units);
         if (distance?.long)
-            distance.long = ConversionEngine.convertDistanceFromImperialToMetric(distance.long, distance.units);
+            distance.long = convertValueToMetric(distance.long, distance.units);
 
-        distance.units = ConversionEngine.convertDistanceStringToMetric(distance.units);
+        distance.units = convertStringFromImperialToMetric(distance.units);
 
         return distance;
     }
@@ -59,33 +59,33 @@ class Dnd5eConverter {
         text = text.replace(/(\b[^\d\W]+\b )?(\b[^\d\W]+\b)([ -])(feet|foot)/g, (_0, wordNumber1, wordNumber2, separator, unit) => {
             const selectedNumber = numberSelector(wordNumber1 ? wordNumber1?.toLowerCase().replace(' ', '') : '', wordNumber2?.toLowerCase());
             if (selectedNumber.number) {
-                const convertedValue = ConversionEngine.convertDistanceFromImperialToMetric(selectedNumber.number, unit);
+                const convertedValue = convertValueToMetric(selectedNumber.number, unit);
 
-                return selectedNumber.text + numberToWords(Math.ceil(Number(convertedValue))) + separator + ConversionEngine.convertDistanceStringToMetric(unit);
+                return selectedNumber.text + numberToWords(Math.ceil(Number(convertedValue))) + separator + convertStringFromImperialToMetric(unit);
             }
 
             return selectedNumber.text + separator + unit;
         })
         text = text.replace(/([0-9]+) (to|and) ([0-9]+) (feet|inch|foot|ft\.)/g, (_0, number1, separatorWord, number2, units)=> {
-            return ConversionEngine.convertDistanceFromImperialToMetric(number1, units) + ` ${separatorWord} ` + ConversionEngine.convertDistanceFromImperialToMetric(number2, units) + ` ${units}`;
+            return convertValueToMetric(number1, units) + ` ${separatorWord} ` + convertValueToMetric(number2, units) + ` ${units}`;
         })
         text = text.replace(/([0-9]{1,3}(,[0-9]{3})+) (pounds)/g, (_0, number: string, _1, label: string) => {
-            return ConversionEngine.convertWeightFromPoundsToKilograms(number) + " " + ConversionEngine.convertWeightStringToKilograms(label);
+            return convertValueToMetric(number,label) + " " + convertStringFromImperialToMetric(label);
         });
         text = text.replace(/([0-9]{1,3}(,[0-9]{3})+)([ -])(feet|foot)/g, (_0, number: string, _1, separator ,label: string) => {
-            return ConversionEngine.convertDistanceFromFeetToMeters(number) + separator + ConversionEngine.convertDistanceStringToMetric(label);
+            return convertValueToMetric(number, label) + separator + convertStringFromImperialToMetric(label);
         });
         text = text.replace(/([0-9]+)\/([0-9]+) (feet|inch|foot|ft\.)/g, (_0, firstNumber: string, secondNumber: string, label: string) => {
-            return ConversionEngine.convertDistanceFromFeetToMeters(firstNumber) + '/' + ConversionEngine.convertDistanceFromFeetToMeters(secondNumber) + ' ' + ConversionEngine.convertDistanceStringToMetric(label);
+            return convertValueToMetric(firstNumber, label) + '/' + convertValueToMetric(secondNumber, label) + ' ' + convertStringFromImperialToMetric(label);
         });
         text = text.replace(/([0-9]+)([\W\D\S]|&nbsp;| cubic ){1,2}(feet|inch|foot|ft\.)/g, (_0, number: string, separator: string, label: string) => {
-            return ConversionEngine.convertDistanceFromFeetToMeters(number) + separator + ConversionEngine.convertDistanceStringToMetric(label);
+            return convertValueToMetric(number, label) + separator + convertStringFromImperialToMetric(label);
         });
         text = text.replace(/([0-9]+)(&nbsp;| |-)(pounds|lb|pound)/g, (_0, number: string, separator: string, label: string) => {
-            return ConversionEngine.convertWeightFromPoundsToKilograms(number) + " " + ConversionEngine.convertWeightStringToKilograms(label)
+            return convertValueToMetric(number, label) + " " + convertStringFromImperialToMetric(label)
         })
         text = text.replace(/(several \w+ )(feet|yards)/g, (_0, several, unit)=>{
-            return several + ConversionEngine.convertDistanceStringToMetric(unit);
+            return several + convertStringFromImperialToMetric(unit);
         })
         return text;
     }
@@ -105,15 +105,15 @@ class Dnd5eConverter {
      * @param speed - speed + special speed object as found on the actor object
      */
     private _speedConverter(speed: any): any {
-        if (!ConversionEngine.isMetric(speed.units)) return speed;
+        if (!isMetric(speed.units)) return speed;
 
         const units = speed.units;
         Object.keys(speed).forEach((key) => {
             if (key == 'units') return;
 
-            ConversionEngine.convertDistanceFromImperialToMetric(speed[key], units);
+            speed[key] = convertValueToMetric(speed[key], units);
         })
-        speed.units = ConversionEngine.convertDistanceStringToMetric(speed.units);
+        speed.units = convertStringFromImperialToMetric(speed.units);
 
         return speed;
     }
@@ -126,7 +126,7 @@ class Dnd5eConverter {
      */
     private async _toMetricConverter5e(data: any, actor: any): Promise<any> {
         data.data.attributes.movement = this._speedConverter(data.data.attributes.movement);
-        data.data.traits.senses = ConversionEngine.imperialReplacer(data.data.traits.senses, /(?<value>[0-9]+ ?)(?<unit>[\w]+)/g)
+        data.data.traits.senses = imperialReplacer(data.data.traits.senses, /(?<value>[0-9]+ ?)(?<unit>[\w]+)/g)
 
         return data;
     }
@@ -160,7 +160,7 @@ class Dnd5eConverter {
 
         itemClone.data.data.target = this._convertDistance(itemClone.data.data.target);
         itemClone.data.data.range = this._convertDistance(itemClone.data.data.range);
-        itemClone.data.data.weight = ConversionEngine.convertWeightFromPoundsToKilograms(itemClone.data.data.weight);
+        itemClone.data.data.weight = convertValueToMetric(itemClone.data.data.weight, 'pound');
 
         if (item.labels) item.labels.range = this._labelConverter(item.labels.range);
 
