@@ -133,7 +133,6 @@ class Dnd5eConverter {
         await this._itemsConverter(actor.object.items.entries);
     }
 
-
     /**
      * Main function for updating a specific item
      *
@@ -173,9 +172,19 @@ class Dnd5eConverter {
             // @ts-ignore
             sceneClone.data.gridUnits = Settings.getSetting('sceneGridUnits');
 
-            const newScene = await scene.update(sceneClone.data);
-            console.log(newScene);
+            await scene.update(sceneClone.data);
         }
+    }
+
+    public async rollTableConverter (rollTable) {
+        const rollTableClone = await rollTable.clone({}, {temporary: true});
+
+        rollTableClone.data.description = this._convertText(rollTableClone.data.description);
+        rollTableClone.data.results.forEach((result)=> {
+            result.text = this._convertText(result.text)
+        })
+
+        await rollTable.update(rollTableClone.data);
     }
 }
 

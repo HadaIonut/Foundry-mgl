@@ -50,3 +50,4 @@ Hooks.on('renderJournalSheet', MetricModule.onRenderJurnalSheet);
 
 Hooks.on("renderSidebarTab", MetricModule.onRenderScenesDirectory);
 
+Hooks.on('renderRollTableConfig', MetricModule.onRenderRollTable)

@@ -30,6 +30,10 @@ class MetricModule {
                     Dnd5eConverter.journalUpdater(actor).then(()=>
                         ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
                     break;
+                case 'rolltable':
+                    Dnd5eConverter.rollTableConverter(actor).then(()=>
+                        ui.notifications.info(`Metrification complete, enjoy a better ${type}`))
+                    break;
             }
 
         });
@@ -59,6 +63,11 @@ class MetricModule {
             button.on('click', ()=> Dnd5eConverter.allScenesUpdater());
             html.find(".directory-footer").append(button);
         }
+    }
+
+    public onRenderRollTable(obj,html) {
+        let element = html.find(".window-header .window-title");
+        MetricModule.addButton(element, obj.object, 'rolltable')
     }
 
 }
