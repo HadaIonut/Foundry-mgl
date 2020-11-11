@@ -1,5 +1,10 @@
 import {numberSelector, numberToWords} from "./WordsToNumbers";
-import {convertValueToMetric, convertStringFromImperialToMetric, isMetric, imperialReplacer} from "./ConversionEngineNew";
+import {
+    convertValueToMetric,
+    convertStringFromImperialToMetric,
+    isMetric,
+    imperialReplacer
+} from "./ConversionEngineNew";
 import Settings from "./Settings";
 
 class Dnd5eConverter {
@@ -64,15 +69,15 @@ class Dnd5eConverter {
                 return selectedNumber.text + numberToWords(Math.ceil(Number(convertedValue))) + separator + convertStringFromImperialToMetric(unit);
             }
             return selectedNumber.text + separator + unit;
-        }).replace(/([0-9]+) (to|and) ([0-9]+) (feet|inch|foot|ft\.)/g, (_0, number1, separatorWord, number2, units)=> {
+        }).replace(/([0-9]+) (to|and) ([0-9]+) (feet|inch|foot|ft\.)/g, (_0, number1, separatorWord, number2, units) => {
             return convertValueToMetric(number1, units) + ` ${separatorWord} ` + convertValueToMetric(number2, units) + ` ${units}`;
-        }).replace(/([0-9]{1,3}(,[0-9]{3})+)([ -])(feet|foot|pounds)/g, (_0, number: string, _1, separator ,label: string) => {
+        }).replace(/([0-9]{1,3}(,[0-9]{3})+)([ -])(feet|foot|pounds)/g, (_0, number: string, _1, separator, label: string) => {
             return convertValueToMetric(number, label) + separator + convertStringFromImperialToMetric(label);
         }).replace(/([0-9]+)\/([0-9]+) (feet|inch|foot|ft\.)/g, (_0, firstNumber: string, secondNumber: string, label: string) => {
             return convertValueToMetric(firstNumber, label) + '/' + convertValueToMetric(secondNumber, label) + ' ' + convertStringFromImperialToMetric(label);
         }).replace(/([0-9]+)([\W\D\S]|&nbsp;| cubic |-){1,2}(feet|inch|foot|ft\.|pounds|lbs\.|pound|lbs|lb)/g, (_0, number: string, separator: string, label: string) => {
             return convertValueToMetric(number, label) + separator + convertStringFromImperialToMetric(label);
-        }).replace(/(several \w+ )(feet|yards)/g, (_0, several, unit)=>{
+        }).replace(/(several \w+ )(feet|yards)/g, (_0, several, unit) => {
             return several + convertStringFromImperialToMetric(unit);
         })
     }
@@ -96,7 +101,7 @@ class Dnd5eConverter {
 
         const units = speed.units;
         Object.keys(speed).forEach((key) => {
-            if (key == 'units') return;
+            if (key === 'units' || key === 'hover') return;
 
             speed[key] = convertValueToMetric(speed[key], units);
         })
@@ -109,9 +114,8 @@ class Dnd5eConverter {
      * Converts the items, senses and speeds of an actor to metric
      *
      * @param data -  actor data to be converted (can be found at actor.data)
-     * @param actor - actor object for setting flags
      */
-    private async _toMetricConverter5e(data: any, actor: any): Promise<any> {
+    private async _toMetricConverter5e(data: any): Promise<any> {
         data.data.attributes.movement = this._speedConverter(data.data.attributes.movement);
         data.data.traits.senses = imperialReplacer(data.data.traits.senses, /(?<value>[0-9]+ ?)(?<unit>[\w]+)/g)
 
@@ -124,13 +128,13 @@ class Dnd5eConverter {
      * @param actor - actor to be converted
      */
     public async actorUpdater(actor: any) {
-        const actorClone = await actor.object.clone({_id: actor.object.data._id}, {temporary: true});
+        const actorClone = await actor.clone({_id: actor.data._id}, {temporary: true});
 
-        actorClone.data = await this._toMetricConverter5e(actorClone.data, actor.object);
+        actorClone.data = await this._toMetricConverter5e(actorClone.data);
 
-        await actor.object.update(actorClone.data);
+        await actor.update(actorClone.data);
 
-        await this._itemsConverter(actor.object.items.entries);
+        await this._itemsConverter(actor.items.entries);
     }
 
     /**
@@ -176,15 +180,64 @@ class Dnd5eConverter {
         }
     }
 
-    public async rollTableConverter (rollTable) {
+    public async rollTableConverter(rollTable) {
         const rollTableClone = await rollTable.clone({}, {temporary: true});
 
         rollTableClone.data.description = this._convertText(rollTableClone.data.description);
-        rollTableClone.data.results.forEach((result)=> {
+        rollTableClone.data.results.forEach((result) => {
             result.text = this._convertText(result.text)
         })
 
         await rollTable.update(rollTableClone.data);
+    }
+
+    private _compendiumItemUpdater (item) {
+        item.data.description.value = this._convertText(item.data.description.value);
+
+        item.data.target = this._convertDistance(item.data.target);
+        item.data.range = this._convertDistance(item.data.range);
+        item.data.weight = convertValueToMetric(item.data.weight, 'pound');
+
+        return item;
+    }
+
+    private _compendiumItemsUpdater (items) {
+        for (let i = 0; i < items.length; i++){
+            items[i] = this._compendiumItemUpdater(items[i]);
+        }
+        return items;
+    }
+
+    private async _compendiumActorUpdater(actor) {
+        actor.data = await this._toMetricConverter5e(actor.data);
+        actor.data.items = this._compendiumItemsUpdater(actor.data.items);
+        return actor;
+    }
+
+    public async typeSelector(entity) {
+        switch (entity.constructor.name) {
+            case 'Actor5e':
+                return await this._compendiumActorUpdater(entity);
+        }
+    }
+
+    public async compendiumConverter(compendium) {
+        const pack = game.packs.get(compendium);
+        const newPack = await Compendium.create({
+            entity: pack.metadata.entity,
+            label: `${pack.metadata.label} Metrified`,
+            name: `${pack.metadata.label}-metrified`,
+            package: 'Foundry-MGL',
+            path: `./packs/${pack.metadata.label}-metrified.db`,
+            system: "dnd5e"
+        })
+        for (const index of pack.index) {
+            const entity = await pack.getEntity(index._id);
+            let entityClone = await entity.clone({}, {temporary: true});
+            entityClone = await this.typeSelector(entityClone);
+            await newPack.createEntity(entityClone.data)
+            console.log(await pack.getEntity(index._id))
+        }
     }
 }
 

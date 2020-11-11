@@ -32,7 +32,11 @@ class MetricModule {
                     break;
                 case 'rolltable':
                     Dnd5eConverter.rollTableConverter(actor).then(()=>
-                        ui.notifications.info(`Metrification complete, enjoy a better ${type}`))
+                        ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
+                    break;
+                case 'compendium':
+                    Dnd5eConverter.compendiumConverter(actor).then(()=>
+                        ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
                     break;
             }
 
@@ -43,7 +47,7 @@ class MetricModule {
 
     public onRenderActorSheet(obj, html) {
         let element = html.find(".window-header .window-title")
-        MetricModule.addButton(element, obj, "actor");
+        MetricModule.addButton(element, obj.object, "actor");
 
     }
 
@@ -68,6 +72,11 @@ class MetricModule {
     public onRenderRollTable(obj,html) {
         let element = html.find(".window-header .window-title");
         MetricModule.addButton(element, obj.object, 'rolltable')
+    }
+
+    public onCompendiumRender (obj,html) {
+        let element = html.find(".window-header .window-title");
+        MetricModule.addButton(element, obj.collection, 'compendium');
     }
 
 }
