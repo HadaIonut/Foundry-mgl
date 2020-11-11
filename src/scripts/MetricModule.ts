@@ -61,10 +61,15 @@ class MetricModule {
         MetricModule.addButton(element, obj.object, "sheet");
     }
 
-    public onRenderScenesDirectory(app, html) {
+    public onRenderSideBar(app, html) {
         if (app?.options?.id == "scenes") {
             let button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the scenes</button>");
             button.on('click', ()=> Dnd5eConverter.allScenesUpdater());
+            html.find(".directory-footer").append(button);
+        }
+        if (app?.options?.id == "compendium") {
+            let button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the compendiums</button>");
+            button.on('click', ()=> Dnd5eConverter.batchCompendiumConverter());
             html.find(".directory-footer").append(button);
         }
     }

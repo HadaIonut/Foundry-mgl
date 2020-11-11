@@ -70,7 +70,7 @@ class Dnd5eConverter {
             }
             return selectedNumber.text + separator + unit;
         }).replace(/([0-9]+) (to|and) ([0-9]+) (feet|inch|foot|ft\.)/g, (_0, number1, separatorWord, number2, units) => {
-            return convertValueToMetric(number1, units) + ` ${separatorWord} ` + convertValueToMetric(number2, units) + ` ${units}`;
+            return convertValueToMetric(number1, units) + ` ${separatorWord} ` + convertValueToMetric(number2, units) + ` ${convertStringFromImperialToMetric(units)}`;
         }).replace(/([0-9]{1,3}(,[0-9]{3})+)([ -])(feet|foot|pounds)/g, (_0, number: string, _1, separator, label: string) => {
             return convertValueToMetric(number, label) + separator + convertStringFromImperialToMetric(label);
         }).replace(/([0-9]+)\/([0-9]+) (feet|inch|foot|ft\.)/g, (_0, firstNumber: string, secondNumber: string, label: string) => {
@@ -117,7 +117,7 @@ class Dnd5eConverter {
      */
     private async _toMetricConverter5e(data: any): Promise<any> {
         data.data.attributes.movement = this._speedConverter(data.data.attributes.movement);
-        data.data.traits.senses = imperialReplacer(data.data.traits.senses, /(?<value>[0-9]+ ?)(?<unit>[\w]+)/g)
+        data.data.traits.senses = imperialReplacer(data.data.traits.senses || '', /(?<value>[0-9]+ ?)(?<unit>[\w]+)/g)
 
         return data;
     }
@@ -158,6 +158,11 @@ class Dnd5eConverter {
         await item.update(itemClone.data);
     }
 
+    /**
+     * Converts a specific journal entry to metric
+     *
+     * @param journal
+     */
     public async journalUpdater(journal) {
         const journalClone = await journal.clone({}, {temporary: true});
 
@@ -166,6 +171,10 @@ class Dnd5eConverter {
         await journal.update(journalClone.data);
     }
 
+    /**
+     * Batch conversion of all the scenes (except the viewed one)
+     *
+     */
     public async allScenesUpdater() {
         for (const scene of game.scenes.entities) {
             // @ts-ignore
@@ -180,6 +189,11 @@ class Dnd5eConverter {
         }
     }
 
+    /**
+     * Converts a rolltable
+     *
+     * @param rollTable
+     */
     public async rollTableConverter(rollTable) {
         const rollTableClone = await rollTable.clone({}, {temporary: true});
 
@@ -191,6 +205,12 @@ class Dnd5eConverter {
         await rollTable.update(rollTableClone.data);
     }
 
+    /**
+     * Converts an item from a compendium
+     *
+     * @param item
+     * @private
+     */
     private _compendiumItemUpdater (item) {
         item.data.description.value = this._convertText(item.data.description.value);
 
@@ -201,6 +221,12 @@ class Dnd5eConverter {
         return item;
     }
 
+    /**
+     * Converts a list of items from the compendium
+     *
+     * @param items
+     * @private
+     */
     private _compendiumItemsUpdater (items) {
         for (let i = 0; i < items.length; i++){
             items[i] = this._compendiumItemUpdater(items[i]);
@@ -208,35 +234,75 @@ class Dnd5eConverter {
         return items;
     }
 
+    /**
+     * Converts an actor from compendium
+     *
+     * @param actor
+     * @private
+     */
     private async _compendiumActorUpdater(actor) {
         actor.data = await this._toMetricConverter5e(actor.data);
         actor.data.items = this._compendiumItemsUpdater(actor.data.items);
         return actor;
     }
 
+    /**
+     * Selects what type of entity the current target is
+     *
+     * @param entity
+     */
     public async typeSelector(entity) {
         switch (entity.constructor.name) {
             case 'Actor5e':
                 return await this._compendiumActorUpdater(entity);
+            case 'Item5e':
+                entity.data = await this._compendiumItemUpdater(entity.data);
+                return entity;
+            case 'JournalEntry':
+                entity.data.content = this._convertText(entity.data.content);
+                return entity;
+            default:
+                return entity;
         }
+    }
+
+    /**
+     * Creates a new compendium from a given metadata
+     *
+     * @param metadata - metadata of the owner compendium
+     * @private
+     */
+    private async _createANewCompendiumFromMeta (metadata) {
+        return  await Compendium.create({
+            entity: metadata.entity,
+            label: `${metadata.label} Metrified`,
+            name: `${metadata.label}-metrified`,
+            package: 'Foundry-MGL',
+            path: `./packs/${metadata.label}-metrified.db`,
+            system: "dnd5e"
+        })
     }
 
     public async compendiumConverter(compendium) {
         const pack = game.packs.get(compendium);
-        const newPack = await Compendium.create({
-            entity: pack.metadata.entity,
-            label: `${pack.metadata.label} Metrified`,
-            name: `${pack.metadata.label}-metrified`,
-            package: 'Foundry-MGL',
-            path: `./packs/${pack.metadata.label}-metrified.db`,
-            system: "dnd5e"
-        })
+        await pack.getIndex();
+        const newPack = await this._createANewCompendiumFromMeta(pack.metadata);
+
         for (const index of pack.index) {
             const entity = await pack.getEntity(index._id);
             let entityClone = await entity.clone({}, {temporary: true});
             entityClone = await this.typeSelector(entityClone);
             await newPack.createEntity(entityClone.data)
-            console.log(await pack.getEntity(index._id))
+            console.log(await pack.getEntity(index._id));
+        }
+    }
+
+    public async batchCompendiumConverter() {
+        // @ts-ignore
+        for(const entry of game.packs.entries) {
+            if (!entry.metadata.name.includes('metrified')) {
+                await this.compendiumConverter(entry.collection);
+            }
         }
     }
 }
