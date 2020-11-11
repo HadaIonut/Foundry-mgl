@@ -211,7 +211,7 @@ class Dnd5eConverter {
      * @param item
      * @private
      */
-    private _compendiumItemUpdater (item) {
+    private _compendiumItemUpdater(item) {
         item.data.description.value = this._convertText(item.data.description.value);
 
         item.data.target = this._convertDistance(item.data.target);
@@ -227,8 +227,8 @@ class Dnd5eConverter {
      * @param items
      * @private
      */
-    private _compendiumItemsUpdater (items) {
-        for (let i = 0; i < items.length; i++){
+    private _compendiumItemsUpdater(items) {
+        for (let i = 0; i < items.length; i++) {
             items[i] = this._compendiumItemUpdater(items[i]);
         }
         return items;
@@ -272,8 +272,8 @@ class Dnd5eConverter {
      * @param metadata - metadata of the owner compendium
      * @private
      */
-    private async _createANewCompendiumFromMeta (metadata) {
-        return  await Compendium.create({
+    private async _createANewCompendiumFromMeta(metadata) {
+        return await Compendium.create({
             entity: metadata.entity,
             label: `${metadata.label} Metrified`,
             name: `${metadata.label}-metrified`,
@@ -293,17 +293,29 @@ class Dnd5eConverter {
             let entityClone = await entity.clone({}, {temporary: true});
             entityClone = await this.typeSelector(entityClone);
             await newPack.createEntity(entityClone.data)
-            console.log(await pack.getEntity(index._id));
         }
     }
 
     public async batchCompendiumConverter() {
+        ui.notifications.warn('Batch conversion for the compendiums has started. This may take a while... Please don\'t do anything util completed.', {permanent: true})
         // @ts-ignore
-        for(const entry of game.packs.entries) {
-            if (!entry.metadata.name.includes('metrified')) {
-                await this.compendiumConverter(entry.collection);
-            }
-        }
+        for (const entry of game.packs.entries)
+            if (!entry.metadata.name.includes('metrified')) await this.compendiumConverter(entry.collection);
+
+        ui.notifications.info('Batch conversion completed, get back to the game', {permanent: true});
+    }
+
+    public async batchActorConverter() {
+        ui.notifications.warn('Batch conversion for the actors has started. This may take a while... Please don\'t do anything util completed.', {permanent: true})
+        const actors = game.actors.entities;
+        for (const actor of actors) await this.actorUpdater(actor);
+        ui.notifications.info('Batch conversion completed, get back to the game', {permanent: true});
+    }
+
+    public async batchItemsConverter(items) {
+        ui.notifications.warn('Batch conversion for the items has started. This may take a while... Please don\'t do anything util completed.', {permanent: true})
+        for (const item of items) await this.itemUpdater(item);
+        ui.notifications.info('Batch conversion completed, get back to the game', {permanent: true});
     }
 }
 

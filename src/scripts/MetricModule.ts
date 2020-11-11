@@ -72,6 +72,16 @@ class MetricModule {
             button.on('click', ()=> Dnd5eConverter.batchCompendiumConverter());
             html.find(".directory-footer").append(button);
         }
+        if (app?.options?.id == "actors") {
+            let button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the actors</button>");
+            button.on('click', ()=> Dnd5eConverter.batchActorConverter());
+            html.find(".directory-footer").append(button);
+        }
+        if (app?.options?.id == "items") {
+            let button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the items</button>");
+            button.on('click', ()=> Dnd5eConverter.batchItemsConverter(app.entities));
+            html.find(".directory-footer").append(button);
+        }
     }
 
     public onRenderRollTable(obj,html) {
