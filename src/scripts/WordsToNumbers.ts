@@ -58,31 +58,44 @@ const isKeyWord = (word: string): boolean => {
     return false;
 }
 
+const constructLeftOverText = (currentText: string, word: string): [string, string] => {
+    if (allTheNumbers[word]) {
+        return [currentText + `${word} `, '']
+    }
+    return [currentText, `${word} `];
+}
+
+
+const constructFinalText = (word1: string, word2: string): [string, string] => {
+    const leftoverConstruct = constructLeftOverText('', word1);
+    const text1 = leftoverConstruct[0];
+    const leftOver1 = leftoverConstruct[1];
+
+    const finalLeftOverConstruct = constructLeftOverText(text1, word2);
+    const finalText = finalLeftOverConstruct[0].trim();
+    const finalLeftOver = leftOver1 + finalLeftOverConstruct[1];
+
+    return [finalText, finalLeftOver];
+}
 /**
- * So this function does something, that is for sure
- * But it's been 40 minutes since i worked on it and i have no idea what exactly it does
+ * Constructs an object that contains a string that doesn't contain numbers (called leftOver in the variables)
+ * And a number that represents the extracted number from the text
  *
  * @param word1
  * @param word2
  */
 const numberSelector = (word1: string, word2: string) => {
     numbersMerger();
-    let text = '';
     let outObject = {
         text: `${word1} ${word2}`,
         number: null
     }
     if (isKeyWord(word1)) return outObject;
-    if (allTheNumbers[word1]) {
-        text += `${word1} `;
-        word1 = '';
-    } else word1 += ' ';
-    if (allTheNumbers[word2]) {
-        text += word2;
-        word2 = ''
-    }
-    for (const numbers in allTheNumbers) if (text === numbers) {
-        outObject.text = word1 + word2;
+
+    const final = constructFinalText(word1, word2);
+
+    for (const numbers in allTheNumbers) if (final[0] === numbers) {
+        outObject.text = final[1];
         outObject.number = allTheNumbers[numbers];
         return outObject;
     }
