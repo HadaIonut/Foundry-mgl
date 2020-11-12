@@ -63,10 +63,12 @@ class Dnd5eConverter {
      */
     private _convertText(text: string): string {
         return text.replace(/(\b[^\d\W]+\b )?(\b[^\d\W]+\b)([ -])(feet|foot)/g, (_0, wordNumber1, wordNumber2, separator, unit) => {
+            const capitalized = wordNumber1 !== wordNumber1?.toLowerCase();
             const selectedNumber = numberSelector(wordNumber1 ? wordNumber1?.toLowerCase().replace(' ', '') : '', wordNumber2?.toLowerCase());
             if (selectedNumber.number) {
                 const convertedValue = convertValueToMetric(selectedNumber.number, unit);
-                return selectedNumber.text + numberToWords(Math.ceil(Number(convertedValue))) + separator + convertStringFromImperialToMetric(unit);
+                const returnText = selectedNumber.text + numberToWords(Math.ceil(Number(convertedValue))) + separator + convertStringFromImperialToMetric(unit);
+                return capitalized ? returnText.charAt(0).toUpperCase() + returnText.slice(1) : returnText;
             }
             return selectedNumber.text + separator + unit;
         }).replace(/([0-9]+) (to|and) ([0-9]+) (feet|inch|foot|ft\.)/g, (_0, number1, separatorWord, number2, units) => {
@@ -198,9 +200,9 @@ class Dnd5eConverter {
             if (scene._view === true) continue;
             const sceneClone = await scene.clone({}, {temporary: true});
             // @ts-ignore
-            sceneClone.data.gridDistance = Settings.getSetting('sceneGridDistance');
+            sceneClone.data.gridDistance = convertValueToMetric(sceneClone.data.gridDistance, ceneClone.data.gridUnits);
             // @ts-ignore
-            sceneClone.data.gridUnits = Settings.getSetting('sceneGridUnits');
+            sceneClone.data.gridUnits = convertStringFromImperialToMetric(sceneClone.data.gridUnits);
 
             await scene.update(sceneClone.data);
         }
@@ -263,6 +265,18 @@ class Dnd5eConverter {
         return actor;
     }
 
+    private _compendiumRollTableUpdater(rollTable) {
+        rollTable.name = this._convertText(rollTable.name);
+        for (let index = 0; index < rollTable.results.length; index++)
+            rollTable.results[index].text = this._convertText(rollTable.results[index].text)
+        return rollTable;
+    }
+
+    private _compendiumScenesUpdater(scene) {
+        scene.gridDistance = convertValueToMetric(scene.gridDistance, scene.gridUnits);
+        scene.gridUnits = convertStringFromImperialToMetric(scene.gridUnits);
+        return scene
+    }
     /**
      * Selects what type of entity the current target is
      *
@@ -277,6 +291,12 @@ class Dnd5eConverter {
                 return entity;
             case 'JournalEntry':
                 entity.data.content = this._convertText(entity.data.content);
+                return entity;
+            case 'RollTable':
+                entity.data = this._compendiumRollTableUpdater(entity.data);
+                return entity;
+            case 'Scene':
+                entity.data = this._compendiumScenesUpdater(entity.data);
                 return entity;
             default:
                 return entity;
