@@ -62,25 +62,38 @@ class MetricModule {
     }
 
     public onRenderSideBar(app, html) {
-        if (app?.options?.id == "scenes") {
-            let button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the scenes</button>");
-            button.on('click', ()=> Dnd5eConverter.allScenesUpdater());
-            html.find(".directory-footer").append(button);
-        }
-        if (app?.options?.id == "compendium") {
-            let button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the compendiums</button>");
-            button.on('click', ()=> Dnd5eConverter.batchCompendiumConverter());
-            html.find(".directory-footer").append(button);
-        }
-        if (app?.options?.id == "actors") {
-            let button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the actors</button>");
-            button.on('click', ()=> Dnd5eConverter.batchActorConverter());
-            html.find(".directory-footer").append(button);
-        }
-        if (app?.options?.id == "items") {
-            let button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the items</button>");
-            button.on('click', ()=> Dnd5eConverter.batchItemsConverter(app.entities));
-            html.find(".directory-footer").append(button);
+        let button;
+        switch (app?.options?.id) {
+            case "scenes":
+                button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the scenes</button>");
+                button.on('click', ()=> Dnd5eConverter.allScenesUpdater());
+                html.find(".directory-footer").append(button);
+                break;
+            case "compendium":
+                button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the compendiums</button>");
+                button.on('click', ()=> Dnd5eConverter.batchCompendiumConverter());
+                html.find(".directory-footer").append(button);
+                break;
+            case "actors":
+                button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the actors</button>");
+                button.on('click', ()=> Dnd5eConverter.batchActorConverter());
+                html.find(".directory-footer").append(button);
+                break;
+            case "items":
+                button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the items</button>");
+                button.on('click', ()=> Dnd5eConverter.batchItemsConverter(app.entities));
+                html.find(".directory-footer").append(button);
+                break;
+            case "tables":
+                button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the rollable tables</button>");
+                button.on('click', ()=> Dnd5eConverter.batchRolltablesConverter());
+                html.find(".directory-footer").append(button);
+                break;
+            case "journal":
+                button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the journal entries</button>");
+                button.on('click', ()=> Dnd5eConverter.batchJournalsConverter());
+                html.find(".directory-footer").append(button);
+                break;
         }
     }
 

@@ -96,7 +96,7 @@ class Dnd5eConverter {
      *
      * @param speed - speed + special speed object as found on the actor object
      */
-    private _speedConverter(speed: any): any {
+    private _movementConverter(speed: any): any {
         if (!isMetric(speed.units)) return speed;
 
         const units = speed.units;
@@ -107,6 +107,21 @@ class Dnd5eConverter {
         })
         speed.units = convertStringFromImperialToMetric(speed.units);
 
+        return speed
+    }
+
+    /**
+     * This method does the exact same thing as the one above but atropos changed how movement works so now i dont know
+     * what structure i should use, so i did the most sensible thing
+     *
+     * I metrified all of them just to be sure
+     *
+     * @param speed
+     * @private
+     */
+    private _speedConverter (speed:any) {
+        speed.value = this._convertText(speed.value);
+        speed.special = this._convertText(speed.special);
         return speed;
     }
 
@@ -116,7 +131,9 @@ class Dnd5eConverter {
      * @param data -  actor data to be converted (can be found at actor.data)
      */
     private async _toMetricConverter5e(data: any): Promise<any> {
-        data.data.attributes.movement = this._speedConverter(data.data.attributes.movement);
+        data.data.attributes.movement = this._movementConverter(data.data.attributes.movement);
+        if (data.data.attributes.speed)
+            data.data.attributes.speed = this._speedConverter(data.data.attributes.speed);
         data.data.traits.senses = imperialReplacer(data.data.traits.senses || '', /(?<value>[0-9]+ ?)(?<unit>[\w]+)/g)
 
         return data;
@@ -315,6 +332,18 @@ class Dnd5eConverter {
     public async batchItemsConverter(items) {
         ui.notifications.warn('Batch conversion for the items has started. This may take a while... Please don\'t do anything util completed.', {permanent: true})
         for (const item of items) await this.itemUpdater(item);
+        ui.notifications.info('Batch conversion completed, get back to the game', {permanent: true});
+    }
+
+    public async batchRolltablesConverter () {
+        ui.notifications.warn('Batch conversion for the rollable tables has started. This may take a while... Please don\'t do anything util completed.', {permanent: true})
+        for (const rollTable of game.tables.entities) await this.rollTableConverter(rollTable);
+        ui.notifications.info('Batch conversion completed, get back to the game', {permanent: true});
+    }
+
+    public async batchJournalsConverter () {
+        ui.notifications.warn('Batch conversion for the journal entries has started. This may take a while... Please don\'t do anything util completed.', {permanent: true})
+        for (const journal of game.journal.entities) await this.journalUpdater(journal);
         ui.notifications.info('Batch conversion completed, get back to the game', {permanent: true});
     }
 }
