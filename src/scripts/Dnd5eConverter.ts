@@ -157,7 +157,7 @@ class Dnd5eConverter {
         try {
             await actor.update(actorClone.data);
         } catch (e) {
-
+            createErrorMessage(e, 'actor.update', actorClone.data);
         }
 
         await this._itemsConverter(actor.items.entries);
@@ -180,8 +180,16 @@ class Dnd5eConverter {
 
         if (item.labels) item.labels.range = this._labelConverter(item.labels.range);
 
-        await item.setFlag("Foundry-MGL", "converted", true);
-        await item.update(itemClone);
+        try {
+            await item.setFlag("Foundry-MGL", "converted", true);
+        } catch (e) {
+            createErrorMessage(e, `${itemClone.name}.setFlag()`, item);
+        }
+        try {
+            await item.update(itemClone);
+        } catch (e) {
+            createErrorMessage(e, `${itemClone.name}.update`, itemClone);
+        }
     }
 
     /**
@@ -194,7 +202,12 @@ class Dnd5eConverter {
 
         journalClone.content = this._convertText(journalClone.content);
 
-        await journal.update(journalClone);
+        try {
+            await journal.update(journalClone);
+        } catch (e) {
+            createErrorMessage(e, journalClone.name, journal);
+        }
+
     }
 
     /**
@@ -205,13 +218,18 @@ class Dnd5eConverter {
         for (const scene of game.scenes.entities) {
             // @ts-ignore
             if (scene._view === true) continue;
-            const sceneClone = await scene.clone({}, {temporary: true});
+            const sceneClone = JSON.parse(JSON.stringify(scene));
             // @ts-ignore
-            sceneClone.data.gridDistance = convertValueToMetric(sceneClone.data.gridDistance, sceneClone.data.gridUnits);
+            sceneClone.gridDistance = convertValueToMetric(sceneClone.gridDistance, sceneClone.gridUnits);
             // @ts-ignore
-            sceneClone.data.gridUnits = convertStringFromImperialToMetric(sceneClone.data.gridUnits);
+            sceneClone.gridUnits = convertStringFromImperialToMetric(sceneClone.gridUnits);
 
-            await scene.update(sceneClone.data);
+            try {
+                await scene.update(sceneClone);
+            } catch (e) {
+                createErrorMessage(e, sceneClone.name, sceneClone);
+            }
+
         }
     }
 
@@ -221,14 +239,18 @@ class Dnd5eConverter {
      * @param rollTable
      */
     public async rollTableConverter(rollTable) {
-        const rollTableClone = await rollTable.clone({}, {temporary: true});
+        const rollTableClone = JSON.parse(JSON.stringify(rollTable));
 
-        rollTableClone.data.description = this._convertText(rollTableClone.data.description);
-        rollTableClone.data.results.forEach((result) => {
+        rollTableClone.description = this._convertText(rollTableClone.description);
+        rollTableClone.results.forEach((result) => {
             result.text = this._convertText(result.text)
         })
 
-        await rollTable.update(rollTableClone.data);
+        try {
+            await rollTable.update(rollTableClone);
+        } catch (e) {
+            createErrorMessage(e, rollTableClone.name, rollTableClone);
+        }
     }
 
     /**
