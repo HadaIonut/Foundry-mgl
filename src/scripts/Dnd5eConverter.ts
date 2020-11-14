@@ -5,12 +5,15 @@ import {
     isMetric,
     imperialReplacer
 } from "./ConversionEngineNew";
-import Settings from "./Settings";
+import {createErrorMessage} from "./ErrorHandler";
+import Utils from "./Utils";
 
 class Dnd5eConverter {
     private static _instance: Dnd5eConverter;
+    private _loading;
 
     private constructor() {
+        this._loading = Utils.loading;
     }
 
     public static getInstance(): Dnd5eConverter {
@@ -121,9 +124,9 @@ class Dnd5eConverter {
      * @param speed
      * @private
      */
-    private _speedConverter (speed:any) {
-        speed.value = this._convertText(speed.value);
-        speed.special = this._convertText(speed.special);
+    private _speedConverter(speed: any) {
+        speed.value = this._convertText(speed.value || '');
+        speed.special = this._convertText(speed.special || '');
         return speed;
     }
 
@@ -132,11 +135,11 @@ class Dnd5eConverter {
      *
      * @param data -  actor data to be converted (can be found at actor.data)
      */
-    private async _toMetricConverter5e(data: any): Promise<any> {
-        data.data.attributes.movement = this._movementConverter(data.data.attributes.movement);
-        if (data.data.attributes.speed)
-            data.data.attributes.speed = this._speedConverter(data.data.attributes.speed);
-        data.data.traits.senses = imperialReplacer(data.data.traits.senses || '', /(?<value>[0-9]+ ?)(?<unit>[\w]+)/g)
+    private _toMetricConverter5e(data: any): any {
+        data.attributes.movement = this._movementConverter(data.attributes.movement);
+        if (data.attributes.speed)
+            data.attributes.speed = this._speedConverter(data.attributes.speed);
+        data.traits.senses = imperialReplacer(data.traits.senses || '', /(?<value>[0-9]+ ?)(?<unit>[\w]+)/g)
 
         return data;
     }
@@ -146,12 +149,16 @@ class Dnd5eConverter {
      *
      * @param actor - actor to be converted
      */
-    public async actorUpdater(actor: any) {
-        const actorClone = await actor.clone({_id: actor.data._id}, {temporary: true});
+    public async actorUpdater(actor: any): Promise<void> {
+        const actorClone = JSON.parse(JSON.stringify(actor))
 
-        actorClone.data = await this._toMetricConverter5e(actorClone.data);
+        actorClone.data = this._toMetricConverter5e(actorClone.data);
 
-        await actor.update(actorClone.data);
+        try {
+            await actor.update(actorClone.data);
+        } catch (e) {
+
+        }
 
         await this._itemsConverter(actor.items.entries);
     }
@@ -163,18 +170,18 @@ class Dnd5eConverter {
      */
     public async itemUpdater(item: any) {
         if (item.getFlag("Foundry-MGL", "converted")) return;
-        const itemClone = await item.clone({}, {temporary: true})
+        const itemClone = JSON.parse(JSON.stringify(item));
 
-        itemClone.data.data.description.value = this._convertText(itemClone.data.data.description.value);
+        itemClone.data.description.value = this._convertText(itemClone.data.description.value);
 
-        itemClone.data.data.target = this._convertDistance(itemClone.data.data.target);
-        itemClone.data.data.range = this._convertDistance(itemClone.data.data.range);
-        itemClone.data.data.weight = convertValueToMetric(itemClone.data.data.weight, 'pound');
+        itemClone.data.target = this._convertDistance(itemClone.data.target);
+        itemClone.data.range = this._convertDistance(itemClone.data.range);
+        itemClone.data.weight = convertValueToMetric(itemClone.data.weight, 'pound');
 
         if (item.labels) item.labels.range = this._labelConverter(item.labels.range);
 
         await item.setFlag("Foundry-MGL", "converted", true);
-        await item.update(itemClone.data);
+        await item.update(itemClone);
     }
 
     /**
@@ -183,11 +190,11 @@ class Dnd5eConverter {
      * @param journal
      */
     public async journalUpdater(journal) {
-        const journalClone = await journal.clone({}, {temporary: true});
+        const journalClone = JSON.parse(JSON.stringify(journal));
 
-        journalClone.data.content = this._convertText(journalClone.data.content);
+        journalClone.content = this._convertText(journalClone.content);
 
-        await journal.update(journalClone.data);
+        await journal.update(journalClone);
     }
 
     /**
@@ -200,7 +207,7 @@ class Dnd5eConverter {
             if (scene._view === true) continue;
             const sceneClone = await scene.clone({}, {temporary: true});
             // @ts-ignore
-            sceneClone.data.gridDistance = convertValueToMetric(sceneClone.data.gridDistance, ceneClone.data.gridUnits);
+            sceneClone.data.gridDistance = convertValueToMetric(sceneClone.data.gridDistance, sceneClone.data.gridUnits);
             // @ts-ignore
             sceneClone.data.gridUnits = convertStringFromImperialToMetric(sceneClone.data.gridUnits);
 
@@ -259,8 +266,8 @@ class Dnd5eConverter {
      * @param actor
      * @private
      */
-    private async _compendiumActorUpdater(actor) {
-        actor.data = await this._toMetricConverter5e(actor.data);
+    private _compendiumActorUpdater(actor) {
+        actor.data = this._toMetricConverter5e(actor.data);
         actor.data.items = this._compendiumItemsUpdater(actor.data.items);
         return actor;
     }
@@ -277,6 +284,7 @@ class Dnd5eConverter {
         scene.gridUnits = convertStringFromImperialToMetric(scene.gridUnits);
         return scene
     }
+
     /**
      * Selects what type of entity the current target is
      *
@@ -285,9 +293,9 @@ class Dnd5eConverter {
     public async typeSelector(entity) {
         switch (entity.constructor.name) {
             case 'Actor5e':
-                return await this._compendiumActorUpdater(entity);
+                return this._compendiumActorUpdater(entity);
             case 'Item5e':
-                entity.data = await this._compendiumItemUpdater(entity.data);
+                entity.data = this._compendiumItemUpdater(entity.data);
                 return entity;
             case 'JournalEntry':
                 entity.data.content = this._convertText(entity.data.content);
@@ -324,13 +332,17 @@ class Dnd5eConverter {
         const pack = game.packs.get(compendium);
         await pack.getIndex();
         const newPack = await this._createANewCompendiumFromMeta(pack.metadata);
+        const newEntitiesArray = [];
 
+        const loading = this._loading(`Converting compendium ${pack.metadata.label}`)(0)(pack.index.length - 1);
         for (const index of pack.index) {
             const entity = await pack.getEntity(index._id);
-            let entityClone = await entity.clone({}, {temporary: true});
+            let entityClone = JSON.parse(JSON.stringify(entity.data))
             entityClone = await this.typeSelector(entityClone);
-            await newPack.createEntity(entityClone.data)
+            newEntitiesArray.push(entityClone);
+            loading();
         }
+        await newPack.createEntity(newEntitiesArray);
     }
 
     public async batchCompendiumConverter() {
@@ -345,25 +357,41 @@ class Dnd5eConverter {
     public async batchActorConverter() {
         ui.notifications.warn('Batch conversion for the actors has started. This may take a while... Please don\'t do anything util completed.', {permanent: true})
         const actors = game.actors.entities;
-        for (const actor of actors) await this.actorUpdater(actor);
+        const loading = this._loading('Converting actors')(0)(actors.length - 1);
+        for (const actor of actors) {
+            await this.actorUpdater(actor);
+            loading();
+        }
         ui.notifications.info('Batch conversion completed, get back to the game', {permanent: true});
     }
 
     public async batchItemsConverter(items) {
         ui.notifications.warn('Batch conversion for the items has started. This may take a while... Please don\'t do anything util completed.', {permanent: true})
-        for (const item of items) await this.itemUpdater(item);
+        const loading = this._loading(`Converting items`)(0)(items.length - 1);
+        for (const item of items) {
+            await this.itemUpdater(item);
+            loading();
+        }
         ui.notifications.info('Batch conversion completed, get back to the game', {permanent: true});
     }
 
-    public async batchRolltablesConverter () {
+    public async batchRolltablesConverter() {
         ui.notifications.warn('Batch conversion for the rollable tables has started. This may take a while... Please don\'t do anything util completed.', {permanent: true})
-        for (const rollTable of game.tables.entities) await this.rollTableConverter(rollTable);
+        const loading = this._loading(`Converting roll tables`)(0)(game.tables.entities.length - 1);
+        for (const rollTable of game.tables.entities) {
+            await this.rollTableConverter(rollTable);
+            loading();
+        }
         ui.notifications.info('Batch conversion completed, get back to the game', {permanent: true});
     }
 
-    public async batchJournalsConverter () {
+    public async batchJournalsConverter() {
         ui.notifications.warn('Batch conversion for the journal entries has started. This may take a while... Please don\'t do anything util completed.', {permanent: true})
-        for (const journal of game.journal.entities) await this.journalUpdater(journal);
+        const loading = this._loading(`Converting journals`)(0)(game.journal.entities.length - 1);
+        for (const journal of game.journal.entities) {
+            await this.journalUpdater(journal);
+            loading();
+        }
         ui.notifications.info('Batch conversion completed, get back to the game', {permanent: true});
     }
 }

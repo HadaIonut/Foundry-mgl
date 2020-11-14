@@ -48,7 +48,7 @@ Hooks.on('renderItemSheet', MetricModule.onRenderItemSheet);
 
 Hooks.on('renderJournalSheet', MetricModule.onRenderJurnalSheet);
 
-Hooks.on("renderSidebarTab", MetricModule.onRenderSideBar);
+Hooks.on("renderSidebarTab", MetricModule.onRenderSideBar.bind(MetricModule));
 
 Hooks.on('renderRollTableConfig', MetricModule.onRenderRollTable);
 

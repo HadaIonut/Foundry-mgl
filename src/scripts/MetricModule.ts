@@ -31,11 +31,11 @@ class MetricModule {
                         ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
                     break;
                 case 'rolltable':
-                    Dnd5eConverter.rollTableConverter(actor).then(()=>
+                    Dnd5eConverter.rollTableConverter(actor).then(() =>
                         ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
                     break;
                 case 'compendium':
-                    Dnd5eConverter.compendiumConverter(actor).then(()=>
+                    Dnd5eConverter.compendiumConverter(actor).then(() =>
                         ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
                     break;
             }
@@ -62,47 +62,69 @@ class MetricModule {
     }
 
     public onRenderSideBar(app, html) {
+        const mm = this;
         let button;
         switch (app?.options?.id) {
             case "scenes":
                 button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the scenes</button>");
-                button.on('click', ()=> Dnd5eConverter.allScenesUpdater());
+                button.on('click', () => mm._createWarningDialog(Dnd5eConverter.allScenesUpdater.bind(Dnd5eConverter)));
                 html.find(".directory-footer").append(button);
                 break;
             case "compendium":
                 button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the compendiums</button>");
-                button.on('click', ()=> Dnd5eConverter.batchCompendiumConverter());
+                button.on('click', () => mm._createWarningDialog(Dnd5eConverter.batchCompendiumConverter.bind(Dnd5eConverter)));
                 html.find(".directory-footer").append(button);
                 break;
             case "actors":
                 button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the actors</button>");
-                button.on('click', ()=> Dnd5eConverter.batchActorConverter());
+                button.on('click', () => mm._createWarningDialog(Dnd5eConverter.batchActorConverter.bind(Dnd5eConverter)));
                 html.find(".directory-footer").append(button);
                 break;
             case "items":
                 button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the items</button>");
-                button.on('click', ()=> Dnd5eConverter.batchItemsConverter(app.entities));
+                const batchItemsConv = (entities) => () => Dnd5eConverter.batchItemsConverter(entities);
+                const batchConvWithEntites = batchItemsConv(app.entities);
+                button.on('click', () => mm._createWarningDialog(batchConvWithEntites));
                 html.find(".directory-footer").append(button);
                 break;
             case "tables":
                 button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the rollable tables</button>");
-                button.on('click', ()=> Dnd5eConverter.batchRolltablesConverter());
+                button.on('click', () => mm._createWarningDialog(Dnd5eConverter.batchRolltablesConverter.bind(Dnd5eConverter)));
                 html.find(".directory-footer").append(button);
                 break;
             case "journal":
                 button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the journal entries</button>");
-                button.on('click', ()=> Dnd5eConverter.batchJournalsConverter());
+                button.on('click', () => mm._createWarningDialog(Dnd5eConverter.batchJournalsConverter.bind(Dnd5eConverter)));
                 html.find(".directory-footer").append(button);
                 break;
         }
     }
 
-    public onRenderRollTable(obj,html) {
+    private _createWarningDialog(callFunction: any) {
+        new Dialog({
+            title: 'Warning!',
+            content: 'You are about to process a lot of data. Are you sure you wana do that? It will take a bit...',
+            buttons: {
+                ok: {
+                    icon: '<i class="fas fa-check"></i>',
+                    label: 'yes',
+                    callback: callFunction,
+                },
+                cancel: {
+                    icon: '<i class="fas fa-times"></i>',
+                    label: 'no',
+                }
+            },
+            default: 'ok',
+        }).render(true);
+    }
+
+    public onRenderRollTable(obj, html) {
         let element = html.find(".window-header .window-title");
         MetricModule.addButton(element, obj.object, 'rolltable')
     }
 
-    public onCompendiumRender (obj,html) {
+    public onCompendiumRender(obj, html) {
         let element = html.find(".window-header .window-title");
         MetricModule.addButton(element, obj.collection, 'compendium');
     }
