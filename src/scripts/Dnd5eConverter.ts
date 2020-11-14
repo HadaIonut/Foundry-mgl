@@ -93,7 +93,7 @@ class Dnd5eConverter {
      * @param items - items array to be converted (can be found at actor.data.items)
      */
     private async _itemsConverter(items: Array<any>): Promise<void> {
-        for (const item of items) await this.itemUpdater(item);
+
     }
 
     /**

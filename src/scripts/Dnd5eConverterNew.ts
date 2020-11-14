@@ -1,10 +1,11 @@
 import {
-    convertStringFromImperialToMetric,
+    actorDataConverter, convertDistance,
+    convertStringFromImperialToMetric, convertText,
     convertValueToMetric,
-    imperialReplacer,
-    isMetric
 } from "./ConversionEngineNew";
-import {numberSelector, numberToWords} from "./WordsToNumbers";
+
+import {createErrorMessage} from "./ErrorHandler";
+import {createNewCompendium, typeSelector} from "./Compendium5eConverter";
 
 const labelConverter = (label: string): string => {
     return label.replace(/(([0-9]+) \/ )?([0-9]+) ([\w]+)/, (_0, _1, optionalValue, mainValue, unit) => {
@@ -14,63 +15,107 @@ const labelConverter = (label: string): string => {
     })
 }
 
-const convertDistance = (distance: any): any => {
-    if (!distance) return distance;
-    distance.value = convertValueToMetric(distance.value, distance.units);
-    distance.long = convertValueToMetric(distance.long, distance.units);
-    distance.units = convertStringFromImperialToMetric(distance.units);
+const itemUpdater = async (item: any): Promise<void> => {
+    if (item.getFlag("Foundry-MGL", "converted")) return;
+    const itemClone = JSON.parse(JSON.stringify(item));
 
-    return distance;
+    itemClone.data.description.value = convertText(itemClone.data.description.value);
+
+    itemClone.data.target = convertDistance(itemClone.data.target);
+    itemClone.data.range = convertDistance(itemClone.data.range);
+    itemClone.data.weight = convertValueToMetric(itemClone.data.weight, 'pound');
+
+    if (item.labels) item.labels.range = labelConverter(item.labels.range);
+
+    try {
+        await item.setFlag("Foundry-MGL", "converted", true);
+    } catch (e) {
+        createErrorMessage(e, `${itemClone.name}.setFlag()`, item);
+    }
+    try {
+        await item.update(itemClone);
+    } catch (e) {
+        createErrorMessage(e, `${itemClone.name}.update`, itemClone);
+    }
 }
 
-const convertText = (text: string): string => {
-    return text.replace(/(\b[^\d\W]+\b )?(\b[^\d\W]+\b)([ -])(feet|foot)/g, (_0, wordNumber1, wordNumber2, separator, unit) => {
-        const capitalized = wordNumber1 !== wordNumber1?.toLowerCase();
-        const selectedNumber = numberSelector(wordNumber1 ? wordNumber1?.toLowerCase().replace(' ', '') : '', wordNumber2?.toLowerCase());
-        if (selectedNumber.number) {
-            const convertedValue = convertValueToMetric(selectedNumber.number, unit);
-            const returnText = selectedNumber.text + numberToWords(Math.ceil(Number(convertedValue))) + separator + convertStringFromImperialToMetric(unit);
-            return capitalized ? returnText.charAt(0).toUpperCase() + returnText.slice(1) : returnText;
+const itemsUpdater = async (items: Array<any>): Promise<void> => {
+    for (const item of items) await itemUpdater(item);
+}
+
+const actorUpdater = async (actor: any): Promise<void> => {
+    const actorClone = JSON.parse(JSON.stringify(actor));
+
+    actorClone.data = actorDataConverter(actorClone.data);
+
+    try {
+        await actor.update(actorClone.data);
+    } catch (e) {
+        createErrorMessage(e, 'actor.update', actorClone.data);
+    }
+
+    await itemsUpdater(actor.items.entries);
+}
+
+const journalUpdater = async (journal: any): Promise<void> => {
+    const journalClone = JSON.parse(JSON.stringify(journal));
+
+    journalClone.content = convertText(journalClone.content);
+
+    try {
+        await journal.update(journalClone);
+    } catch (e) {
+        createErrorMessage(e, journalClone.name, journal);
+    }
+
+}
+
+const allScenesUpdater = async (): Promise<void> => {
+    for (const scene of game.scenes.entities) {
+        // @ts-ignore
+        if (scene._view === true) continue;
+        const sceneClone = JSON.parse(JSON.stringify(scene));
+        // @ts-ignore
+        sceneClone.gridDistance = convertValueToMetric(sceneClone.gridDistance, sceneClone.gridUnits);
+        // @ts-ignore
+        sceneClone.gridUnits = convertStringFromImperialToMetric(sceneClone.gridUnits);
+
+        try {
+            await scene.update(sceneClone);
+        } catch (e) {
+            createErrorMessage(e, sceneClone.name, sceneClone);
         }
-        return selectedNumber.text + separator + unit;
-    }).replace(/([0-9]+) (to|and) ([0-9]+) (feet|inch|foot|ft\.)/g, (_0, number1, separatorWord, number2, units) => {
-        return convertValueToMetric(number1, units) + ` ${separatorWord} ` + convertValueToMetric(number2, units) + ` ${convertStringFromImperialToMetric(units)}`;
-    }).replace(/([0-9]{1,3}(,[0-9]{3})+)([ -])(feet|foot|pounds)/g, (_0, number: string, _1, separator, label: string) => {
-        return convertValueToMetric(number, label) + separator + convertStringFromImperialToMetric(label);
-    }).replace(/([0-9]+)\/([0-9]+) (feet|inch|foot|ft\.)/g, (_0, firstNumber: string, secondNumber: string, label: string) => {
-        return convertValueToMetric(firstNumber, label) + '/' + convertValueToMetric(secondNumber, label) + ' ' + convertStringFromImperialToMetric(label);
-    }).replace(/([0-9]+)([\W\D\S]|&nbsp;| cubic |-){1,2}(feet|inch|foot|ft\.|pounds|lbs\.|pound|lbs|lb)/g, (_0, number: string, separator: string, label: string) => {
-        return convertValueToMetric(number, label) + separator + convertStringFromImperialToMetric(label);
-    }).replace(/(several \w+ )(feet|yards)/g, (_0, several, unit) => {
-        return several + convertStringFromImperialToMetric(unit);
+    }
+}
+
+const rollTableConverter = async (rollTable: any): Promise<void> => {
+    const rollTableClone = JSON.parse(JSON.stringify(rollTable));
+
+    rollTableClone.description = convertText(rollTableClone.description);
+    rollTableClone.results.forEach((result) => {
+        result.text = convertText(result.text)
     })
+
+    try {
+        await rollTable.update(rollTableClone);
+    } catch (e) {
+        createErrorMessage(e, rollTableClone.name, rollTableClone);
+    }
 }
 
-const movementConverter = (speed: any): any => {
-    if (!isMetric(speed.units)) return speed;
+const compendiumConverter = async (compendium: string): Promise<void> => {
+    const pack = game.packs.get(compendium);
+    await pack.getIndex();
+    const newPack = await createNewCompendium(pack.metadata);
+    const newEntitiesArray = [];
 
-    const units = speed.units;
-    Object.keys(speed).forEach((key) => {
-        if (key === 'units' || key === 'hover') return;
-
-        speed[key] = convertValueToMetric(speed[key], units);
-    })
-    speed.units = convertStringFromImperialToMetric(speed.units);
-
-    return speed;
-}
-
-const speedConverter = (speed: any): any => {
-    speed.value = this._convertText(speed.value || '');
-    speed.special = this._convertText(speed.special || '');
-    return speed;
-}
-
-const actorDataConverter = (data: any): any => {
-    data.attributes.movement = this._movementConverter(data.attributes.movement);
-    if (data.attributes.speed)
-        data.attributes.speed = this._speedConverter(data.attributes.speed);
-    data.traits.senses = imperialReplacer(data.traits.senses || '', /(?<value>[0-9]+ ?)(?<unit>[\w]+)/g)
-
-    return data;
+    const loading = this._loading(`Converting compendium ${pack.metadata.label}`)(0)(pack.index.length - 1);
+    for (const index of pack.index) {
+        const entity = await pack.getEntity(index._id);
+        let entityClone = JSON.parse(JSON.stringify(entity.data))
+        entityClone = typeSelector(entityClone, entity.constructor.name);
+        newEntitiesArray.push(entityClone);
+        loading();
+    }
+    newPack.createEntity(newEntitiesArray);
 }
