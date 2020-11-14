@@ -289,7 +289,7 @@ class Dnd5eConverter {
      */
     private _compendiumActorUpdater(actor) {
         actor.data = this._toMetricConverter5e(actor.data);
-        actor.data.items = this._compendiumItemsUpdater(actor.data.items);
+        actor.items = this._compendiumItemsUpdater(actor.items);
         return actor;
     }
 
@@ -310,23 +310,21 @@ class Dnd5eConverter {
      * Selects what type of entity the current target is
      *
      * @param entity
+     * @param type
      */
-    public typeSelector(entity) {
-        switch (entity.constructor.name) {
+    public typeSelector(entity, type) {
+        switch (type) {
             case 'Actor5e':
                 return this._compendiumActorUpdater(entity);
             case 'Item5e':
-                entity.data = this._compendiumItemUpdater(entity.data);
-                return entity;
+                return this._compendiumItemUpdater(entity);
             case 'JournalEntry':
-                entity.data.content = this._convertText(entity.data.content);
+                entity.content = this._convertText(entity.content);
                 return entity;
             case 'RollTable':
-                entity.data = this._compendiumRollTableUpdater(entity.data);
-                return entity;
+                return this._compendiumRollTableUpdater(entity);
             case 'Scene':
-                entity.data = this._compendiumScenesUpdater(entity.data);
-                return entity;
+                return this._compendiumScenesUpdater(entity);
             default:
                 return entity;
         }
@@ -359,7 +357,7 @@ class Dnd5eConverter {
         for (const index of pack.index) {
             const entity = await pack.getEntity(index._id);
             let entityClone = JSON.parse(JSON.stringify(entity.data))
-            entityClone = this.typeSelector(entityClone);
+            entityClone = this.typeSelector(entityClone, entity.constructor.name);
             newEntitiesArray.push(entityClone);
             loading();
         }
