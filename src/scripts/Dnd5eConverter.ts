@@ -229,7 +229,6 @@ class Dnd5eConverter {
             } catch (e) {
                 createErrorMessage(e, sceneClone.name, sceneClone);
             }
-
         }
     }
 
@@ -312,7 +311,7 @@ class Dnd5eConverter {
      *
      * @param entity
      */
-    public async typeSelector(entity) {
+    public typeSelector(entity) {
         switch (entity.constructor.name) {
             case 'Actor5e':
                 return this._compendiumActorUpdater(entity);
@@ -360,11 +359,11 @@ class Dnd5eConverter {
         for (const index of pack.index) {
             const entity = await pack.getEntity(index._id);
             let entityClone = JSON.parse(JSON.stringify(entity.data))
-            entityClone = await this.typeSelector(entityClone);
+            entityClone = this.typeSelector(entityClone);
             newEntitiesArray.push(entityClone);
             loading();
         }
-        await newPack.createEntity(newEntitiesArray);
+        newPack.createEntity(newEntitiesArray);
     }
 
     public async batchCompendiumConverter() {
