@@ -112,7 +112,7 @@ class Dnd5eConverter {
         })
         speed.units = convertStringFromImperialToMetric(speed.units);
 
-        return speed
+        return speed;
     }
 
     /**
