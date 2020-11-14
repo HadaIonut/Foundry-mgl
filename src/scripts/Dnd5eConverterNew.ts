@@ -1,19 +1,11 @@
 import {
     actorDataConverter, convertDistance,
     convertStringFromImperialToMetric, convertText,
-    convertValueToMetric,
+    convertValueToMetric, labelConverter,
 } from "./ConversionEngineNew";
 
 import {createErrorMessage} from "./ErrorHandler";
 import {createNewCompendium, typeSelector} from "./Compendium5eConverter";
-
-const labelConverter = (label: string): string => {
-    return label.replace(/(([0-9]+) \/ )?([0-9]+) ([\w]+)/, (_0, _1, optionalValue, mainValue, unit) => {
-        if (optionalValue)
-            return convertValueToMetric(optionalValue, unit) + '/' + convertValueToMetric(mainValue, unit) + ' ' + convertStringFromImperialToMetric(unit);
-        return convertValueToMetric(mainValue, unit) + ' ' + convertStringFromImperialToMetric(unit);
-    })
-}
 
 const itemUpdater = async (item: any): Promise<void> => {
     if (item.getFlag("Foundry-MGL", "converted")) return;

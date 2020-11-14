@@ -158,4 +158,12 @@ const actorDataConverter = (data: any): any => {
     return data;
 }
 
-export {convertValueToMetric, convertStringFromImperialToMetric, isMetric, imperialReplacer, convertText, actorDataConverter, convertDistance}
+const labelConverter = (label: string): string => {
+    return label.replace(/(([0-9]+) \/ )?([0-9]+) ([\w]+)/, (_0, _1, optionalValue, mainValue, unit) => {
+        if (optionalValue)
+            return convertValueToMetric(optionalValue, unit) + '/' + convertValueToMetric(mainValue, unit) + ' ' + convertStringFromImperialToMetric(unit);
+        return convertValueToMetric(mainValue, unit) + ' ' + convertStringFromImperialToMetric(unit);
+    })
+}
+
+export {convertValueToMetric, convertStringFromImperialToMetric, isMetric, imperialReplacer, convertText, actorDataConverter, convertDistance, labelConverter}
