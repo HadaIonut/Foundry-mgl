@@ -1,4 +1,5 @@
-import Dnd5eConverter from "./Dnd5eConverter";
+import {actorUpdater, itemUpdater, journalUpdater, rollTableUpdater, compendiumUpdater, allScenesUpdater} from "./Dnd5eConverterNew";
+import {initBatchConversion} from "./BatchConversion";
 
 class MetricModule {
     private static _instance: MetricModule;
@@ -19,24 +20,24 @@ class MetricModule {
             ui.notifications.warn(`Metrifying the ${type}, hold on tight.`);
             switch (type) {
                 case 'actor':
-                    Dnd5eConverter.actorUpdater(actor).then(()=>
+                    actorUpdater(actor).then(()=>
                         ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
                     break;
                 case 'item':
-                    Dnd5eConverter.itemUpdater(actor).then(()=>
+                    itemUpdater(actor).then(()=>
                         ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
                     break;
                 case 'sheet':
-                    Dnd5eConverter.journalUpdater(actor).then(()=>
+                    journalUpdater(actor).then(()=>
                         ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
                     break;
                 case 'rolltable':
-                    Dnd5eConverter.rollTableConverter(actor).then(() =>
+                    rollTableUpdater(actor).then(() =>
                         ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
                     break;
                 case 'compendium':
-                    Dnd5eConverter.compendiumConverter(actor).then(() =>
-                        ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
+                    compendiumUpdater(actor).then(()=>
+                        ui.notifications.info(`Metrification complete, enjoy a better ${type}`))
                     break;
             }
 
@@ -63,41 +64,41 @@ class MetricModule {
 
     public onRenderSideBar(app, html) {
         const mm = this;
-        let button;
+        let button = $(`<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the ${app?.options?.id}</button>`);
+        let batchConvert
         switch (app?.options?.id) {
             case "scenes":
-                button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the scenes</button>");
-                button.on('click', () => mm._createWarningDialog(Dnd5eConverter.allScenesUpdater.bind(Dnd5eConverter)));
-                html.find(".directory-footer").append(button);
+                // @ts-ignore
+                batchConvert = initBatchConversion(game.scenes.entries, app?.options?.id);
+                button.on('click', () => mm._createWarningDialog(batchConvert));
                 break;
             case "compendium":
-                button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the compendiums</button>");
-                button.on('click', () => mm._createWarningDialog(Dnd5eConverter.batchCompendiumConverter.bind(Dnd5eConverter)));
-                html.find(".directory-footer").append(button);
+                // @ts-ignore
+                batchConvert = initBatchConversion(game.packs.keys(), app?.options?.id);
+                button.on('click', () => mm._createWarningDialog(batchConvert));
                 break;
             case "actors":
-                button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the actors</button>");
-                button.on('click', () => mm._createWarningDialog(Dnd5eConverter.batchActorConverter.bind(Dnd5eConverter)));
-                html.find(".directory-footer").append(button);
+                // @ts-ignore
+                batchConvert = initBatchConversion(game.actors.entries, app?.options?.id);
+                button.on('click', () => mm._createWarningDialog(batchConvert));
                 break;
             case "items":
-                button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the items</button>");
-                const batchItemsConv = (entities) => () => Dnd5eConverter.batchItemsConverter(entities);
-                const batchConvWithEntites = batchItemsConv(app.entities);
-                button.on('click', () => mm._createWarningDialog(batchConvWithEntites));
-                html.find(".directory-footer").append(button);
+                // @ts-ignore
+                batchConvert = initBatchConversion(game.items.entries, app?.options?.id);
+                button.on('click', () => mm._createWarningDialog(batchConvert));
                 break;
             case "tables":
-                button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the rollable tables</button>");
-                button.on('click', () => mm._createWarningDialog(Dnd5eConverter.batchRolltablesConverter.bind(Dnd5eConverter)));
-                html.find(".directory-footer").append(button);
+                // @ts-ignore
+                batchConvert = initBatchConversion(game.tables.entries, app?.options?.id);
+                button.on('click', () => mm._createWarningDialog(batchConvert));
                 break;
             case "journal":
-                button = $("<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the journal entries</button>");
-                button.on('click', () => mm._createWarningDialog(Dnd5eConverter.batchJournalsConverter.bind(Dnd5eConverter)));
-                html.find(".directory-footer").append(button);
+                // @ts-ignore
+                batchConvert = initBatchConversion(game.journal.entries, app?.options?.id);
+                button.on('click', () => mm._createWarningDialog(batchConvert));
                 break;
         }
+        html.find(".directory-footer").append(button);
     }
 
     private _createWarningDialog(callFunction: any) {
@@ -108,7 +109,7 @@ class MetricModule {
                 ok: {
                     icon: '<i class="fas fa-check"></i>',
                     label: 'yes',
-                    callback: callFunction,
+                    callback: () => callFunction(),
                 },
                 cancel: {
                     icon: '<i class="fas fa-times"></i>',

@@ -61,7 +61,7 @@ const typeSelector = (entity: any, type: string): any => {
 }
 
 const createNewCompendium = async (metadata: any): Promise<any> => {
-    return await Compendium.create({
+    return Compendium.create({
         entity: metadata.entity,
         label: `${metadata.label} Metrified`,
         name: `${metadata.label}-metrified`,

@@ -114,7 +114,7 @@ const convertText = (text: string): string => {
         return convertValueToMetric(number, label) + separator + convertStringFromImperialToMetric(label);
     }).replace(/([0-9]+)\/([0-9]+) (feet|inch|foot|ft\.)/g, (_0, firstNumber: string, secondNumber: string, label: string) => {
         return convertValueToMetric(firstNumber, label) + '/' + convertValueToMetric(secondNumber, label) + ' ' + convertStringFromImperialToMetric(label);
-    }).replace(/([0-9]+)([\W\D\S]|&nbsp;| cubic |-){1,2}(feet|inch|foot|ft\.|pounds|lbs\.|pound|lbs|lb)/g, (_0, number: string, separator: string, label: string) => {
+    }).replace(/([0-9]+)([\W\D\S]|&nbsp;| cubic |-){1,2}(feet|inch|foot|ft\.|pounds|lbs\.|pound|lbs|lb|ft)/g, (_0, number: string, separator: string, label: string) => {
         return convertValueToMetric(number, label) + separator + convertStringFromImperialToMetric(label);
     }).replace(/(several \w+ )(feet|yards)/g, (_0, several, unit) => {
         return several + convertStringFromImperialToMetric(unit);
@@ -128,7 +128,7 @@ const movementConverter = (speed: any): any => {
     Object.keys(speed).forEach((key) => {
         if (key === 'units' || key === 'hover') return;
 
-        speed[key] = convertValueToMetric(speed[key], units);
+        speed[key] = convertValueToMetric(speed[key], units) || 0;
     })
     speed.units = convertStringFromImperialToMetric(speed.units);
 
@@ -151,7 +151,7 @@ const speedConverter = (speed: any): any => {
 }
 
 const actorDataConverter = (data: any): any => {
-    data.attributes.movement = movementConverter(data.attributes.movement);
+    if (data.attributes.movement) data.attributes.movement = movementConverter(data.attributes.movement);
     if (data.attributes.speed) data.attributes.speed = speedConverter(data.attributes.speed);
     data.traits.senses = imperialReplacer(data.traits.senses || '', /(?<value>[0-9]+ ?)(?<unit>[\w]+)/g)
 

@@ -6,6 +6,7 @@ import {
 
 import {createErrorMessage} from "./ErrorHandler";
 import {createNewCompendium, typeSelector} from "./Compendium5eConverter";
+import Utils from "./Utils";
 
 const itemUpdater = async (item: any): Promise<void> => {
     if (item.getFlag("Foundry-MGL", "converted")) return;
@@ -41,7 +42,7 @@ const actorUpdater = async (actor: any): Promise<void> => {
     actorClone.data = actorDataConverter(actorClone.data);
 
     try {
-        await actor.update(actorClone.data);
+        await actor.update(actorClone);
     } catch (e) {
         createErrorMessage(e, 'actor.update', actorClone.data);
     }
@@ -80,7 +81,7 @@ const allScenesUpdater = async (): Promise<void> => {
     }
 }
 
-const rollTableConverter = async (rollTable: any): Promise<void> => {
+const rollTableUpdater = async (rollTable: any): Promise<void> => {
     const rollTableClone = JSON.parse(JSON.stringify(rollTable));
 
     rollTableClone.description = convertText(rollTableClone.description);
@@ -95,19 +96,21 @@ const rollTableConverter = async (rollTable: any): Promise<void> => {
     }
 }
 
-const compendiumConverter = async (compendium: string): Promise<void> => {
+const compendiumUpdater = async (compendium: string): Promise<void> => {
     const pack = game.packs.get(compendium);
     await pack.getIndex();
     const newPack = await createNewCompendium(pack.metadata);
     const newEntitiesArray = [];
 
-    const loading = this._loading(`Converting compendium ${pack.metadata.label}`)(0)(pack.index.length - 1);
+    const loadingBar = Utils.loading(`Converting compendium ${pack.metadata.label}`)(0)(pack.index.length - 1);
     for (const index of pack.index) {
         const entity = await pack.getEntity(index._id);
         let entityClone = JSON.parse(JSON.stringify(entity.data))
         entityClone = typeSelector(entityClone, entity.constructor.name);
         newEntitiesArray.push(entityClone);
-        loading();
+        loadingBar();
     }
     newPack.createEntity(newEntitiesArray);
 }
+
+export {actorUpdater, itemUpdater, journalUpdater, rollTableUpdater, compendiumUpdater, allScenesUpdater}
