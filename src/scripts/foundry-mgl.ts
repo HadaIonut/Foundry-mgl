@@ -1,4 +1,4 @@
-import Utils from "./Utils";
+import Utils from "./Utils/Utils";
 import MetricModule from "./MetricModule";
 // @ts-ignore
 import {DND5E} from "../../../systems/dnd5e/module/config.js";

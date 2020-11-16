@@ -1,4 +1,4 @@
-import utils from './Utils'
+import utils from './Utils/Utils'
 import settingsLists from "./settingsLists";
 
 class Settings {

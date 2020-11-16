@@ -1,5 +1,5 @@
-import {actorUpdater, itemUpdater, journalUpdater, rollTableUpdater, compendiumUpdater, allScenesUpdater} from "./Dnd5eConverterNew";
-import {initBatchConversion} from "./BatchConversion";
+import {actorUpdater, itemUpdater, journalUpdater, rollTableUpdater, compendiumUpdater, batchCompendiumUpdater} from "./Dnd5e/Dnd5eConverterNew";
+import {initBatchConversion} from "./Dnd5e/BatchConversion";
 
 class MetricModule {
     private static _instance: MetricModule;
@@ -74,7 +74,7 @@ class MetricModule {
                 break;
             case "compendium":
                 // @ts-ignore
-                batchConvert = initBatchConversion(game.packs.keys(), app?.options?.id);
+                batchConvert = batchCompendiumUpdater(game.packs.keys());
                 button.on('click', () => mm._createWarningDialog(batchConvert));
                 break;
             case "actors":
@@ -98,7 +98,7 @@ class MetricModule {
                 button.on('click', () => mm._createWarningDialog(batchConvert));
                 break;
         }
-        html.find(".directory-footer").append(button);
+        if (app?.options?.id !== 'combat' && app?.options?.id !== 'playlists') html.find(".directory-footer").append(button);
     }
 
     private _createWarningDialog(callFunction: any) {

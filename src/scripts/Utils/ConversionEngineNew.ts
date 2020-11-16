@@ -1,4 +1,4 @@
-import Settings from "./Settings";
+import Settings from "../Settings";
 import {numberSelector, numberToWords} from "./WordsToNumbers";
 
 const imperialToMetricMap: { [key: string]: string } = {

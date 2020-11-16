@@ -4,10 +4,10 @@ import {
     convertText,
     convertValueToMetric,
     labelConverter
-} from "./ConversionEngineNew";
-import {createErrorMessage} from "./ErrorHandler";
+} from "../Utils/ConversionEngineNew";
+import {createErrorMessage} from "../Utils/ErrorHandler";
 import {createNewCompendium, typeSelector} from "./Compendium5eConverter";
-import Utils from "./Utils";
+import Utils from "../Utils/Utils";
 
 const itemUpdater = (item: any): void => {
     if (item.getFlag("Foundry-MGL", "converted")) return;
@@ -98,8 +98,6 @@ const batchConversion = (elements: any[], callbackFunction) => {
 
 const initBatchConversion = (elements: any[], type: string) => () => {
     switch (type) {
-        case 'compendium':
-            return batchConversion(elements, compendiumConverter);
         case 'actors':
             return batchConversion(elements, actorUpdater);
         case 'items':

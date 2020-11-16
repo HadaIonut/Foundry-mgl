@@ -2,11 +2,11 @@ import {
     actorDataConverter, convertDistance,
     convertStringFromImperialToMetric, convertText,
     convertValueToMetric, labelConverter,
-} from "./ConversionEngineNew";
+} from "../Utils/ConversionEngineNew";
 
-import {createErrorMessage} from "./ErrorHandler";
+import {createErrorMessage} from "../Utils/ErrorHandler";
 import {createNewCompendium, typeSelector} from "./Compendium5eConverter";
-import Utils from "./Utils";
+import Utils from "../Utils/Utils";
 
 const itemUpdater = async (item: any): Promise<void> => {
     if (item.getFlag("Foundry-MGL", "converted")) return;
@@ -97,20 +97,30 @@ const rollTableUpdater = async (rollTable: any): Promise<void> => {
 }
 
 const compendiumUpdater = async (compendium: string): Promise<void> => {
-    const pack = game.packs.get(compendium);
-    await pack.getIndex();
-    const newPack = await createNewCompendium(pack.metadata);
-    const newEntitiesArray = [];
+    try {
+        const pack = game.packs.get(compendium);
+        await pack.getIndex();
+        const newPack = await createNewCompendium(pack.metadata);
+        const newEntitiesArray = [];
 
-    const loadingBar = Utils.loading(`Converting compendium ${pack.metadata.label}`)(0)(pack.index.length - 1);
-    for (const index of pack.index) {
-        const entity = await pack.getEntity(index._id);
-        let entityClone = JSON.parse(JSON.stringify(entity.data))
-        entityClone = typeSelector(entityClone, entity.constructor.name);
-        newEntitiesArray.push(entityClone);
-        loadingBar();
+        const loadingBar = Utils.loading(`Converting compendium ${pack.metadata.label}`)(0)(pack.index.length - 1);
+        for (const index of pack.index) {
+            const entity = await pack.getEntity(index._id);
+            let entityClone = JSON.parse(JSON.stringify(entity.data))
+            entityClone = typeSelector(entityClone, entity.constructor.name);
+            newEntitiesArray.push(entityClone);
+            loadingBar();
+        }
+        newPack.createEntity(newEntitiesArray);
+    } catch (e) {
+        createErrorMessage(e, 'compendiumUpdater', compendium);
     }
-    newPack.createEntity(newEntitiesArray);
+
 }
 
-export {actorUpdater, itemUpdater, journalUpdater, rollTableUpdater, compendiumUpdater, allScenesUpdater}
+const batchCompendiumUpdater = (compendiums: string[]) => async () => {
+    for (const compendium of compendiums)
+        if (!compendium.includes('metrified')) await compendiumUpdater(compendium);
+}
+
+export {actorUpdater, itemUpdater, journalUpdater, rollTableUpdater, compendiumUpdater, allScenesUpdater, batchCompendiumUpdater}
