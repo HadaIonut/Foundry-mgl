@@ -1,5 +1,13 @@
-import {actorUpdater, itemUpdater, journalUpdater, rollTableUpdater, compendiumUpdater, batchCompendiumUpdater} from "./Dnd5e/Dnd5eConverterNew";
+import {
+    actorUpdater,
+    itemUpdater,
+    journalUpdater,
+    rollTableUpdater,
+    compendiumUpdater,
+    batchCompendiumUpdater
+} from "./Dnd5e/Dnd5eConverterNew";
 import {initBatchConversion} from "./Dnd5e/BatchConversion";
+import {relinkCompendiums} from "./Dnd5e/Compendium5eConverter";
 
 class MetricModule {
     private static _instance: MetricModule;
@@ -20,15 +28,15 @@ class MetricModule {
             ui.notifications.warn(`Metrifying the ${type}, hold on tight.`);
             switch (type) {
                 case 'actor':
-                    actorUpdater(actor).then(()=>
+                    actorUpdater(actor).then(() =>
                         ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
                     break;
                 case 'item':
-                    itemUpdater(actor).then(()=>
+                    itemUpdater(actor).then(() =>
                         ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
                     break;
                 case 'sheet':
-                    journalUpdater(actor).then(()=>
+                    journalUpdater(actor).then(() =>
                         ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
                     break;
                 case 'rolltable':
@@ -36,7 +44,7 @@ class MetricModule {
                         ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
                     break;
                 case 'compendium':
-                    compendiumUpdater(actor).then(()=>
+                    compendiumUpdater(actor).then(() =>
                         ui.notifications.info(`Metrification complete, enjoy a better ${type}`))
                     break;
             }
@@ -64,7 +72,8 @@ class MetricModule {
 
     public onRenderSideBar(app, html) {
         const mm = this;
-        let button = $(`<button class='import-markdown'><i class='fas fa-exchange-alt'></i>Metrify all the ${app?.options?.id}</button>`);
+        let buttonGroup = $('<div class ="action-buttons flexrow"></div>');
+        let button = $(`<button><i class='fas fa-exchange-alt'></i>Metrify all the ${app?.options?.id}</button>`);
         let batchConvert
         switch (app?.options?.id) {
             case "scenes":
@@ -76,6 +85,9 @@ class MetricModule {
                 // @ts-ignore
                 batchConvert = batchCompendiumUpdater(game.packs.keys());
                 button.on('click', () => mm._createWarningDialog(batchConvert));
+                let linkButton = $(`<button ><i class='fas fa-link'></i>Relink the text</button>`);
+                linkButton.on('click', ()=> relinkCompendiums());
+                buttonGroup.append(button, linkButton);
                 break;
             case "actors":
                 // @ts-ignore
@@ -98,7 +110,9 @@ class MetricModule {
                 button.on('click', () => mm._createWarningDialog(batchConvert));
                 break;
         }
-        if (app?.options?.id !== 'combat' && app?.options?.id !== 'playlists') html.find(".directory-footer").append(button);
+        if (app?.options?.id !== 'combat' && app?.options?.id !== 'playlists' && app?.options?.id !== 'compendium')
+            html.find(".directory-footer").append(button);
+        if (app?.options?.id === 'compendium') html.find(".directory-footer").append(buttonGroup);
     }
 
     private _createWarningDialog(callFunction: any) {

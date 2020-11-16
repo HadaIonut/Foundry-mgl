@@ -3,7 +3,7 @@ import {
     convertDistance,
     convertStringFromImperialToMetric,
     convertText,
-    convertValueToMetric
+    convertValueToMetric, relinkText
 } from "../Utils/ConversionEngineNew";
 
 const itemUpdater = (item: any): any => {
@@ -64,11 +64,33 @@ const createNewCompendium = async (metadata: any): Promise<any> => {
     return Compendium.create({
         entity: metadata.entity,
         label: `${metadata.label} Metrified`,
-        name: `${metadata.label}-metrified`,
+        name: `${metadata.name}-metrified`,
         package: 'Foundry-MGL',
-        path: `./packs/${metadata.label}-metrified.db`,
+        path: `./packs/${metadata.name}-metrified.db`,
         system: "dnd5e"
     })
 }
 
-export {typeSelector, createNewCompendium}
+const relinkCompendium = async (compendium) => {
+    const sourcePack = game.packs.get(compendium);
+    await sourcePack.getIndex();
+
+    for (const index of sourcePack.index) {
+        const entity = await sourcePack.getEntity(index._id);
+        let entityClone = JSON.parse(JSON.stringify(entity.data))
+        if (entity.constructor.name === 'JournalEntry'){
+            entityClone.content = await relinkText(entityClone.content);
+            await sourcePack.updateEntity(entityClone);
+        }
+
+    }
+}
+
+const relinkCompendiums = async () => {
+    const compendiums = game.packs.keys();
+    for (const compendium of compendiums)
+        if (compendium.includes('metrified')) await relinkCompendium(compendium);
+}
+
+
+export {typeSelector, createNewCompendium, relinkCompendiums}

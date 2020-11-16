@@ -166,4 +166,40 @@ const labelConverter = (label: string): string => {
     })
 }
 
-export {convertValueToMetric, convertStringFromImperialToMetric, isMetric, imperialReplacer, convertText, actorDataConverter, convertDistance, labelConverter}
+const findMetrifiedItemId = async (source: string, itemId: string, target: string) => {
+    const compendiumSource = game.packs.get(source);
+    const compendiumTarget = game.packs.get(target);
+    if (compendiumSource && compendiumTarget) {
+        await compendiumSource.getIndex();
+        await compendiumTarget.getIndex();
+        const entry = compendiumSource.index.find(e => e._id === itemId);
+        const newEntity = compendiumTarget.index.find(e => e.name === entry.name);
+
+        itemId = newEntity._id;
+    }
+
+    return itemId
+}
+
+const relinkText = async (text: string): Promise<string> => {
+    const matched = [...text.matchAll(/@Compendium\[(.+)\.(.+)\.(\w+)\]/g)];
+    for (const match of matched) {
+        const source = `${match[1]}.${match[2]}`;
+        const target = `world.${match[2]}-metrified`;
+        const newId = await findMetrifiedItemId(source, match[3], target);
+        text = text.replace(`${source}.${match[3]}`, `${target}.${newId}`);
+    }
+    return text;
+}
+
+export {
+    convertValueToMetric,
+    convertStringFromImperialToMetric,
+    isMetric,
+    imperialReplacer,
+    convertText,
+    actorDataConverter,
+    convertDistance,
+    labelConverter,
+    relinkText
+}
