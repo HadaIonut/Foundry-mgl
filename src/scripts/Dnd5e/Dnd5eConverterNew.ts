@@ -84,7 +84,7 @@ const allScenesUpdater = async (): Promise<void> => {
 const rollTableUpdater = async (rollTable: any): Promise<void> => {
     const rollTableClone = JSON.parse(JSON.stringify(rollTable));
 
-    rollTableClone.description = convertText(rollTableClone.description);
+    if (rollTableClone.description) rollTableClone.description = convertText(rollTableClone.description);
     rollTableClone.results.forEach((result) => {
         result.text = convertText(result.text)
     })

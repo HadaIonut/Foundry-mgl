@@ -114,7 +114,7 @@ const convertText = (text: string): string => {
         return convertValueToMetric(number, label) + separator + convertStringFromImperialToMetric(label);
     }).replace(/([0-9]+)\/([0-9]+) (feet|inch|foot|ft\.)/g, (_0, firstNumber: string, secondNumber: string, label: string) => {
         return convertValueToMetric(firstNumber, label) + '/' + convertValueToMetric(secondNumber, label) + ' ' + convertStringFromImperialToMetric(label);
-    }).replace(/([0-9]+)([\W\D\S]|&nbsp;| cubic |-){1,2}(feet|inch|foot|ft\.|pounds|lbs\.|pound|lbs|lb|ft)/g, (_0, number: string, separator: string, label: string) => {
+    }).replace(/([0-9]+)(\W|&nbsp;| cubic |-){1,2}(feet|inch|foot|ft\.|pounds|lbs\.|pound|lbs|lb|ft)/g, (_0, number: string, separator: string, label: string) => {
         return convertValueToMetric(number, label) + separator + convertStringFromImperialToMetric(label);
     }).replace(/(several \w+ )(feet|yards)/g, (_0, several, unit) => {
         return several + convertStringFromImperialToMetric(unit);
@@ -150,10 +150,21 @@ const speedConverter = (speed: any): any => {
     return speed;
 }
 
+const detailsConverter = (details) => {
+    details.biography.value = convertText(details.biography.value);
+    if (details.appearance) details.appearance = convertText(details.appearance);
+    if (details.bond) details.bond = convertText(details.bond);
+    if (details.flaw) details.flaw = convertText(details.flaw);
+    if (details.ideal) details.ideal = convertText(details.ideal);
+    if (details.trait) details.trait = convertText(details.trait);
+    return details;
+}
+
 const actorDataConverter = (data: any): any => {
     if (data.attributes.movement) data.attributes.movement = movementConverter(data.attributes.movement);
     if (data.attributes.speed) data.attributes.speed = speedConverter(data.attributes.speed);
     data.traits.senses = imperialReplacer(data.traits.senses || '', /(?<value>[0-9]+ ?)(?<unit>[\w]+)/g)
+    data.details = detailsConverter(data.details);
 
     return data;
 }

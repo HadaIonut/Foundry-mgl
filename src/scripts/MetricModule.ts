@@ -137,9 +137,12 @@ class MetricModule {
     public onCompendiumRender(obj, html) {
         let element = html.find(".window-header .window-title");
         MetricModule.addButton(element, obj.collection, 'compendium');
+        /*
+        Intended for debugging the relinking function
         let button = $(`<a class="popout" style><i class="fas fa-ruler"></i>Relink</a>`);
         button.on('click', () => relinkCompendium(obj.collection))
         element.after(button)
+        */
     }
 
 }
