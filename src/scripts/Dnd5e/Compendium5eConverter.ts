@@ -5,6 +5,7 @@ import {
     convertText,
     convertValueToMetric, relinkText
 } from "../Utils/ConversionEngineNew";
+import Utils from "../Utils/Utils";
 
 const itemUpdater = (item: any): any => {
     item.data.description.value = convertText(item.data.description.value);
@@ -71,18 +72,36 @@ const createNewCompendium = async (metadata: any): Promise<any> => {
     })
 }
 
+const relinkTypeSelector = async (entity, type) => {
+    switch (type) {
+        case 'Actor5e':
+            for (const item in entity.items) {
+                if (!entity.items.hasOwnProperty(item)) continue;
+                entity.items[item].data.description.value = await relinkText(entity.items[item].data.description.value)
+            }
+            return entity;
+        case 'Item5e':
+            entity.data.description.value = await relinkText(entity.data.description.value)
+            return entity;
+        case 'JournalEntry':
+            entity.content = await relinkText(entity.content);
+            return entity;
+        default:
+            return entity;
+    }
+}
+
 const relinkCompendium = async (compendium) => {
     const sourcePack = game.packs.get(compendium);
     await sourcePack.getIndex();
 
+    const loadingBar = Utils.loading(`Relinking compendium ${sourcePack.metadata.label}`)(0)(sourcePack.index.length - 1);
     for (const index of sourcePack.index) {
         const entity = await sourcePack.getEntity(index._id);
         let entityClone = JSON.parse(JSON.stringify(entity.data))
-        if (entity.constructor.name === 'JournalEntry'){
-            entityClone.content = await relinkText(entityClone.content);
-            await sourcePack.updateEntity(entityClone);
-        }
-
+        entityClone = await relinkTypeSelector(entityClone, entity.constructor.name);
+        await sourcePack.updateEntity(entityClone);
+        loadingBar();
     }
 }
 
@@ -93,4 +112,4 @@ const relinkCompendiums = async () => {
 }
 
 
-export {typeSelector, createNewCompendium, relinkCompendiums}
+export {typeSelector, createNewCompendium, relinkCompendiums, relinkCompendium}

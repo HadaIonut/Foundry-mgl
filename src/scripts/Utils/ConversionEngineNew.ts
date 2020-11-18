@@ -172,7 +172,8 @@ const findMetrifiedItemId = async (source: string, itemId: string, target: strin
     if (compendiumSource && compendiumTarget) {
         await compendiumSource.getIndex();
         await compendiumTarget.getIndex();
-        const entry = compendiumSource.index.find(e => e._id === itemId);
+        const entry = compendiumSource.index.find(e => e._id === itemId || e.name === itemId);
+        if (!entry) return itemId;
         const newEntity = compendiumTarget.index.find(e => e.name === entry.name);
 
         itemId = newEntity._id;
@@ -182,12 +183,14 @@ const findMetrifiedItemId = async (source: string, itemId: string, target: strin
 }
 
 const relinkText = async (text: string): Promise<string> => {
-    const matched = [...text.matchAll(/@Compendium\[(.+)\.(.+)\.(\w+)\]/g)];
+    const matched = [...text.matchAll(/@Compendium\[([A-Za-z0-9\-]+)\.([A-Za-z0-9\-]+)\.(\w+)\]/g)];
     for (const match of matched) {
         const source = `${match[1]}.${match[2]}`;
         const target = `world.${match[2]}-metrified`;
+        if (source.includes('metrified') || !game.packs.get(target)) continue;
         const newId = await findMetrifiedItemId(source, match[3], target);
-        text = text.replace(`${source}.${match[3]}`, `${target}.${newId}`);
+        if (newId !== match[3])
+            text = text.replace(`${source}.${match[3]}`, `${target}.${newId}`);
     }
     return text;
 }

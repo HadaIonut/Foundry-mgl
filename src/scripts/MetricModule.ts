@@ -7,7 +7,7 @@ import {
     batchCompendiumUpdater
 } from "./Dnd5e/Dnd5eConverterNew";
 import {initBatchConversion} from "./Dnd5e/BatchConversion";
-import {relinkCompendiums} from "./Dnd5e/Compendium5eConverter";
+import {relinkCompendiums, relinkCompendium} from "./Dnd5e/Compendium5eConverter";
 
 class MetricModule {
     private static _instance: MetricModule;
@@ -72,7 +72,6 @@ class MetricModule {
 
     public onRenderSideBar(app, html) {
         const mm = this;
-        let buttonGroup = $('<div class ="action-buttons flexrow"></div>');
         let button = $(`<button><i class='fas fa-exchange-alt'></i>Metrify all the ${app?.options?.id}</button>`);
         let batchConvert
         switch (app?.options?.id) {
@@ -85,9 +84,6 @@ class MetricModule {
                 // @ts-ignore
                 batchConvert = batchCompendiumUpdater(game.packs.keys());
                 button.on('click', () => mm._createWarningDialog(batchConvert));
-                let linkButton = $(`<button ><i class='fas fa-link'></i>Relink the text</button>`);
-                linkButton.on('click', ()=> relinkCompendiums());
-                buttonGroup.append(button, linkButton);
                 break;
             case "actors":
                 // @ts-ignore
@@ -110,9 +106,8 @@ class MetricModule {
                 button.on('click', () => mm._createWarningDialog(batchConvert));
                 break;
         }
-        if (app?.options?.id !== 'combat' && app?.options?.id !== 'playlists' && app?.options?.id !== 'compendium')
+        if (app?.options?.id !== 'combat' && app?.options?.id !== 'playlists')
             html.find(".directory-footer").append(button);
-        if (app?.options?.id === 'compendium') html.find(".directory-footer").append(buttonGroup);
     }
 
     private _createWarningDialog(callFunction: any) {
@@ -142,6 +137,9 @@ class MetricModule {
     public onCompendiumRender(obj, html) {
         let element = html.find(".window-header .window-title");
         MetricModule.addButton(element, obj.collection, 'compendium');
+        let button = $(`<a class="popout" style><i class="fas fa-ruler"></i>Relink</a>`);
+        button.on('click', () => relinkCompendium(obj.collection))
+        element.after(button)
     }
 
 }

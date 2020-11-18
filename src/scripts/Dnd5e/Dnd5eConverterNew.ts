@@ -5,7 +5,7 @@ import {
 } from "../Utils/ConversionEngineNew";
 
 import {createErrorMessage} from "../Utils/ErrorHandler";
-import {createNewCompendium, typeSelector} from "./Compendium5eConverter";
+import {createNewCompendium, relinkCompendiums, typeSelector} from "./Compendium5eConverter";
 import Utils from "../Utils/Utils";
 
 const itemUpdater = async (item: any): Promise<void> => {
@@ -121,6 +121,7 @@ const compendiumUpdater = async (compendium: string): Promise<void> => {
 const batchCompendiumUpdater = (compendiums: string[]) => async () => {
     for (const compendium of compendiums)
         if (!compendium.includes('metrified')) await compendiumUpdater(compendium);
+    await relinkCompendiums();
 }
 
 export {actorUpdater, itemUpdater, journalUpdater, rollTableUpdater, compendiumUpdater, allScenesUpdater, batchCompendiumUpdater}
