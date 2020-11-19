@@ -13,11 +13,11 @@ class Settings {
     }
 
     private _registerSetting(key: string, data: any): void {
-        game.settings.register(utils.moduleName, key, data);
+        game.settings.register('Foundry-MGL', key, data);
     }
 
     private _getSetting(key: string): any {
-        return game.settings.get(utils.moduleName, key);
+        return game.settings.get('Foundry-MGL', key);
     }
 
     private _getMultipliers(): any {
@@ -25,7 +25,7 @@ class Settings {
         try {
             return JSON.parse(setting);
         } catch (error) {
-            return {};
+            return {}
         }
     }
 
