@@ -18,7 +18,7 @@ const itemUpdater = async (item: any): Promise<void> => {
     itemClone.data.range = convertDistance(itemClone.data.range);
     itemClone.data.weight = convertValueToMetric(itemClone.data.weight, 'pound');
 
-    if (item.labels) item.labels.range = labelConverter(item.labels.range);
+    if (item.labels.range) item.labels.range = labelConverter(item.labels.range);
 
     try {
         await item.setFlag("Foundry-MGL", "converted", true);
