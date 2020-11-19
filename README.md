@@ -1,4 +1,7 @@
 # Foundry Metrics, Grams and Liters
+![downloads](https://img.shields.io/github/downloads/HadaIonut/Foundry-mgl/latest/module.zip?style=for-the-badge)
+[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/A0A32J9GM)
+
 Foundry-mgl is intended to be the ultimate tool for playing dnd5e in the metric system.
 The core concept behind Foundry-MGL is the idea of expandability this is why it is able to convert all types of text and labels that are found on the dnd5e system.
 
