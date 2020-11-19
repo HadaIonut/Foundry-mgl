@@ -21,6 +21,7 @@ class MetricModule {
     }
 
     static addButton(element, actor, type) {
+        if(!game.user.hasRole(4)) return;
         if (element.length != 1) return;
 
         let button = $(`<a class="popout" style><i class="fas fa-ruler"></i>Metrificator</a>`);
@@ -71,6 +72,7 @@ class MetricModule {
     }
 
     public onRenderSideBar(app, html) {
+        if(!game.user.hasRole(4)) return;
         const mm = this;
         let button = $(`<button><i class='fas fa-exchange-alt'></i>Metrify all the ${app?.options?.id}</button>`);
         let batchConvert

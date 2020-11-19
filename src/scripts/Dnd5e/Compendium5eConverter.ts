@@ -72,26 +72,26 @@ const createNewCompendium = async (metadata: any): Promise<any> => {
     })
 }
 
-const relinkTypeSelector = async (entity, type) => {
+const relinkTypeSelector = async (entity, type, cache) => {
     switch (type) {
         case 'Actor5e':
             for (const item in entity.items) {
                 if (!entity.items.hasOwnProperty(item)) continue;
-                entity.items[item].data.description.value = await relinkText(entity.items[item].data.description.value)
+                entity.items[item].data.description.value = await relinkText(entity.items[item].data.description.value, cache)
             }
             return entity;
         case 'Item5e':
-            entity.data.description.value = await relinkText(entity.data.description.value)
+            entity.data.description.value = await relinkText(entity.data.description.value, cache)
             return entity;
         case 'JournalEntry':
-            entity.content = await relinkText(entity.content);
+            entity.content = await relinkText(entity.content, cache);
             return entity;
         default:
             return entity;
     }
 }
 
-const relinkCompendium = async (compendium) => {
+const relinkCompendium = async (compendium, cache) => {
     const sourcePack = game.packs.get(compendium);
     await sourcePack.getIndex();
 
@@ -99,7 +99,7 @@ const relinkCompendium = async (compendium) => {
     for (const index of sourcePack.index) {
         const entity = await sourcePack.getEntity(index._id);
         let entityClone = JSON.parse(JSON.stringify(entity.data))
-        entityClone = await relinkTypeSelector(entityClone, entity.constructor.name);
+        entityClone = await relinkTypeSelector(entityClone, entity.constructor.name, cache);
         await sourcePack.updateEntity(entityClone);
         loadingBar();
     }
@@ -107,8 +107,9 @@ const relinkCompendium = async (compendium) => {
 
 const relinkCompendiums = async () => {
     const compendiums = game.packs.keys();
+    const cache = Utils.cache();
     for (const compendium of compendiums)
-        if (compendium.includes('metrified')) await relinkCompendium(compendium);
+        if (compendium.includes('metrified')) await relinkCompendium(compendium, cache);
 }
 
 

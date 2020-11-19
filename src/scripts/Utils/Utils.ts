@@ -72,6 +72,15 @@ class Utils {
             ++min;
         }
     }
+
+    public cache () {
+        let cacheVar = new Map();
+        return async (compendiumObject, compendiumId) => {
+            cacheVar[compendiumId] = cacheVar[compendiumId] || await compendiumObject.getIndex();
+            return cacheVar;
+        }
+    }
+
 }
 
 export default Utils.getInstance(true, true);
