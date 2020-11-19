@@ -13,11 +13,7 @@ The core concept behind Foundry-MGL is the idea of expandability this is why it 
    - simple conversion on an actor
    
    ![img](https://i.imgur.com/eWqfvRe.gif)
-   
-   - batch conversion on the actors tab
-   
-   ![img](http://i.imgur.com/swIeflyh.gif)
-   
+
  ### Works for:
   scenes:
   
