@@ -3,7 +3,7 @@
   "title": "Foundry Meters, Grams & Liters",
   "description": "An expandable module that allows for easy and quick conversion of any data in the imperial system to the metric system.",
   "author": ["HadaIonut"],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "esmodules": ["scripts/foundry-mgl.js"],
   "styles": ["styles/foundry-mgl.css"],
   "languages":
@@ -16,7 +16,7 @@
   "minimumCoreVersion": "0.6.5",
   "compatibleCoreVersion": "0.7.7",
   "url": "https://github.com/HadaIonut/Foundry-mgl",
-  "manifest": "https://github.com/HadaIonut/Foundry-mgl/releases/download/v1.0.0/module.json",
-  "download": "https://github.com/HadaIonut/Foundry-mgl/releases/download/v1.0.0/module.zip",
+  "manifest": "https://github.com/HadaIonut/Foundry-mgl/releases/download/v1.0.1/module.json",
+  "download": "https://github.com/HadaIonut/Foundry-mgl/releases/download/v1.0.1/module.zip",
   "changelog": ""
 }
