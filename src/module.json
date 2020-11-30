@@ -12,6 +12,7 @@
       "name": "English",
       "path": "lang/en.json"
     }],
+  "system": "dnd5e",
   "minimumCoreVersion": "0.6.5",
   "compatibleCoreVersion": "0.7.7",
   "url": "https://github.com/HadaIonut/Foundry-mgl",

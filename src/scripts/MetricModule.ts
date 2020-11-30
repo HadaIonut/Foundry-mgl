@@ -49,10 +49,23 @@ class MetricModule {
                         ui.notifications.info(`Metrification complete, enjoy a better ${type}`))
                     break;
             }
-
         });
-
+        let labelButton = $(`<a class="popout" style><i class="fas fa-ruler"></i>Label Converter</a>`);
+        labelButton.on('click', ()=> {
+            switch (type) {
+                case 'actor':
+                    actorUpdater(actor, true);
+                    break;
+                case 'item':
+                    itemUpdater(actor, true);
+                    break;
+                case 'compendium':
+                    compendiumUpdater(actor, true);
+                    break;
+            }
+        })
         element.after(button);
+        element.after(labelButton);
     }
 
     public onRenderActorSheet(obj, html) {

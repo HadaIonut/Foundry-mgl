@@ -8,15 +8,15 @@ import {createErrorMessage} from "../Utils/ErrorHandler";
 import {createNewCompendium, relinkCompendiums, typeSelector} from "./Compendium5eConverter";
 import Utils from "../Utils/Utils";
 
-const itemUpdater = async (item: any): Promise<void> => {
+const itemUpdater = async (item: any, onlyLabel?: boolean): Promise<void> => {
     if (item.getFlag("Foundry-MGL", "converted")) return;
     const itemClone = JSON.parse(JSON.stringify(item));
 
-    itemClone.data.description.value = convertText(itemClone.data.description.value);
+    if (!onlyLabel) itemClone.data.description.value = convertText(itemClone.data.description.value);
+    if (!onlyLabel) itemClone.data.weight = convertValueToMetric(itemClone.data.weight, 'pound');
 
     itemClone.data.target = convertDistance(itemClone.data.target);
     itemClone.data.range = convertDistance(itemClone.data.range);
-    itemClone.data.weight = convertValueToMetric(itemClone.data.weight, 'pound');
 
     if (item.labels.range) item.labels.range = labelConverter(item.labels.range);
 
@@ -32,11 +32,11 @@ const itemUpdater = async (item: any): Promise<void> => {
     }
 }
 
-const itemsUpdater = async (items: Array<any>): Promise<void> => {
-    for (const item of items) await itemUpdater(item);
+const itemsUpdater = async (items: Array<any>, onlyLabel?: boolean): Promise<void> => {
+    for (const item of items) await itemUpdater(item, onlyLabel);
 }
 
-const actorUpdater = async (actor: any): Promise<void> => {
+const actorUpdater = async (actor: any, onlyLabel?: boolean): Promise<void> => {
     const actorClone = JSON.parse(JSON.stringify(actor));
 
     actorClone.data = actorDataConverter(actorClone.data);
@@ -47,7 +47,7 @@ const actorUpdater = async (actor: any): Promise<void> => {
         createErrorMessage(e, 'actor.update', actorClone.data);
     }
 
-    await itemsUpdater(actor.items.entries);
+    await itemsUpdater(actor.items.entries, onlyLabel);
 }
 
 const journalUpdater = async (journal: any): Promise<void> => {
@@ -96,7 +96,7 @@ const rollTableUpdater = async (rollTable: any): Promise<void> => {
     }
 }
 
-const compendiumUpdater = async (compendium: string): Promise<void> => {
+const compendiumUpdater = async (compendium: string, onlyLabel?: boolean): Promise<void> => {
     try {
         const pack = game.packs.get(compendium);
         await pack.getIndex();
@@ -107,7 +107,7 @@ const compendiumUpdater = async (compendium: string): Promise<void> => {
         for (const index of pack.index) {
             const entity = await pack.getEntity(index._id);
             let entityClone = JSON.parse(JSON.stringify(entity.data))
-            entityClone = typeSelector(entityClone, entity.constructor.name);
+            entityClone = typeSelector(entityClone, entity.constructor.name, onlyLabel);
             newEntitiesArray.push(entityClone);
             loadingBar();
         }

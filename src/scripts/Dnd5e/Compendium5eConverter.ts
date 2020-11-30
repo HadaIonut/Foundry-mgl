@@ -7,26 +7,26 @@ import {
 } from "../Utils/ConversionEngineNew";
 import Utils from "../Utils/Utils";
 
-const itemUpdater = (item: any): any => {
-    item.data.description.value = convertText(item.data.description.value);
+const itemUpdater = (item: any, onlyLabel?: boolean): any => {
+    if (!onlyLabel) item.data.description.value = convertText(item.data.description.value);
+    if (!onlyLabel) item.data.weight = convertValueToMetric(item.data.weight, 'pound');
 
     item.data.target = convertDistance(item.data.target);
     item.data.range = convertDistance(item.data.range);
-    item.data.weight = convertValueToMetric(item.data.weight, 'pound');
 
     return item;
 }
 
-const itemsUpdater = (items: any[]): any[] => {
+const itemsUpdater = (items: any[], onlyLabel?: boolean): any[] => {
     for (let i = 0; i < items.length; i++) {
-        items[i] = itemUpdater(items[i]);
+        items[i] = itemUpdater(items[i], onlyLabel);
     }
     return items;
 }
 
-const actorUpdater = (actor: any): any => {
+const actorUpdater = (actor: any, onlyLabel?: boolean): any => {
     actor.data = actorDataConverter(actor.data);
-    actor.items = itemsUpdater(actor.items);
+    actor.items = itemsUpdater(actor.items, onlyLabel);
     return actor;
 }
 
@@ -43,12 +43,12 @@ const scenesUpdater = (scene: any): any => {
     return scene;
 }
 
-const typeSelector = (entity: any, type: string): any => {
+const typeSelector = (entity: any, type: string, onlyLabel?: boolean): any => {
     switch (type) {
         case 'Actor5e':
-            return actorUpdater(entity);
+            return actorUpdater(entity, onlyLabel);
         case 'Item5e':
-            return itemUpdater(entity);
+            return itemUpdater(entity, onlyLabel);
         case 'JournalEntry':
             entity.content = convertText(entity.content);
             return entity;
