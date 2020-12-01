@@ -50,22 +50,38 @@ class MetricModule {
                     break;
             }
         });
-        let labelButton = $(`<a class="popout" style><i class="fas fa-ruler"></i>Label Converter</a>`);
-        labelButton.on('click', ()=> {
+        //for only converting the labels
+        // let labelButton = $(`<a class="popout" style><i class="fas fa-ruler"></i>Label Converter</a>`);
+        // labelButton.on('click', ()=> {
+        //     switch (type) {
+        //         case 'actor':
+        //             actorUpdater(actor, true);
+        //             break;
+        //         case 'item':
+        //             itemUpdater(actor, true);
+        //             break;
+        //         case 'compendium':
+        //             compendiumUpdater(actor, true);
+        //             break;
+        //     }
+        // })
+        let unitFix = $(`<a class="popout" style><i class="fas fa-ruler"></i>Unit fix</a>`);
+        unitFix.on('click', ()=> {
             switch (type) {
                 case 'actor':
-                    actorUpdater(actor, true);
+                    actorUpdater(actor, true, true);
                     break;
                 case 'item':
-                    itemUpdater(actor, true);
+                    itemUpdater(actor, true, true);
                     break;
                 case 'compendium':
-                    compendiumUpdater(actor, true);
+                    compendiumUpdater(actor, true, true);
                     break;
             }
         })
         element.after(button);
-        element.after(labelButton);
+        element.after(unitFix);
+        //element.after(labelButton);
     }
 
     public onRenderActorSheet(obj, html) {

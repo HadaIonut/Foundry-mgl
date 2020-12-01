@@ -135,12 +135,14 @@ const movementConverter = (speed: any): any => {
     return speed;
 }
 
-const convertDistance = (distance: any): any => {
+const convertDistance = (distance: any, onlyUnit?: boolean): any => {
     if (!distance) return distance;
-    distance.value = convertValueToMetric(distance.value, distance.units);
-    distance.long = convertValueToMetric(distance.long, distance.units);
-    distance.units = convertStringFromImperialToMetric(distance.units);
-
+    if (onlyUnit) distance.units = convertStringFromImperialToMetric(distance.units);
+    else {
+        distance.value = convertValueToMetric(distance.value, distance.units);
+        distance.long = convertValueToMetric(distance.long, distance.units);
+        distance.units = convertStringFromImperialToMetric(distance.units);
+    }
     return distance;
 }
 

@@ -7,26 +7,26 @@ import {
 } from "../Utils/ConversionEngineNew";
 import Utils from "../Utils/Utils";
 
-const itemUpdater = (item: any, onlyLabel?: boolean): any => {
+const itemUpdater = (item: any, onlyLabel?: boolean, onlyUnit?:boolean): any => {
     if (!onlyLabel) item.data.description.value = convertText(item.data.description.value);
     if (!onlyLabel) item.data.weight = convertValueToMetric(item.data.weight, 'pound');
 
-    item.data.target = convertDistance(item.data.target);
-    item.data.range = convertDistance(item.data.range);
+    item.data.target = convertDistance(item.data.target, onlyUnit);
+    item.data.range = convertDistance(item.data.range, onlyUnit);
 
     return item;
 }
 
-const itemsUpdater = (items: any[], onlyLabel?: boolean): any[] => {
+const itemsUpdater = (items: any[], onlyLabel?: boolean, onlyUnit?:boolean): any[] => {
     for (let i = 0; i < items.length; i++) {
-        items[i] = itemUpdater(items[i], onlyLabel);
+        items[i] = itemUpdater(items[i], onlyLabel, onlyUnit);
     }
     return items;
 }
 
-const actorUpdater = (actor: any, onlyLabel?: boolean): any => {
+const actorUpdater = (actor: any, onlyLabel?: boolean, onlyUnit?:boolean): any => {
     actor.data = actorDataConverter(actor.data);
-    actor.items = itemsUpdater(actor.items, onlyLabel);
+    actor.items = itemsUpdater(actor.items, onlyLabel, onlyUnit);
     return actor;
 }
 
@@ -43,12 +43,12 @@ const scenesUpdater = (scene: any): any => {
     return scene;
 }
 
-const typeSelector = (entity: any, type: string, onlyLabel?: boolean): any => {
+const typeSelector = (entity: any, type: string, onlyLabel?: boolean, onlyUnit?:boolean): any => {
     switch (type) {
         case 'Actor5e':
-            return actorUpdater(entity, onlyLabel);
+            return actorUpdater(entity, onlyLabel, onlyUnit);
         case 'Item5e':
-            return itemUpdater(entity, onlyLabel);
+            return itemUpdater(entity, onlyLabel, onlyUnit);
         case 'JournalEntry':
             entity.content = convertText(entity.content);
             return entity;
