@@ -65,22 +65,22 @@ class MetricModule {
         //             break;
         //     }
         // })
-        let unitFix = $(`<a class="popout" style><i class="fas fa-ruler"></i>Unit fix</a>`);
-        unitFix.on('click', ()=> {
-            switch (type) {
-                case 'actor':
-                    actorUpdater(actor, true, true);
-                    break;
-                case 'item':
-                    itemUpdater(actor, true, true);
-                    break;
-                case 'compendium':
-                    compendiumUpdater(actor, true, true);
-                    break;
-            }
-        })
+        // let unitFix = $(`<a class="popout" style><i class="fas fa-ruler"></i>Unit fix</a>`);
+        // unitFix.on('click', ()=> {
+        //     switch (type) {
+        //         case 'actor':
+        //             actorUpdater(actor, true, true);
+        //             break;
+        //         case 'item':
+        //             itemUpdater(actor, true, true);
+        //             break;
+        //         case 'compendium':
+        //             compendiumUpdater(actor, true, true);
+        //             break;
+        //     }
+        // })
         element.after(button);
-        element.after(unitFix);
+        //element.after(unitFix);
         //element.after(labelButton);
     }
 

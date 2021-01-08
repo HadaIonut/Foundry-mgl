@@ -1,5 +1,5 @@
 import {
-    actorDataConverter,
+    actorDataConverter, actorTokenConverter,
     convertDistance,
     convertStringFromImperialToMetric,
     convertText,
@@ -26,6 +26,7 @@ const itemsUpdater = (items: any[], onlyLabel?: boolean, onlyUnit?:boolean): any
 
 const actorUpdater = (actor: any, onlyLabel?: boolean, onlyUnit?:boolean): any => {
     actor.data = actorDataConverter(actor.data);
+    actor.token = actorTokenConverter(actor.token);
     actor.items = itemsUpdater(actor.items, onlyLabel, onlyUnit);
     return actor;
 }

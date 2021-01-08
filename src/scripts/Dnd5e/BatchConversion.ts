@@ -1,5 +1,5 @@
 import {
-    actorDataConverter,
+    actorDataConverter, actorTokenConverter,
     convertDistance, convertStringFromImperialToMetric,
     convertText,
     convertValueToMetric,
@@ -38,14 +38,20 @@ const itemsUpdater = (items: any[]): void => {
 const actorUpdater = (actor: any, loading): void => {
     const actorClone = JSON.parse(JSON.stringify(actor));
 
-    actorClone.data = actorDataConverter(actorClone.data);
+    if (!actor.getFlag("Foundry-MGL", "converted")) {
+        actorClone.data = actorDataConverter(actorClone.data);
+        actorClone.token = actorTokenConverter(actorClone.token);
+    }
 
-    actor.update(actorClone)
+    actor.setFlag("Foundry-MGL", "converted", true)
         .then(() => {
-            itemsUpdater(actor.items.entries);
-            loading();
+            actor.update(actorClone)
+                .then(() => {
+                    itemsUpdater(actor.items.entries);
+                    loading();
+                })
+                .catch((e) => createErrorMessage(e, 'actor.update', actorClone.data))
         })
-        .catch((e) => createErrorMessage(e, 'actor.update', actorClone.data))
 }
 
 const journalUpdater = (journal: any, loading): void => {

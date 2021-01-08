@@ -171,6 +171,14 @@ const actorDataConverter = (data: any): any => {
     return data;
 }
 
+const actorTokenConverter = (token: any) => {
+    token.brightLight = convertValueToMetric(token.brightLight, 'feet');
+    token.brightSight = convertValueToMetric(token.brightSight, 'feet');
+    token.dimLight = convertValueToMetric(token.dimLight, 'feet');
+    token.dimSight = convertValueToMetric(token.dimSight, 'feet');
+    return token;
+}
+
 const labelConverter = (label: string): string => {
     return label.replace(/(([0-9]+) \/ )?([0-9]+) ([\w]+)/, (_0, _1, optionalValue, mainValue, unit) => {
         if (optionalValue)
@@ -215,6 +223,7 @@ export {
     imperialReplacer,
     convertText,
     actorDataConverter,
+    actorTokenConverter,
     convertDistance,
     labelConverter,
     relinkText

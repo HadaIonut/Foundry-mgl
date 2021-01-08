@@ -121,7 +121,7 @@ gulp.task('link', () => {
 gulp.task('build', gulp.series(
     'move-non-convertible-files',
     'compile-and-copy-ts',
-    'compile-minify-and-copy-sass'
+    //'compile-minify-and-copy-sass'
 ));
 
 gulp.task('build-watch', () => {
@@ -131,5 +131,5 @@ gulp.task('build-watch', () => {
         '!./src/styles/**/*.scss'
     ], gulp.series('move-non-convertible-files'));
     gulp.watch('./src/scripts/**/*.ts', gulp.series('compile-and-copy-ts'));
-    gulp.watch('./src/styles/**/*.scss', gulp.series('compile-minify-and-copy-sass'));
+    //gulp.watch('./src/styles/**/*.scss', gulp.series('compile-minify-and-copy-sass'));
 });

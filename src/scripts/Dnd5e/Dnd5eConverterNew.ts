@@ -1,5 +1,5 @@
 import {
-    actorDataConverter, convertDistance,
+    actorDataConverter, actorTokenConverter, convertDistance,
     convertStringFromImperialToMetric, convertText,
     convertValueToMetric, labelConverter,
 } from "../Utils/ConversionEngineNew";
@@ -39,10 +39,14 @@ const itemsUpdater = async (items: Array<any>, onlyLabel?: boolean, onlyUnit?:bo
 const actorUpdater = async (actor: any, onlyLabel?: boolean, onlyUnit?:boolean): Promise<void> => {
     const actorClone = JSON.parse(JSON.stringify(actor));
 
-    actorClone.data = actorDataConverter(actorClone.data);
+    if (!actor.getFlag("Foundry-MGL", "converted")) {
+        actorClone.data = actorDataConverter(actorClone.data);
+        actorClone.token = actorTokenConverter(actorClone.token);
+    }
 
     try {
         await actor.update(actorClone);
+        await actor.setFlag("Foundry-MGL", "converted", true);
     } catch (e) {
         createErrorMessage(e, 'actor.update', actorClone.data);
     }
