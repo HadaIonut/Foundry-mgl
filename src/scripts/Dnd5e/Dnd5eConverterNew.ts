@@ -110,7 +110,7 @@ const compendiumUpdater = async (compendium: string, onlyLabel?: boolean, onlyUn
         const loadingBar = Utils.loading(`Converting compendium ${pack.metadata.label}`)(0)(pack.index.length - 1);
         for (const index of pack.index) {
             const entity = await pack.getEntity(index._id);
-            let entityClone = JSON.parse(JSON.stringify(entity.data))
+            let entityClone = JSON.parse(JSON.stringify(entity.data));
             entityClone = typeSelector(entityClone, entity.constructor.name, onlyLabel, onlyUnit);
             newEntitiesArray.push(entityClone);
             loadingBar();

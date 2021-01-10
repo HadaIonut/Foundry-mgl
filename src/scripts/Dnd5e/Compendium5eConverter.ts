@@ -48,7 +48,11 @@ const typeSelector = (entity: any, type: string, onlyLabel?: boolean, onlyUnit?:
     switch (type) {
         case 'Actor5e':
             return actorUpdater(entity, onlyLabel, onlyUnit);
+        case 'Mars5eActor':
+            return actorUpdater(entity, onlyLabel, onlyUnit);
         case 'Item5e':
+            return itemUpdater(entity, onlyLabel, onlyUnit);
+        case 'MarsItem5e':
             return itemUpdater(entity, onlyLabel, onlyUnit);
         case 'JournalEntry':
             entity.content = convertText(entity.content);
