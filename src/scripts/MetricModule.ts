@@ -137,7 +137,7 @@ class MetricModule {
                 button.on('click', () => mm._createWarningDialog(batchConvert));
                 break;
         }
-        if (app?.options?.id !== 'combat' && app?.options?.id !== 'playlists' && app?.options?.id !== 'combat-popout')
+        if (app?.options?.id !== 'combat' && app?.options?.id !== 'playlists' && !app?.options?.id.includes('popout'))
             html.find(".directory-footer").append(button);
     }
 
