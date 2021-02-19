@@ -104,23 +104,20 @@ const compendiumUpdater = async (compendium: any, onlyLabel?: boolean, onlyUnit?
     try {
         const pack = game.packs.get(compendium.collection);
         await pack.getIndex();
-        const newPack = await createNewCompendium(pack.metadata);
-        const newEntitiesArray = [];
+        const newPack = await pack.duplicateCompendium(`${pack.metadata.label}-metrified`)
+        await newPack.getIndex();
 
         const loadingBar = Utils.loading(`Converting compendium ${pack.metadata.label}`)(0)(pack.index.size - 1);
-        for (const index of pack.index) {
+        for (const index of newPack.index) {
             try {
-                const entity = await pack.getDocument(index._id);
+                const entity = await newPack.getDocument(index._id);
                 let entityClone = JSON.parse(JSON.stringify(entity.data));
 
                 entityClone = typeSelector(entityClone, entity.constructor.name, onlyLabel, onlyUnit);
 
-                const updatedEntity = await entity.update(entityClone);
-                newEntitiesArray.push(updatedEntity);
+                await entity.update(entityClone);
 
                 loadingBar();
-
-                newPack.importDocument(updatedEntity);
             }
             catch (e) {
                 createErrorMessage(e, 'compendiumUpdater', compendium);
