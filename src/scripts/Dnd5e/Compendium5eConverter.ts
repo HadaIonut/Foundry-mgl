@@ -67,7 +67,8 @@ const typeSelector = (entity: any, type: string, onlyLabel?: boolean, onlyUnit?:
 }
 
 const createNewCompendium = async (metadata: any): Promise<any> => {
-    return Compendium.create({
+    // @ts-ignore
+    return await CompendiumCollection.createCompendium({
         entity: metadata.entity,
         label: `${metadata.label} Metrified`,
         name: `${metadata.name}-metrified`,
@@ -100,7 +101,7 @@ const relinkCompendium = async (compendium, cache) => {
     const sourcePack = game.packs.get(compendium);
     await sourcePack.getIndex();
 
-    const loadingBar = Utils.loading(`Relinking compendium ${sourcePack.metadata.label}`)(0)(sourcePack.index.length - 1);
+    const loadingBar = Utils.loading(`Relinking compendium ${sourcePack.metadata.label}`)(0)(sourcePack.index.size - 1);
     for (const index of sourcePack.index) {
         const entity = await sourcePack.getEntity(index._id);
         let entityClone = JSON.parse(JSON.stringify(entity.data))

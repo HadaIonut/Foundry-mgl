@@ -3,6 +3,7 @@ import {
     itemUpdater,
     journalUpdater,
     rollTableUpdater,
+    compendiumUpdaterNew,
     compendiumUpdater,
     batchCompendiumUpdater
 } from "./Dnd5e/Dnd5eConverterNew";
@@ -20,7 +21,7 @@ class MetricModule {
         return MetricModule._instance;
     }
 
-    static addButton(element, actor, type) {
+    static addButton(element, actor, type, html?) {
         if(!game.user.hasRole(4)) return;
         if (element.length != 1) return;
 
@@ -45,6 +46,7 @@ class MetricModule {
                         ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
                     break;
                 case 'compendium':
+                    html.close();
                     compendiumUpdater(actor).then(() =>
                         ui.notifications.info(`Metrification complete, enjoy a better ${type}`))
                     break;
@@ -167,7 +169,7 @@ class MetricModule {
 
     public onCompendiumRender(obj, html) {
         let element = html.find(".window-header .window-title");
-        MetricModule.addButton(element, obj.collection, 'compendium');
+        MetricModule.addButton(element, obj.collection, 'compendium', obj);
         /*
         Intended for debugging the relinking function
         let button = $(`<a class="popout" style><i class="fas fa-ruler"></i>Relink</a>`);

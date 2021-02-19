@@ -100,26 +100,53 @@ const rollTableUpdater = async (rollTable: any): Promise<void> => {
     }
 }
 
-const compendiumUpdater = async (compendium: string, onlyLabel?: boolean, onlyUnit?:boolean): Promise<void> => {
+const compendiumUpdater = async (compendium: any, onlyLabel?: boolean, onlyUnit?:boolean): Promise<void> => {
     try {
-        const pack = game.packs.get(compendium);
+        const pack = game.packs.get(compendium.collection);
         await pack.getIndex();
         const newPack = await createNewCompendium(pack.metadata);
         const newEntitiesArray = [];
 
-        const loadingBar = Utils.loading(`Converting compendium ${pack.metadata.label}`)(0)(pack.index.length - 1);
+        const loadingBar = Utils.loading(`Converting compendium ${pack.metadata.label}`)(0)(pack.index.size - 1);
         for (const index of pack.index) {
-            const entity = await pack.getEntity(index._id);
-            let entityClone = JSON.parse(JSON.stringify(entity.data));
-            entityClone = typeSelector(entityClone, entity.constructor.name, onlyLabel, onlyUnit);
-            newEntitiesArray.push(entityClone);
-            loadingBar();
+            try {
+                const entity = await pack.getDocument(index._id);
+                let entityClone = JSON.parse(JSON.stringify(entity.data));
+
+                entityClone = typeSelector(entityClone, entity.constructor.name, onlyLabel, onlyUnit);
+
+                const updatedEntity = await entity.update(entityClone);
+                newEntitiesArray.push(updatedEntity);
+
+                loadingBar();
+
+                newPack.importDocument(updatedEntity);
+            }
+            catch (e) {
+                createErrorMessage(e, 'compendiumUpdater', compendium);
+            }
         }
-        newPack.createEntity(newEntitiesArray);
+
     } catch (e) {
         createErrorMessage(e, 'compendiumUpdater', compendium);
     }
 
+}
+
+const compendiumUpdaterNew = async (compendium: any, onlyLabel?: boolean, onlyUnit?:boolean): Promise<void> => {
+    try {
+        const pack = game.packs.get(compendium.collection);
+        await pack.getIndex();
+        const newPack = await pack.duplicateCompendium(`${pack.metadata.label} Metrified`);
+        await newPack.getIndex();
+
+        const loadingBar = Utils.loading(`Converting compendium ${pack.metadata.label}`)(0)(pack.index.size - 1);
+        newPack.forEach(() => {
+            console.log('document');
+        })
+    } catch (e) {
+        createErrorMessage(e, 'compendiumUpdater', compendium);
+    }
 }
 
 const batchCompendiumUpdater = (compendiums: string[]) => async () => {
@@ -128,4 +155,4 @@ const batchCompendiumUpdater = (compendiums: string[]) => async () => {
     await relinkCompendiums();
 }
 
-export {actorUpdater, itemUpdater, journalUpdater, rollTableUpdater, compendiumUpdater, allScenesUpdater, batchCompendiumUpdater}
+export {actorUpdater, itemUpdater, journalUpdater, rollTableUpdater, compendiumUpdater, allScenesUpdater, batchCompendiumUpdater, compendiumUpdaterNew}
