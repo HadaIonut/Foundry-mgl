@@ -5,7 +5,7 @@ import {
 } from "../Utils/ConversionEngineNew";
 
 import {createErrorMessage} from "../Utils/ErrorHandler";
-import {createNewCompendium, relinkCompendiums, typeSelector} from "./Compendium5eConverter";
+import {createNewCompendium, createNewCompendiumMeta, relinkCompendiums, typeSelector} from "./Compendium5eConverter";
 import Utils from "../Utils/Utils";
 
 const itemUpdater = async (item: any, onlyLabel?: boolean, onlyUnit?:boolean): Promise<void> => {
@@ -104,7 +104,9 @@ const compendiumUpdater = async (compendium: any, onlyLabel?: boolean, onlyUnit?
     try {
         const pack = game.packs.get(compendium.collection);
         await pack.getIndex();
-        const newPack = await pack.duplicateCompendium(`${pack.metadata.label}-metrified`)
+        const newPack = await pack.duplicateCompendium({
+            label: `${pack.metadata.label} Metrified`
+        })
         await newPack.getIndex();
 
         const loadingBar = Utils.loading(`Converting compendium ${pack.metadata.label}`)(0)(pack.index.size - 1);

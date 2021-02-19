@@ -78,6 +78,19 @@ const createNewCompendium = async (metadata: any): Promise<any> => {
     })
 }
 
+const createNewCompendiumMeta = (metadata: any) => {
+    // @ts-ignore
+    return {
+        entity: metadata.entity,
+        label: `${metadata.label} Metrified`,
+        name: `${metadata.name}-metrified`,
+        package: 'Foundry-MGL',
+        path: `./packs/${metadata.name}-metrified.db`,
+        system: "dnd5e"
+    };
+}
+
+
 const relinkTypeSelector = async (entity, type, cache) => {
     switch (type) {
         case 'Actor5e':
@@ -119,4 +132,4 @@ const relinkCompendiums = async () => {
 }
 
 
-export {typeSelector, createNewCompendium, relinkCompendiums, relinkCompendium}
+export {typeSelector, createNewCompendium, relinkCompendiums, relinkCompendium, createNewCompendiumMeta}
