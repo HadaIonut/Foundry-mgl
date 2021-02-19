@@ -51,7 +51,7 @@ const actorUpdater = async (actor: any, onlyLabel?: boolean, onlyUnit?:boolean):
         createErrorMessage(e, 'actor.update', actorClone.data);
     }
 
-    await itemsUpdater(actor.items.entries, onlyLabel, onlyUnit);
+    await itemsUpdater(actor.items, onlyLabel, onlyUnit)
 }
 
 const journalUpdater = async (journal: any): Promise<void> => {

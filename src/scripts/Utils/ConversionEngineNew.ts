@@ -135,6 +135,22 @@ const movementConverter = (speed: any): any => {
     return speed;
 }
 
+const sensesConverter = (senses: any): any => {
+    if (!isMetric(senses.units)) return senses;
+
+    const units = senses.units;
+    Object.keys(senses).forEach((key) => {
+        if (key === 'units') return;
+
+        else if (key === 'special') senses[key] = convertText(senses[key]);
+        else senses[key] = convertValueToMetric(senses[key], units) || 0;
+    })
+
+    senses.units = convertStringFromImperialToMetric(senses.units);
+
+    return senses;
+}
+
 const convertDistance = (distance: any, onlyUnit?: boolean): any => {
     if (!distance) return distance;
     if (onlyUnit) distance.units = convertStringFromImperialToMetric(distance.units);
@@ -165,7 +181,8 @@ const detailsConverter = (details) => {
 const actorDataConverter = (data: any): any => {
     if (data.attributes.movement) data.attributes.movement = movementConverter(data.attributes.movement);
     if (data.attributes.speed) data.attributes.speed = speedConverter(data.attributes.speed);
-    data.traits.senses = imperialReplacer(data.traits.senses || '', /(?<value>[0-9]+ ?)(?<unit>[\w]+)/g)
+    data.attributes.senses = sensesConverter(data.attributes.senses);
+    //data.traits.senses = imperialReplacer(data.traits.senses || '', /(?<value>[0-9]+ ?)(?<unit>[\w]+)/g)
     data.details = detailsConverter(data.details);
 
     return data;
