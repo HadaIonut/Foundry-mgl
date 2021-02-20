@@ -3,7 +3,6 @@ import {
     itemUpdater,
     journalUpdater,
     rollTableUpdater,
-    compendiumUpdaterNew,
     compendiumUpdater,
     batchCompendiumUpdater
 } from "./Dnd5e/Dnd5eConverterNew";
@@ -110,7 +109,7 @@ class MetricModule {
         switch (app?.options?.id) {
             case "scenes":
                 // @ts-ignore
-                batchConvert = initBatchConversion(game.scenes.entries, app?.options?.id);
+                batchConvert = initBatchConversion(game.scenes, app?.options?.id);
                 button.on('click', () => mm._createWarningDialog(batchConvert));
                 break;
             case "compendium":
@@ -120,22 +119,22 @@ class MetricModule {
                 break;
             case "actors":
                 // @ts-ignore
-                batchConvert = initBatchConversion(game.actors.entries, app?.options?.id);
+                batchConvert = initBatchConversion(game.actors, app?.options?.id);
                 button.on('click', () => mm._createWarningDialog(batchConvert));
                 break;
             case "items":
                 // @ts-ignore
-                batchConvert = initBatchConversion(game.items.entries, app?.options?.id);
+                batchConvert = initBatchConversion(game.items, app?.options?.id);
                 button.on('click', () => mm._createWarningDialog(batchConvert));
                 break;
             case "tables":
                 // @ts-ignore
-                batchConvert = initBatchConversion(game.tables.entries, app?.options?.id);
+                batchConvert = initBatchConversion(game.tables, app?.options?.id);
                 button.on('click', () => mm._createWarningDialog(batchConvert));
                 break;
             case "journal":
                 // @ts-ignore
-                batchConvert = initBatchConversion(game.journal.entries, app?.options?.id);
+                batchConvert = initBatchConversion(game.journal, app?.options?.id);
                 button.on('click', () => mm._createWarningDialog(batchConvert));
                 break;
         }

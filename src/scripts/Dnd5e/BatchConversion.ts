@@ -47,7 +47,7 @@ const actorUpdater = (actor: any, loading): void => {
         .then(() => {
             actor.update(actorClone)
                 .then(() => {
-                    itemsUpdater(actor.items.entries);
+                    itemsUpdater(actor.items);
                     loading();
                 })
                 .catch((e) => createErrorMessage(e, 'actor.update', actorClone.data))
@@ -110,8 +110,8 @@ const compendiumConverter = (compendium: string): void => {
         .catch((e) => createErrorMessage(e, 'getIndex', pack))
 }
 
-const batchConversion = (elements: any[], callbackFunction) => {
-    const loadingBar = Utils.loading(`Batch conversion in progress`)(0)(elements.length - 1);
+const batchConversion = (elements, callbackFunction) => {
+    const loadingBar = Utils.loading(`Batch conversion in progress`)(0)(elements.size - 1);
     for (const elem of elements) callbackFunction(elem, loadingBar);
 }
 

@@ -102,7 +102,7 @@ const rollTableUpdater = async (rollTable: any): Promise<void> => {
 
 const compendiumUpdater = async (compendium: any, onlyLabel?: boolean, onlyUnit?:boolean): Promise<void> => {
     try {
-        const pack = game.packs.get(compendium.collection);
+        const pack = game.packs.get(compendium.collection || compendium);
         await pack.getIndex();
         const newPack = await pack.duplicateCompendium({
             label: `${pack.metadata.label} Metrified`
@@ -125,24 +125,6 @@ const compendiumUpdater = async (compendium: any, onlyLabel?: boolean, onlyUnit?
                 createErrorMessage(e, 'compendiumUpdater', compendium);
             }
         }
-
-    } catch (e) {
-        createErrorMessage(e, 'compendiumUpdater', compendium);
-    }
-
-}
-
-const compendiumUpdaterNew = async (compendium: any, onlyLabel?: boolean, onlyUnit?:boolean): Promise<void> => {
-    try {
-        const pack = game.packs.get(compendium.collection);
-        await pack.getIndex();
-        const newPack = await pack.duplicateCompendium(`${pack.metadata.label} Metrified`);
-        await newPack.getIndex();
-
-        const loadingBar = Utils.loading(`Converting compendium ${pack.metadata.label}`)(0)(pack.index.size - 1);
-        newPack.forEach(() => {
-            console.log('document');
-        })
     } catch (e) {
         createErrorMessage(e, 'compendiumUpdater', compendium);
     }
@@ -154,4 +136,4 @@ const batchCompendiumUpdater = (compendiums: string[]) => async () => {
     await relinkCompendiums();
 }
 
-export {actorUpdater, itemUpdater, journalUpdater, rollTableUpdater, compendiumUpdater, allScenesUpdater, batchCompendiumUpdater, compendiumUpdaterNew}
+export {actorUpdater, itemUpdater, journalUpdater, rollTableUpdater, compendiumUpdater, allScenesUpdater, batchCompendiumUpdater}
