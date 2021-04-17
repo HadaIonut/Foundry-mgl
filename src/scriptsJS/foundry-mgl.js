@@ -1,8 +1,14 @@
-import Utils from "./Utils/Utils";
-import MetricModule from "./MetricModule";
-// @ts-ignore
+import Utils from "../scripts/Utils/Utils";
 import {DND5E} from "../../../systems/dnd5e/module/config.js";
 import Settings from "./Settings";
+import {
+    onCompendiumRender,
+    onRenderActorSheet,
+    onRenderItemSheet,
+    onRenderJurnalSheet,
+    onRenderRollTable,
+    onRenderSideBar
+} from "./MetricModule";
 
 const debug = Utils.debug.bind(Utils);
 
@@ -42,14 +48,14 @@ Hooks.on('preCreateScene', (scenedata) => {
 })
 
 
-Hooks.on('renderActorSheet', MetricModule.onRenderActorSheet);
+Hooks.on('renderActorSheet', onRenderActorSheet);
 
-Hooks.on('renderItemSheet', MetricModule.onRenderItemSheet);
+Hooks.on('renderItemSheet', onRenderItemSheet);
 
-Hooks.on('renderJournalSheet', MetricModule.onRenderJurnalSheet);
+Hooks.on('renderJournalSheet', onRenderJurnalSheet);
 
-Hooks.on("renderSidebarTab", MetricModule.onRenderSideBar.bind(MetricModule));
+Hooks.on("renderSidebarTab", onRenderSideBar);
 
-Hooks.on('renderRollTableConfig', MetricModule.onRenderRollTable);
+Hooks.on('renderRollTableConfig', onRenderRollTable);
 
-Hooks.on('renderCompendium', MetricModule.onCompendiumRender)
+Hooks.on('renderCompendium', onCompendiumRender)
