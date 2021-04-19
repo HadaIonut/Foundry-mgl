@@ -1,7 +1,7 @@
-import Settings from "../../scriptsJS/Settings";
+import Settings from "../Settings";
 import {numberSelector, numberToWords} from "./WordsToNumbers";
 
-const imperialToMetricMap: { [key: string]: string } = {
+const imperialToMetricMap = {
     "inch": "centimeters",
     "ft.": "m.",
     "ft": "m",
@@ -18,7 +18,7 @@ const imperialToMetricMap: { [key: string]: string } = {
     "pound": "kilogram"
 };
 
-const typesOfUnitsMap: { [key: string]: string } = {
+const typesOfUnitsMap = {
     "ft.": "feet",
     "ft": "feet",
     "feet": "feet",
@@ -36,37 +36,37 @@ const typesOfUnitsMap: { [key: string]: string } = {
 };
 
 
-const roundUp = (nr: number): number => Math.round((nr + Number.EPSILON) * 100) / 100;
+const roundUp = (nr) => Math.round((nr + Number.EPSILON) * 100) / 100;
 
-const cleanCommas = (text: string): string => text?.replace(",", "");
+const cleanCommas = (text) => text?.replace(",", "");
 
-const convertStringToNumber = (toConvert: string) => {
+const convertStringToNumber = (toConvert) => {
     const numberToReturn = Number(cleanCommas(toConvert));
     return isNaN(numberToReturn) ? -1 : numberToReturn;
 }
 
-const convertUsingMultiplier = (toBeConverted: string | number, multiplier: number): number => {
+const convertUsingMultiplier = (toBeConverted, multiplier) => {
     if (!toBeConverted) return;
     const toConvert = typeof toBeConverted === 'number' ? toBeConverted : convertStringToNumber(toBeConverted);
 
     return roundUp(toConvert * multiplier);
 }
 
-const isMetric = (checkString: string): boolean => !!imperialToMetricMap[checkString];
+const isMetric = (checkString) => !!imperialToMetricMap[checkString];
 
-const convertWeightFromPoundsToKilograms = (weightString: string | number): number => convertUsingMultiplier(weightString, Settings.getMultiplier('pound'));
+const convertWeightFromPoundsToKilograms = (weightString) => convertUsingMultiplier(weightString, Settings.getMultiplier('pound'));
 
-const convertDistanceFromInchToCentimeters = (distance: string | number): number => convertUsingMultiplier(distance, Settings.getMultiplier('inch'));
+const convertDistanceFromInchToCentimeters = (distance) => convertUsingMultiplier(distance, Settings.getMultiplier('inch'));
 
-const convertDistanceFromFeetToMeters = (distance: string | number): number => convertUsingMultiplier(distance, Settings.getMultiplier('feet'));
+const convertDistanceFromFeetToMeters = (distance) => convertUsingMultiplier(distance, Settings.getMultiplier('feet'));
 
-const convertDistanceFromMilesToKilometers = (distance: string | number): number => convertUsingMultiplier(distance, Settings.getMultiplier('mile'));
+const convertDistanceFromMilesToKilometers = (distance) => convertUsingMultiplier(distance, Settings.getMultiplier('mile'));
 
-const convertUnitStringToStandard = (unit: string): string => typesOfUnitsMap[unit];
+const convertUnitStringToStandard = (unit) => typesOfUnitsMap[unit];
 
-const convertStringFromImperialToMetric = (imperialString: string): string => imperialToMetricMap[imperialString] || imperialString;
+const convertStringFromImperialToMetric = (imperialString) => imperialToMetricMap[imperialString] || imperialString;
 
-const convertDistanceFromImperialToMetric = (distance: string | number, unit: string): string | number => {
+const convertDistanceFromImperialToMetric = (distance, unit) => {
     const convertedToStandard = convertUnitStringToStandard(unit);
     switch (convertedToStandard) {
         case "feet":
@@ -80,7 +80,7 @@ const convertDistanceFromImperialToMetric = (distance: string | number, unit: st
     }
 }
 
-const convertValueToMetric = (value: string | number, unit: string): string | number => {
+const convertValueToMetric = (value, unit) => {
     const convertedToStandard = convertUnitStringToStandard(unit);
     switch (convertedToStandard) {
         case 'pound':
@@ -90,15 +90,15 @@ const convertValueToMetric = (value: string | number, unit: string): string | nu
     }
 }
 
-const imperialReplacer = (toReplace: string, replaceRegex: RegExp): string =>
-    toReplace.replace(replaceRegex, (element: string, value: string, unit: string): string => {
+const imperialReplacer = (toReplace, replaceRegex) =>
+    toReplace.replace(replaceRegex, (element, value, unit) => {
         const replacedValue = convertDistanceFromImperialToMetric(value, unit);
         const replacedUnit = convertStringFromImperialToMetric(unit);
         if (replacedUnit === unit) return element;
         return replacedValue + ' ' + replacedUnit;
     })
 
-const convertText = (text: string): string => {
+const convertText = (text) => {
     return text.replace(/(\b[^\d\W]+\b )?(\b[^\d\W]+\b)([ -])(feet|foot)/g, (_0, wordNumber1, wordNumber2, separator, unit) => {
         const capitalized = wordNumber1 !== wordNumber1?.toLowerCase();
         const selectedNumber = numberSelector(wordNumber1 ? wordNumber1?.toLowerCase().replace(' ', '') : '', wordNumber2?.toLowerCase());
@@ -110,18 +110,18 @@ const convertText = (text: string): string => {
         return selectedNumber.text + separator + unit;
     }).replace(/([0-9]+) (to|and) ([0-9]+) (feet|inch|foot|ft\.)/g, (_0, number1, separatorWord, number2, units) => {
         return convertValueToMetric(number1, units) + ` ${separatorWord} ` + convertValueToMetric(number2, units) + ` ${convertStringFromImperialToMetric(units)}`;
-    }).replace(/([0-9]{1,3}(,[0-9]{3})+)([ -])(feet|foot|pounds)/g, (_0, number: string, _1, separator, label: string) => {
+    }).replace(/([0-9]{1,3}(,[0-9]{3})+)([ -])(feet|foot|pounds)/g, (_0, number, _1, separator, label) => {
         return convertValueToMetric(number, label) + separator + convertStringFromImperialToMetric(label);
-    }).replace(/([0-9]+)\/([0-9]+) (feet|inch|foot|ft\.)/g, (_0, firstNumber: string, secondNumber: string, label: string) => {
+    }).replace(/([0-9]+)\/([0-9]+) (feet|inch|foot|ft\.)/g, (_0, firstNumber, secondNumber, label) => {
         return convertValueToMetric(firstNumber, label) + '/' + convertValueToMetric(secondNumber, label) + ' ' + convertStringFromImperialToMetric(label);
-    }).replace(/([0-9]+)(\W|&nbsp;| cubic |-){1,2}(feet|inch|foot|ft\.|pounds|lbs\.|pound|lbs|lb|ft)/g, (_0, number: string, separator: string, label: string) => {
+    }).replace(/([0-9]+)(\W|&nbsp;| cubic |-){1,2}(feet|inch|foot|ft\.|pounds|lbs\.|pound|lbs|lb|ft)/g, (_0, number, separator, label) => {
         return convertValueToMetric(number, label) + separator + convertStringFromImperialToMetric(label);
     }).replace(/(several \w+ )(feet|yards)/g, (_0, several, unit) => {
         return several + convertStringFromImperialToMetric(unit);
     })
 }
 
-const movementConverter = (speed: any): any => {
+const movementConverter = (speed) => {
     if (!isMetric(speed.units)) return speed;
 
     const units = speed.units;
@@ -135,7 +135,7 @@ const movementConverter = (speed: any): any => {
     return speed;
 }
 
-const sensesConverter = (senses: any): any => {
+const sensesConverter = (senses) => {
     if (!isMetric(senses.units)) return senses;
 
     const units = senses.units;
@@ -151,7 +151,7 @@ const sensesConverter = (senses: any): any => {
     return senses;
 }
 
-const convertDistance = (distance: any, onlyUnit?: boolean): any => {
+const convertDistance = (distance, onlyUnit) => {
     if (!distance) return distance;
     if (onlyUnit) distance.units = convertStringFromImperialToMetric(distance.units);
     else {
@@ -162,7 +162,7 @@ const convertDistance = (distance: any, onlyUnit?: boolean): any => {
     return distance;
 }
 
-const speedConverter = (speed: any): any => {
+const speedConverter = (speed) => {
     speed.value = convertText(speed.value || '');
     speed.special = convertText(speed.special || '');
     return speed;
@@ -178,7 +178,7 @@ const detailsConverter = (details) => {
     return details;
 }
 
-const actorDataConverter = (data: any): any => {
+const actorDataConverter = (data) => {
     if (data.attributes.movement) data.attributes.movement = movementConverter(data.attributes.movement);
     if (data.attributes.speed) data.attributes.speed = speedConverter(data.attributes.speed);
     data.attributes.senses = sensesConverter(data.attributes.senses);
@@ -188,7 +188,7 @@ const actorDataConverter = (data: any): any => {
     return data;
 }
 
-const actorTokenConverter = (token: any) => {
+const actorTokenConverter = (token) => {
     token.brightLight = convertValueToMetric(token.brightLight, 'feet');
     token.brightSight = convertValueToMetric(token.brightSight, 'feet');
     token.dimLight = convertValueToMetric(token.dimLight, 'feet');
@@ -196,7 +196,7 @@ const actorTokenConverter = (token: any) => {
     return token;
 }
 
-const labelConverter = (label: string): string => {
+const labelConverter = (label) => {
     return label.replace(/(([0-9]+) \/ )?([0-9]+) ([\w]+)/, (_0, _1, optionalValue, mainValue, unit) => {
         if (optionalValue)
             return convertValueToMetric(optionalValue, unit) + '/' + convertValueToMetric(mainValue, unit) + ' ' + convertStringFromImperialToMetric(unit);
@@ -204,7 +204,7 @@ const labelConverter = (label: string): string => {
     })
 }
 
-const findMetrifiedItemId = async (source: string, itemId: string, target: string, cache) => {
+const findMetrifiedItemId = async (source, itemId, target, cache) => {
     const compendiumSource = game.packs.get(source);
     const compendiumTarget = game.packs.get(target);
     if (compendiumSource && compendiumTarget) {
@@ -220,7 +220,7 @@ const findMetrifiedItemId = async (source: string, itemId: string, target: strin
     return itemId
 }
 
-const relinkText = async (text: string, cache?): Promise<string> => {
+const relinkText = async (text, cache) => {
     const matched = [...text.matchAll(/@Compendium\[([A-Za-z0-9\-]+)\.([A-Za-z0-9\-]+)\.(\w+)\]/g)];
     for (const match of matched) {
         const source = `${match[1]}.${match[2]}`;

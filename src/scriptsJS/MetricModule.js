@@ -5,9 +5,9 @@ import {
     rollTableUpdater,
     compendiumUpdater,
     batchCompendiumUpdater
-} from "../scripts/Dnd5e/Dnd5eConverterNew";
-import {initBatchConversion} from "../scripts/Dnd5e/BatchConversion";
-import {relinkCompendiums, relinkCompendium} from "../scripts/Dnd5e/Compendium5eConverter";
+} from "./Dnd5e/Dnd5eConverterNew";
+import {initBatchConversion} from "./Dnd5e/BatchConversion";
+import {relinkCompendiums, relinkCompendium} from "./Dnd5e/Compendium5eConverter";
 
 const addButton = (element, actor, type, html) => {
     if (!game.user.hasRole(4)) return;
@@ -64,32 +64,26 @@ const onRenderSideBar = (app, html) => {
     let batchConvert
     switch (app?.options?.id) {
         case "scenes":
-            // @ts-ignore
             batchConvert = initBatchConversion(game.scenes, app?.options?.id);
             button.on('click', () => createWarningDialog(batchConvert));
             break;
         case "compendium":
-            // @ts-ignore
             batchConvert = batchCompendiumUpdater(game.packs.keys());
             button.on('click', () => createWarningDialog(batchConvert));
             break;
         case "actors":
-            // @ts-ignore
             batchConvert = initBatchConversion(game.actors, app?.options?.id);
             button.on('click', () => createWarningDialog(batchConvert));
             break;
         case "items":
-            // @ts-ignore
             batchConvert = initBatchConversion(game.items, app?.options?.id);
             button.on('click', () => createWarningDialog(batchConvert));
             break;
         case "tables":
-            // @ts-ignore
             batchConvert = initBatchConversion(game.tables, app?.options?.id);
             button.on('click', () => createWarningDialog(batchConvert));
             break;
         case "journal":
-            // @ts-ignore
             batchConvert = initBatchConversion(game.journal, app?.options?.id);
             button.on('click', () => createWarningDialog(batchConvert));
             break;

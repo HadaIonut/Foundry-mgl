@@ -53,12 +53,12 @@ const numbersMerger = () => {
     Object.assign(allTheNumbers, compositions());
 }
 
-const isKeyWord = (word: string): boolean => {
+const isKeyWord = (word) => {
     if (word === 'several') return true;
     return false;
 }
 
-const constructLeftOverText = (currentText: string, word: string): [string, string] => {
+const constructLeftOverText = (currentText, word) => {
     if (allTheNumbers[word]) {
         return [currentText + `${word} `, '']
     }
@@ -66,7 +66,7 @@ const constructLeftOverText = (currentText: string, word: string): [string, stri
 }
 
 
-const constructFinalText = (word1: string, word2: string): [string, string] => {
+const constructFinalText = (word1, word2) => {
     const leftoverConstruct = constructLeftOverText('', word1);
     const text1 = leftoverConstruct[0];
     const leftOver1 = leftoverConstruct[1];
@@ -84,7 +84,7 @@ const constructFinalText = (word1: string, word2: string): [string, string] => {
  * @param word1
  * @param word2
  */
-const numberSelector = (word1: string, word2: string) => {
+const numberSelector = (word1, word2) => {
     numbersMerger();
     let outObject = {
         text: `${word1} ${word2}`,

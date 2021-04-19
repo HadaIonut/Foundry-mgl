@@ -5,9 +5,9 @@ import {
     convertText,
     convertValueToMetric, relinkText
 } from "../Utils/ConversionEngineNew";
-import Utils from "../Utils/Utils";
+import {loading, cache} from "../Utils/Utils";
 
-const itemUpdater = (item: any, onlyLabel?: boolean, onlyUnit?:boolean): any => {
+const itemUpdater = (item, onlyLabel, onlyUnit) => {
     if (!onlyLabel) item.data.description.value = convertText(item.data.description.value);
     if (!onlyLabel) item.data.weight = convertValueToMetric(item.data.weight, 'pound');
 
@@ -17,34 +17,34 @@ const itemUpdater = (item: any, onlyLabel?: boolean, onlyUnit?:boolean): any => 
     return item;
 }
 
-const itemsUpdater = (items: any[], onlyLabel?: boolean, onlyUnit?:boolean): any[] => {
+const itemsUpdater = (items, onlyLabel, onlyUnit) => {
     for (let i = 0; i < items.length; i++) {
         items[i] = itemUpdater(items[i], onlyLabel, onlyUnit);
     }
     return items;
 }
 
-const actorUpdater = (actor: any, onlyLabel?: boolean, onlyUnit?:boolean): any => {
+const actorUpdater = (actor, onlyLabel, onlyUnit) => {
     actor.data = actorDataConverter(actor.data);
     actor.token = actorTokenConverter(actor.token);
     actor.items = itemsUpdater(actor.items, onlyLabel, onlyUnit);
     return actor;
 }
 
-const rollTableUpdater = (rollTable: any): any => {
+const rollTableUpdater = (rollTable) => {
     rollTable.name = convertText(rollTable.name);
     for (let index = 0; index < rollTable.results.length; index++)
         rollTable.results[index].text = convertText(rollTable.results[index].text)
     return rollTable;
 }
 
-const scenesUpdater = (scene: any): any => {
+const scenesUpdater = (scene) => {
     scene.gridDistance = convertValueToMetric(scene.gridDistance, scene.gridUnits);
     scene.gridUnits = convertStringFromImperialToMetric(scene.gridUnits);
     return scene;
 }
 
-const typeSelector = (entity: any, type: string, onlyLabel?: boolean, onlyUnit?:boolean): any => {
+const typeSelector = (entity, type, onlyLabel, onlyUnit) => {
     switch (type) {
         case 'Actor5e':
             return actorUpdater(entity, onlyLabel, onlyUnit);
@@ -66,7 +66,7 @@ const typeSelector = (entity: any, type: string, onlyLabel?: boolean, onlyUnit?:
     }
 }
 
-const createNewCompendium = async (metadata: any): Promise<any> => {
+const createNewCompendium = async (metadata) => {
     // @ts-ignore
     return await CompendiumCollection.createCompendium({
         entity: metadata.entity,
@@ -78,7 +78,7 @@ const createNewCompendium = async (metadata: any): Promise<any> => {
     })
 }
 
-const createNewCompendiumMeta = (metadata: any) => {
+const createNewCompendiumMeta = (metadata) => {
     // @ts-ignore
     return {
         entity: metadata.entity,
@@ -114,7 +114,7 @@ const relinkCompendium = async (compendium, cache) => {
     const sourcePack = game.packs.get(compendium);
     await sourcePack.getIndex();
 
-    const loadingBar = Utils.loading(`Relinking compendium ${sourcePack.metadata.label}`)(0)(sourcePack.index.size - 1);
+    const loadingBar = loading(`Relinking compendium ${sourcePack.metadata.label}`)(0)(sourcePack.index.size - 1);
     for (const index of sourcePack.index) {
         const entity = await sourcePack.getEntity(index._id);
         let entityClone = JSON.parse(JSON.stringify(entity.data))
@@ -126,7 +126,7 @@ const relinkCompendium = async (compendium, cache) => {
 
 const relinkCompendiums = async () => {
     const compendiums = game.packs.keys();
-    const cache = Utils.cache();
+    const cache = cache();
     for (const compendium of compendiums)
         if (compendium.includes('metrified')) await relinkCompendium(compendium, cache);
 }

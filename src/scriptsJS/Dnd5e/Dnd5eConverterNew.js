@@ -3,12 +3,12 @@ import {
     convertStringFromImperialToMetric, convertText,
     convertValueToMetric, labelConverter,
 } from "../Utils/ConversionEngineNew";
-
+import {loading} from "../Utils/Utils";
 import {createErrorMessage} from "../Utils/ErrorHandler";
 import {createNewCompendium, createNewCompendiumMeta, relinkCompendiums, typeSelector} from "./Compendium5eConverter";
-import Utils from "../Utils/Utils";
 
-const itemUpdater = async (item: any, onlyLabel?: boolean, onlyUnit?:boolean): Promise<void> => {
+
+const itemUpdater = async (item, onlyLabel, onlyUnit) => {
     if (item.getFlag("Foundry-MGL", "converted")) return;
     const itemClone = JSON.parse(JSON.stringify(item));
 
@@ -32,11 +32,11 @@ const itemUpdater = async (item: any, onlyLabel?: boolean, onlyUnit?:boolean): P
     }
 }
 
-const itemsUpdater = async (items: Array<any>, onlyLabel?: boolean, onlyUnit?:boolean): Promise<void> => {
+const itemsUpdater = async (items, onlyLabel, onlyUnit) => {
     for (const item of items) await itemUpdater(item, onlyLabel, onlyUnit);
 }
 
-const actorUpdater = async (actor: any, onlyLabel?: boolean, onlyUnit?:boolean): Promise<void> => {
+const actorUpdater = async (actor, onlyLabel, onlyUnit) => {
     const actorClone = JSON.parse(JSON.stringify(actor));
 
     if (!actor.getFlag("Foundry-MGL", "converted")) {
@@ -54,7 +54,7 @@ const actorUpdater = async (actor: any, onlyLabel?: boolean, onlyUnit?:boolean):
     await itemsUpdater(actor.items, onlyLabel, onlyUnit)
 }
 
-const journalUpdater = async (journal: any): Promise<void> => {
+const journalUpdater = async (journal) => {
     const journalClone = JSON.parse(JSON.stringify(journal));
 
     journalClone.content = convertText(journalClone.content);
@@ -67,7 +67,7 @@ const journalUpdater = async (journal: any): Promise<void> => {
 
 }
 
-const allScenesUpdater = async (): Promise<void> => {
+const allScenesUpdater = async () => {
     for (const scene of game.scenes.entities) {
         // @ts-ignore
         if (scene._view === true) continue;
@@ -85,7 +85,7 @@ const allScenesUpdater = async (): Promise<void> => {
     }
 }
 
-const rollTableUpdater = async (rollTable: any): Promise<void> => {
+const rollTableUpdater = async (rollTable) => {
     const rollTableClone = JSON.parse(JSON.stringify(rollTable));
 
     if (rollTableClone.description) rollTableClone.description = convertText(rollTableClone.description);
@@ -100,7 +100,7 @@ const rollTableUpdater = async (rollTable: any): Promise<void> => {
     }
 }
 
-const compendiumUpdater = async (compendium: any, onlyLabel?: boolean, onlyUnit?:boolean): Promise<void> => {
+const compendiumUpdater = async (compendium, onlyLabel, onlyUnit) => {
     try {
         const pack = game.packs.get(compendium.collection || compendium);
         await pack.getIndex();
@@ -109,7 +109,7 @@ const compendiumUpdater = async (compendium: any, onlyLabel?: boolean, onlyUnit?
         })
         await newPack.getIndex();
 
-        const loadingBar = Utils.loading(`Converting compendium ${pack.metadata.label}`)(0)(pack.index.size - 1);
+        const loadingBar = loading(`Converting compendium ${pack.metadata.label}`)(0)(pack.index.size - 1);
         for (const index of newPack.index) {
             try {
                 const entity = await newPack.getDocument(index._id);
@@ -130,7 +130,7 @@ const compendiumUpdater = async (compendium: any, onlyLabel?: boolean, onlyUnit?
     }
 }
 
-const batchCompendiumUpdater = (compendiums: string[]) => async () => {
+const batchCompendiumUpdater = (compendiums) => async () => {
     for (const compendium of compendiums)
         if (!compendium.includes('metrified')) await compendiumUpdater(compendium);
     await relinkCompendiums();

@@ -1,4 +1,4 @@
-import utils from '../scripts/Utils/Utils'
+import {moduleName} from './Utils/Utils'
 import settingsLists from "./settingsLists";
 
 const registerSetting = (key, data) => {
@@ -10,7 +10,7 @@ const getSetting = (key) => {
 }
 
 const setSetting = (key, data) => {
-    return game.settings.set(utils.moduleName, key, data);
+    return game.settings.set(moduleName, key, data);
 }
 
 const getMultipliers = () => {
