@@ -5,9 +5,9 @@ import {
     rollTableUpdater,
     compendiumUpdater,
     batchCompendiumUpdater
-} from "./Dnd5e/Dnd5eConverterNew";
-import {initBatchConversion} from "./Dnd5e/BatchConversion";
-import {relinkCompendiums, relinkCompendium} from "./Dnd5e/Compendium5eConverter";
+} from "./Dnd5e/Dnd5eConverterNew.js";
+import {initBatchConversion} from "./Dnd5e/BatchConversion.js";
+import {relinkCompendiums, relinkCompendium} from "./Dnd5e/Compendium5eConverter.js";
 
 const addButton = (element, actor, type, html) => {
     if (!game.user.hasRole(4)) return;

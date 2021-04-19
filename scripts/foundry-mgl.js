@@ -1,5 +1,5 @@
 import {DND5E} from "../../../systems/dnd5e/module/config.js";
-import Settings from "./Settings";
+import {getSetting, registerSettings} from "./Settings.js";
 import {
     onCompendiumRender,
     onRenderActorSheet,
@@ -7,7 +7,7 @@ import {
     onRenderJurnalSheet,
     onRenderRollTable,
     onRenderSideBar
-} from "./MetricModule";
+} from "./MetricModule.js";
 import {consoleLog} from "./Utils/Utils.js";
 
 /**
@@ -21,7 +21,7 @@ Hooks.on('init', () => {
     DND5E.encumbrance["currencyPerWeight"] = 100;
     DND5E.encumbrance["strMultiplier"] = 7.5;
 
-    Settings.registerSettings();
+    registerSettings();
 });
 
 /**
@@ -37,9 +37,9 @@ Hooks.on('ready', () => {
  * Makes default scene settings to be converted
  */
 Hooks.on('preCreateScene', (scenedata) => {
-    const gridDist = Settings.getSetting("sceneGridDistance");
-    const gridUnits = Settings.getSetting("sceneGridUnits");
-    if (!Settings.getSetting("sceneConversion")) return
+    const gridDist = getSetting("sceneGridDistance");
+    const gridUnits = getSetting("sceneGridUnits");
+    if (!getSetting("sceneConversion")) return
     consoleLog(`New Scene: changing gridUnits to '${gridUnits}' and gridDistance to '${gridDist}'.`);
     scenedata.gridDistance = gridDist;
     scenedata.gridUnits = gridUnits;

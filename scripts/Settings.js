@@ -1,5 +1,5 @@
-import {moduleName} from './Utils/Utils'
-import settingsLists from "./settingsLists";
+import {moduleName} from './Utils/Utils.js'
+import settingsLists from "./settingsLists.js";
 
 const registerSetting = (key, data) => {
     game.settings.register('Foundry-MGL', key, data);
@@ -50,4 +50,4 @@ const setMultiplier = (unit, value) => {
     setSetting("conversionMultipliers", JSON.stringify(multipliers));
 }
 
-export {registerSettings, getMultiplier, setMultiplier, getSetting, setSetting,}
+export {registerSettings, getMultiplier, setMultiplier, getSetting, setSetting}

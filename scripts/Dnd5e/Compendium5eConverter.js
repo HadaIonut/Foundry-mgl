@@ -4,8 +4,8 @@ import {
     convertStringFromImperialToMetric,
     convertText,
     convertValueToMetric, relinkText
-} from "../Utils/ConversionEngineNew";
-import {loading, cache} from "../Utils/Utils";
+} from "../Utils/ConversionEngineNew.js";
+import {loading, cache} from "../Utils/Utils.js";
 
 const itemUpdater = (item, onlyLabel, onlyUnit) => {
     if (!onlyLabel) item.data.description.value = convertText(item.data.description.value);

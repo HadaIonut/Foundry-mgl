@@ -1,5 +1,5 @@
-import Settings from "../Settings";
-import {numberSelector, numberToWords} from "./WordsToNumbers";
+import {getMultiplier} from "../Settings.js";
+import {numberSelector, numberToWords} from "./WordsToNumbers.js";
 
 const imperialToMetricMap = {
     "inch": "centimeters",
@@ -54,13 +54,13 @@ const convertUsingMultiplier = (toBeConverted, multiplier) => {
 
 const isMetric = (checkString) => !!imperialToMetricMap[checkString];
 
-const convertWeightFromPoundsToKilograms = (weightString) => convertUsingMultiplier(weightString, Settings.getMultiplier('pound'));
+const convertWeightFromPoundsToKilograms = (weightString) => convertUsingMultiplier(weightString, getMultiplier('pound'));
 
-const convertDistanceFromInchToCentimeters = (distance) => convertUsingMultiplier(distance, Settings.getMultiplier('inch'));
+const convertDistanceFromInchToCentimeters = (distance) => convertUsingMultiplier(distance, getMultiplier('inch'));
 
-const convertDistanceFromFeetToMeters = (distance) => convertUsingMultiplier(distance, Settings.getMultiplier('feet'));
+const convertDistanceFromFeetToMeters = (distance) => convertUsingMultiplier(distance, getMultiplier('feet'));
 
-const convertDistanceFromMilesToKilometers = (distance) => convertUsingMultiplier(distance, Settings.getMultiplier('mile'));
+const convertDistanceFromMilesToKilometers = (distance) => convertUsingMultiplier(distance, getMultiplier('mile'));
 
 const convertUnitStringToStandard = (unit) => typesOfUnitsMap[unit];
 

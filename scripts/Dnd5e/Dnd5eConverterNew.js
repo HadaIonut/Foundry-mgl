@@ -2,10 +2,10 @@ import {
     actorDataConverter, actorTokenConverter, convertDistance,
     convertStringFromImperialToMetric, convertText,
     convertValueToMetric, labelConverter,
-} from "../Utils/ConversionEngineNew";
-import {loading} from "../Utils/Utils";
-import {createErrorMessage} from "../Utils/ErrorHandler";
-import {createNewCompendium, createNewCompendiumMeta, relinkCompendiums, typeSelector} from "./Compendium5eConverter";
+} from "../Utils/ConversionEngineNew.js";
+import {loading} from "../Utils/Utils.js";
+import {createErrorMessage} from "../Utils/ErrorHandler.js";
+import {createNewCompendium, createNewCompendiumMeta, relinkCompendiums, typeSelector} from "./Compendium5eConverter.js";
 
 
 const itemUpdater = async (item, onlyLabel, onlyUnit) => {

@@ -3,7 +3,7 @@ const moduleTitle = 'Foundry Meters, Grams & Liters';
 
 const consoleLog = (output) => {
     console.log(
-        `%c${this.moduleTitle} %c|`,
+        `%c${moduleTitle} %c|`,
         'background: #222; color: #bada55',
         'color: #fff',
         output
@@ -12,7 +12,7 @@ const consoleLog = (output) => {
 
 const consoleTrace = (output) => {
     console.groupCollapsed(
-        `%c${this.moduleTitle} %c|`,
+        `%c${moduleTitle} %c|`,
         'background: #222; color: #bada55',
         'color: #fff',
         output

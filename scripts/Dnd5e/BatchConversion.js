@@ -4,10 +4,10 @@ import {
     convertText,
     convertValueToMetric,
     labelConverter
-} from "../Utils/ConversionEngineNew";
-import {createErrorMessage} from "../Utils/ErrorHandler";
-import {createNewCompendium, typeSelector} from "./Compendium5eConverter";
-import {loading} from "../Utils/Utils";
+} from "../Utils/ConversionEngineNew.js";
+import {createErrorMessage} from "../Utils/ErrorHandler.js";
+import {createNewCompendium, typeSelector} from "./Compendium5eConverter.js";
+import {loading} from "../Utils/Utils.js";
 
 const itemUpdater = (item, loading) => {
     if (item.getFlag("Foundry-MGL", "converted")) return;
