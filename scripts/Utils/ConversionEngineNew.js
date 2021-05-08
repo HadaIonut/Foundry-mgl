@@ -227,8 +227,8 @@ const relinkText = async (text, cache) => {
         try {
             const target = `world.${game.packs.get(source).metadata.label.slugify({strict: true})}-metrified`;
             if (source.includes('metrified') || !game.packs.get(target)) continue;
-            const newId = await findMetrifiedItemId(source, match[3], target, cache);
-            text = text.replace(`${source}.${match[3]}`, `${target}.${newId}`);
+            //const newId = await findMetrifiedItemId(source, match[3], target, cache);
+            text = text.replace(`${source}.${match[3]}`, `${target}.${match[3]}`);
         } catch (e) {
             console.log('failed at proccesing: ', source, matched);
         }

@@ -1,7 +1,7 @@
 import {
     actorDataConverter, actorTokenConverter, convertDistance,
     convertStringFromImperialToMetric, convertText,
-    convertValueToMetric, labelConverter,
+    convertValueToMetric, labelConverter, relinkText,
 } from "../Utils/ConversionEngineNew.js";
 import {loading} from "../Utils/Utils.js";
 import {createErrorMessage} from "../Utils/ErrorHandler.js";
@@ -58,6 +58,7 @@ const journalUpdater = async (journal) => {
     const journalClone = JSON.parse(JSON.stringify(journal));
 
     journalClone.content = convertText(journalClone.content);
+    journalClone.content = await relinkText(journalClone.content)
 
     try {
         await journal.update(journalClone);
