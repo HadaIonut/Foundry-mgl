@@ -69,12 +69,9 @@ const journalUpdater = async (journal) => {
 
 const allScenesUpdater = async () => {
     for (const scene of game.scenes.entities) {
-        // @ts-ignore
         if (scene._view === true) continue;
         const sceneClone = JSON.parse(JSON.stringify(scene));
-        // @ts-ignore
         sceneClone.gridDistance = convertValueToMetric(sceneClone.gridDistance, sceneClone.gridUnits);
-        // @ts-ignore
         sceneClone.gridUnits = convertStringFromImperialToMetric(sceneClone.gridUnits);
 
         try {

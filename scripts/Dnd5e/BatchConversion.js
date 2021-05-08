@@ -65,7 +65,6 @@ const journalUpdater = (journal, loading) => {
 }
 
 const sceneUpdater = (scene, loading) => {
-    if (scene._view === true) return;
     const sceneClone = JSON.parse(JSON.stringify(scene));
     sceneClone.gridDistance = convertValueToMetric(sceneClone.gridDistance, sceneClone.gridUnits);
     sceneClone.gridUnits = convertStringFromImperialToMetric(sceneClone.gridUnits);
