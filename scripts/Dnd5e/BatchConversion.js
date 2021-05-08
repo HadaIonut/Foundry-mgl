@@ -87,43 +87,20 @@ const rollTableConverter = (rollTable, loading) => {
         .catch((e) => createErrorMessage(e, rollTableClone.name, rollTableClone));
 }
 
-const compendiumConverter = (compendium) => {
-    const pack = game.packs.get(compendium);
-    pack.getIndex()
-        .then(() => createNewCompendium(pack.metadata)
-            .then((newPack) => {
-                const loadingCompendium = loading(`Converting compendium ${pack.metadata.label}`)(0)(pack.index.length - 1);
-                for (const index of pack.index) {
-                    pack.getEntity(index._id).then((entity) => {
-                        let entityClone = JSON.parse(JSON.stringify(entity.data))
-                        entityClone = typeSelector(entityClone, entity.constructor.name);
-                        newPack.createEntity(entityClone)
-                            .then(() => loadingCompendium())
-                            .catch((e) => createErrorMessage(e, 'createNewEntity', entityClone));
-                    }).catch((e) => createErrorMessage(e, 'getEntity', index._id))
-                }
-            }).catch((e) => createErrorMessage(e, 'createNewCompendium', pack.metadata)))
-        .catch((e) => createErrorMessage(e, 'getIndex', pack))
-}
-
 const batchConversion = (elements, callbackFunction) => {
     const loadingBar = loading(`Batch conversion in progress`)(0)(elements.size - 1);
     for (const elem of elements) callbackFunction(elem, loadingBar);
 }
 
-const initBatchConversion = (elements, type) => () => {
-    switch (type) {
-        case 'actors':
-            return batchConversion(elements, actorUpdater);
-        case 'items':
-            return batchConversion(elements, itemUpdater);
-        case 'tables':
-            return batchConversion(elements, rollTableConverter);
-        case 'journal':
-            return batchConversion(elements, journalUpdater);
-        case 'scenes':
-            return batchConversion(elements, sceneUpdater);
-    }
+const batchConversionMap = {
+    'actors': actorUpdater,
+    'items': itemUpdater,
+    'tables': rollTableConverter,
+    'journal': journalUpdater,
+    'scenes': sceneUpdater
 }
+
+const initBatchConversion = (elements, type) => () => batchConversion(elements, batchConversionMap[type]);
+
 
 export {initBatchConversion}

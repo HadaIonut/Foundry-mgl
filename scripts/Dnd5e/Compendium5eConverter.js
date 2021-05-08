@@ -8,8 +8,8 @@ import {
 import {loading, cache} from "../Utils/Utils.js";
 
 const itemUpdater = (item, onlyLabel, onlyUnit) => {
-    if (!onlyLabel) item.data.description.value = convertText(item.data.description.value);
-    if (!onlyLabel) item.data.weight = convertValueToMetric(item.data.weight, 'pound');
+    item.data.description.value = convertText(item.data.description.value);
+    item.data.weight = convertValueToMetric(item.data.weight, 'pound');
 
     item.data.target = convertDistance(item.data.target, onlyUnit);
     item.data.range = convertDistance(item.data.range, onlyUnit);
@@ -17,17 +17,17 @@ const itemUpdater = (item, onlyLabel, onlyUnit) => {
     return item;
 }
 
-const itemsUpdater = (items, onlyLabel, onlyUnit) => {
+const itemsUpdater = (items) => {
     for (let i = 0; i < items.length; i++) {
-        items[i] = itemUpdater(items[i], onlyLabel, onlyUnit);
+        items[i] = itemUpdater(items[i]);
     }
     return items;
 }
 
-const actorUpdater = (actor, onlyLabel, onlyUnit) => {
+const actorUpdater = (actor) => {
     actor.data = actorDataConverter(actor.data);
     actor.token = actorTokenConverter(actor.token);
-    actor.items = itemsUpdater(actor.items, onlyLabel, onlyUnit);
+    actor.items = itemsUpdater(actor.items);
     return actor;
 }
 
@@ -44,27 +44,22 @@ const scenesUpdater = (scene) => {
     return scene;
 }
 
-const typeSelector = (entity, type, onlyLabel, onlyUnit) => {
-    switch (type) {
-        case 'Actor5e':
-            return actorUpdater(entity, onlyLabel, onlyUnit);
-        case 'Mars5eActor':
-            return actorUpdater(entity, onlyLabel, onlyUnit);
-        case 'Item5e':
-            return itemUpdater(entity, onlyLabel, onlyUnit);
-        case 'MarsItem5e':
-            return itemUpdater(entity, onlyLabel, onlyUnit);
-        case 'JournalEntry':
-            entity.content = convertText(entity.content);
-            return entity;
-        case 'RollTable':
-            return rollTableUpdater(entity);
-        case 'Scene':
-            return scenesUpdater(entity);
-        default:
-            return entity;
-    }
+const journalUpdater = (journal) => {
+    journal.content = convertText(journal.content);
+    return journal;
 }
+
+const typeMap = {
+    'Actor5e': actorUpdater,
+    'Mars5eActor': actorUpdater,
+    'Item5e': itemUpdater,
+    'MarsItem5e': itemUpdater,
+    'JournalEntry': journalUpdater,
+    'RollTable': rollTableUpdater,
+    'Scene': scenesUpdater
+}
+
+const typeSelector = (entity, type) => typeMap[type](entity) || entity;
 
 const createNewCompendium = async (metadata) => {
     return await CompendiumCollection.createCompendium({
@@ -87,26 +82,31 @@ const createNewCompendiumMeta = (metadata) => {
         system: "dnd5e"
     };
 }
-
-
-const relinkTypeSelector = async (entity, type, cache) => {
-    switch (type) {
-        case 'Actor5e':
-            for (const item in entity.items) {
-                if (!entity.items.hasOwnProperty(item)) continue;
-                entity.items[item].data.description.value = await relinkText(entity.items[item].data.description.value, cache)
-            }
-            return entity;
-        case 'Item5e':
-            entity.data.description.value = await relinkText(entity.data.description.value, cache)
-            return entity;
-        case 'JournalEntry':
-            entity.content = await relinkText(entity.content, cache);
-            return entity;
-        default:
-            return entity;
+const relinkActor = async (entity, cache) => {
+    for (const item in entity.items) {
+        if (!entity.items.hasOwnProperty(item)) continue;
+        entity.items[item].data.description.value = await relinkText(entity.items[item].data.description.value, cache)
     }
+    return entity;
 }
+
+const relinkItem = async (entity, cache) => {
+    entity.data.description.value = await relinkText(entity.data.description.value, cache)
+    return entity;
+}
+
+const relinkJournals = async (entity, cache) => {
+    entity.content = await relinkText(entity.content, cache);
+    return entity;
+}
+
+const relinkTypeMap = {
+    'Actor5e': relinkActor,
+    'Item5e': relinkItem,
+    'JournalEntry': relinkJournals
+}
+
+const relinkTypeSelector = async (entity, type, cache) => relinkTypeMap[type](entity, cache);
 
 const relinkCompendium = async (compendium, cache) => {
     const sourcePack = game.packs.get(compendium);

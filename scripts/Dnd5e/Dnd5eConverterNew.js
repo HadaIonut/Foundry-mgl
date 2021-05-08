@@ -98,7 +98,7 @@ const rollTableUpdater = async (rollTable) => {
     }
 }
 
-const compendiumUpdater = async (compendium, onlyLabel, onlyUnit) => {
+const compendiumUpdater = async (compendium) => {
     try {
         const pack = game.packs.get(compendium.collection || compendium);
         await pack.getIndex();
@@ -113,7 +113,7 @@ const compendiumUpdater = async (compendium, onlyLabel, onlyUnit) => {
                 const entity = await newPack.getDocument(index._id);
                 let entityClone = JSON.parse(JSON.stringify(entity.data));
 
-                entityClone = typeSelector(entityClone, entity.constructor.name, onlyLabel, onlyUnit);
+                entityClone = typeSelector(entityClone, entity.constructor.name);
 
                 await entity.update(entityClone);
 
