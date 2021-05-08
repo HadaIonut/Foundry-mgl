@@ -67,7 +67,6 @@ const typeSelector = (entity, type, onlyLabel, onlyUnit) => {
 }
 
 const createNewCompendium = async (metadata) => {
-    // @ts-ignore
     return await CompendiumCollection.createCompendium({
         entity: metadata.entity,
         label: `${metadata.label} Metrified`,
@@ -79,7 +78,6 @@ const createNewCompendium = async (metadata) => {
 }
 
 const createNewCompendiumMeta = (metadata) => {
-    // @ts-ignore
     return {
         entity: metadata.entity,
         label: `${metadata.label} Metrified`,
@@ -115,20 +113,21 @@ const relinkCompendium = async (compendium, cache) => {
     await sourcePack.getIndex();
 
     const loadingBar = loading(`Relinking compendium ${sourcePack.metadata.label}`)(0)(sourcePack.index.size - 1);
+
     for (const index of sourcePack.index) {
-        const entity = await sourcePack.getEntity(index._id);
+        const entity = await sourcePack.getDocument(index._id);
         let entityClone = JSON.parse(JSON.stringify(entity.data))
         entityClone = await relinkTypeSelector(entityClone, entity.constructor.name, cache);
-        await sourcePack.updateEntity(entityClone);
+        await entity.update(entityClone);
         loadingBar();
     }
 }
 
 const relinkCompendiums = async () => {
     const compendiums = game.packs.keys();
-    const cache = cache();
+    const localCache = cache();
     for (const compendium of compendiums)
-        if (compendium.includes('metrified')) await relinkCompendium(compendium, cache);
+        if (compendium.includes('metrified')) await relinkCompendium(compendium, localCache);
 }
 
 

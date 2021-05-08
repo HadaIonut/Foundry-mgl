@@ -224,11 +224,14 @@ const relinkText = async (text, cache) => {
     const matched = [...text.matchAll(/@Compendium\[([A-Za-z0-9\-]+)\.([A-Za-z0-9\-]+)\.(\w+)\]/g)];
     for (const match of matched) {
         const source = `${match[1]}.${match[2]}`;
-        const target = `world.${match[2]}-metrified`;
-        if (source.includes('metrified') || !game.packs.get(target)) continue;
-        const newId = await findMetrifiedItemId(source, match[3], target, cache);
-        if (newId !== match[3])
+        try {
+            const target = `world.${game.packs.get(source).metadata.label.slugify({strict: true})}-metrified`;
+            if (source.includes('metrified') || !game.packs.get(target)) continue;
+            const newId = await findMetrifiedItemId(source, match[3], target, cache);
             text = text.replace(`${source}.${match[3]}`, `${target}.${newId}`);
+        } catch (e) {
+            console.log('failed at proccesing: ', source, matched);
+        }
     }
     return text;
 }
