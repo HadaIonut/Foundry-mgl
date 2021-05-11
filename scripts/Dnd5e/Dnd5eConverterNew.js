@@ -1,14 +1,14 @@
 import {
     actorDataConverter, actorTokenConverter, convertDistance,
     convertStringFromImperialToMetric, convertText,
-    convertValueToMetric, labelConverter,
-} from "../Utils/ConversionEngineNew";
+    convertValueToMetric, labelConverter, relinkText,
+} from "../Utils/ConversionEngineNew.js";
+import {loading} from "../Utils/Utils.js";
+import {createErrorMessage} from "../Utils/ErrorHandler.js";
+import {createNewCompendium, createNewCompendiumMeta, relinkCompendiums, typeSelector} from "./Compendium5eConverter.js";
 
-import {createErrorMessage} from "../Utils/ErrorHandler";
-import {createNewCompendium, relinkCompendiums, typeSelector} from "./Compendium5eConverter";
-import Utils from "../Utils/Utils";
 
-const itemUpdater = async (item: any, onlyLabel?: boolean, onlyUnit?:boolean): Promise<void> => {
+const itemUpdater = async (item, onlyLabel, onlyUnit) => {
     if (item.getFlag("Foundry-MGL", "converted")) return;
     const itemClone = JSON.parse(JSON.stringify(item));
 
@@ -32,11 +32,11 @@ const itemUpdater = async (item: any, onlyLabel?: boolean, onlyUnit?:boolean): P
     }
 }
 
-const itemsUpdater = async (items: Array<any>, onlyLabel?: boolean, onlyUnit?:boolean): Promise<void> => {
+const itemsUpdater = async (items, onlyLabel, onlyUnit) => {
     for (const item of items) await itemUpdater(item, onlyLabel, onlyUnit);
 }
 
-const actorUpdater = async (actor: any, onlyLabel?: boolean, onlyUnit?:boolean): Promise<void> => {
+const actorUpdater = async (actor, onlyLabel, onlyUnit) => {
     const actorClone = JSON.parse(JSON.stringify(actor));
 
     if (!actor.getFlag("Foundry-MGL", "converted")) {
@@ -51,13 +51,14 @@ const actorUpdater = async (actor: any, onlyLabel?: boolean, onlyUnit?:boolean):
         createErrorMessage(e, 'actor.update', actorClone.data);
     }
 
-    await itemsUpdater(actor.items.entries, onlyLabel, onlyUnit);
+    await itemsUpdater(actor.items, onlyLabel, onlyUnit)
 }
 
-const journalUpdater = async (journal: any): Promise<void> => {
+const journalUpdater = async (journal) => {
     const journalClone = JSON.parse(JSON.stringify(journal));
 
     journalClone.content = convertText(journalClone.content);
+    journalClone.content = await relinkText(journalClone.content)
 
     try {
         await journal.update(journalClone);
@@ -67,14 +68,11 @@ const journalUpdater = async (journal: any): Promise<void> => {
 
 }
 
-const allScenesUpdater = async (): Promise<void> => {
+const allScenesUpdater = async () => {
     for (const scene of game.scenes.entities) {
-        // @ts-ignore
         if (scene._view === true) continue;
         const sceneClone = JSON.parse(JSON.stringify(scene));
-        // @ts-ignore
         sceneClone.gridDistance = convertValueToMetric(sceneClone.gridDistance, sceneClone.gridUnits);
-        // @ts-ignore
         sceneClone.gridUnits = convertStringFromImperialToMetric(sceneClone.gridUnits);
 
         try {
@@ -85,7 +83,7 @@ const allScenesUpdater = async (): Promise<void> => {
     }
 }
 
-const rollTableUpdater = async (rollTable: any): Promise<void> => {
+const rollTableUpdater = async (rollTable) => {
     const rollTableClone = JSON.parse(JSON.stringify(rollTable));
 
     if (rollTableClone.description) rollTableClone.description = convertText(rollTableClone.description);
@@ -100,29 +98,37 @@ const rollTableUpdater = async (rollTable: any): Promise<void> => {
     }
 }
 
-const compendiumUpdater = async (compendium: string, onlyLabel?: boolean, onlyUnit?:boolean): Promise<void> => {
+const compendiumUpdater = async (compendium) => {
     try {
-        const pack = game.packs.get(compendium);
+        const pack = game.packs.get(compendium.collection || compendium);
         await pack.getIndex();
-        const newPack = await createNewCompendium(pack.metadata);
-        const newEntitiesArray = [];
+        const newPack = await pack.duplicateCompendium({
+            label: `${pack.metadata.label} Metrified`
+        })
+        await newPack.getIndex();
 
-        const loadingBar = Utils.loading(`Converting compendium ${pack.metadata.label}`)(0)(pack.index.length - 1);
-        for (const index of pack.index) {
-            const entity = await pack.getEntity(index._id);
-            let entityClone = JSON.parse(JSON.stringify(entity.data));
-            entityClone = typeSelector(entityClone, entity.constructor.name, onlyLabel, onlyUnit);
-            newEntitiesArray.push(entityClone);
-            loadingBar();
+        const loadingBar = loading(`Converting compendium ${pack.metadata.label}`)(0)(pack.index.size - 1);
+        for (const index of newPack.index) {
+            try {
+                const entity = await newPack.getDocument(index._id);
+                let entityClone = JSON.parse(JSON.stringify(entity.data));
+
+                entityClone = typeSelector(entityClone, entity.constructor.name);
+
+                await entity.update(entityClone);
+
+                loadingBar();
+            }
+            catch (e) {
+                createErrorMessage(e, 'compendiumUpdater', compendium);
+            }
         }
-        newPack.createEntity(newEntitiesArray);
     } catch (e) {
         createErrorMessage(e, 'compendiumUpdater', compendium);
     }
-
 }
 
-const batchCompendiumUpdater = (compendiums: string[]) => async () => {
+const batchCompendiumUpdater = (compendiums) => async () => {
     for (const compendium of compendiums)
         if (!compendium.includes('metrified')) await compendiumUpdater(compendium);
     await relinkCompendiums();

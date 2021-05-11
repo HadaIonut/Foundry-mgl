@@ -4,12 +4,12 @@ import {
     convertText,
     convertValueToMetric,
     labelConverter
-} from "../Utils/ConversionEngineNew";
-import {createErrorMessage} from "../Utils/ErrorHandler";
-import {createNewCompendium, typeSelector} from "./Compendium5eConverter";
-import Utils from "../Utils/Utils";
+} from "../Utils/ConversionEngineNew.js";
+import {createErrorMessage} from "../Utils/ErrorHandler.js";
+import {createNewCompendium, typeSelector} from "./Compendium5eConverter.js";
+import {loading} from "../Utils/Utils.js";
 
-const itemUpdater = (item: any, loading?): void => {
+const itemUpdater = (item, loading) => {
     if (item.getFlag("Foundry-MGL", "converted")) return;
     const itemClone = JSON.parse(JSON.stringify(item));
 
@@ -31,11 +31,11 @@ const itemUpdater = (item: any, loading?): void => {
         .catch((e) => createErrorMessage(e, `${itemClone.name}.setFlag()`, item))
 }
 
-const itemsUpdater = (items: any[]): void => {
+const itemsUpdater = (items) => {
     for (const item of items) itemUpdater(item);
 }
 
-const actorUpdater = (actor: any, loading): void => {
+const actorUpdater = (actor, loading) => {
     const actorClone = JSON.parse(JSON.stringify(actor));
 
     if (!actor.getFlag("Foundry-MGL", "converted")) {
@@ -47,14 +47,14 @@ const actorUpdater = (actor: any, loading): void => {
         .then(() => {
             actor.update(actorClone)
                 .then(() => {
-                    itemsUpdater(actor.items.entries);
+                    itemsUpdater(actor.items);
                     loading();
                 })
                 .catch((e) => createErrorMessage(e, 'actor.update', actorClone.data))
         })
 }
 
-const journalUpdater = (journal: any, loading): void => {
+const journalUpdater = (journal, loading) => {
     const journalClone = JSON.parse(JSON.stringify(journal));
 
     journalClone.content = convertText(journalClone.content);
@@ -64,13 +64,9 @@ const journalUpdater = (journal: any, loading): void => {
         .catch((e) => createErrorMessage(e, journalClone.name, journal))
 }
 
-const sceneUpdater = (scene, loading): void => {
-    // @ts-ignore
-    if (scene._view === true) return;
+const sceneUpdater = (scene, loading) => {
     const sceneClone = JSON.parse(JSON.stringify(scene));
-    // @ts-ignore
     sceneClone.gridDistance = convertValueToMetric(sceneClone.gridDistance, sceneClone.gridUnits);
-    // @ts-ignore
     sceneClone.gridUnits = convertStringFromImperialToMetric(sceneClone.gridUnits);
 
     scene.update(sceneClone)
@@ -78,7 +74,7 @@ const sceneUpdater = (scene, loading): void => {
         .catch((e) => createErrorMessage(e, sceneClone.name, sceneClone));
 }
 
-const rollTableConverter = (rollTable: any, loading): void => {
+const rollTableConverter = (rollTable, loading) => {
     const rollTableClone = JSON.parse(JSON.stringify(rollTable));
 
     rollTableClone.description = convertText(rollTableClone.description);
@@ -91,43 +87,20 @@ const rollTableConverter = (rollTable: any, loading): void => {
         .catch((e) => createErrorMessage(e, rollTableClone.name, rollTableClone));
 }
 
-const compendiumConverter = (compendium: string): void => {
-    const pack = game.packs.get(compendium);
-    pack.getIndex()
-        .then(() => createNewCompendium(pack.metadata)
-            .then((newPack) => {
-                const loadingCompendium = Utils.loading(`Converting compendium ${pack.metadata.label}`)(0)(pack.index.length - 1);
-                for (const index of pack.index) {
-                    pack.getEntity(index._id).then((entity) => {
-                        let entityClone = JSON.parse(JSON.stringify(entity.data))
-                        entityClone = typeSelector(entityClone, entity.constructor.name);
-                        newPack.createEntity(entityClone)
-                            .then(() => loadingCompendium())
-                            .catch((e) => createErrorMessage(e, 'createNewEntity', entityClone));
-                    }).catch((e) => createErrorMessage(e, 'getEntity', index._id))
-                }
-            }).catch((e) => createErrorMessage(e, 'createNewCompendium', pack.metadata)))
-        .catch((e) => createErrorMessage(e, 'getIndex', pack))
-}
-
-const batchConversion = (elements: any[], callbackFunction) => {
-    const loadingBar = Utils.loading(`Batch conversion in progress`)(0)(elements.length - 1);
+const batchConversion = (elements, callbackFunction) => {
+    const loadingBar = loading(`Batch conversion in progress`)(0)(elements.size - 1);
     for (const elem of elements) callbackFunction(elem, loadingBar);
 }
 
-const initBatchConversion = (elements: any[], type: string) => () => {
-    switch (type) {
-        case 'actors':
-            return batchConversion(elements, actorUpdater);
-        case 'items':
-            return batchConversion(elements, itemUpdater);
-        case 'tables':
-            return batchConversion(elements, rollTableConverter);
-        case 'journal':
-            return batchConversion(elements, journalUpdater);
-        case 'scenes':
-            return batchConversion(elements, sceneUpdater);
-    }
+const batchConversionMap = {
+    'actors': actorUpdater,
+    'items': itemUpdater,
+    'tables': rollTableConverter,
+    'journal': journalUpdater,
+    'scenes': sceneUpdater
 }
+
+const initBatchConversion = (elements, type) => () => batchConversion(elements, batchConversionMap[type]);
+
 
 export {initBatchConversion}
