@@ -8,9 +8,14 @@ import {
 } from "./Dnd5e/Dnd5eConverterNew.js";
 import {initBatchConversion} from "./Dnd5e/BatchConversion.js";
 import {getSetting} from "./Settings.js";
+import {updateActor, updateItem} from "./Pf2e/Pf2eConverter.js";
 
 const entityUpdater = {
-    'pf2e': {},
+    'pf2e': {
+        'actor': updateActor,
+        'item': updateItem,
+        'sheet': journalUpdater,
+    },
     'dnd5e': {
         'actor': actorUpdater,
         'item': itemUpdater,
@@ -20,14 +25,14 @@ const entityUpdater = {
     }
 }
 
-const addButton = (element, actor, type, html) => {
+const addButton = (element, entity, type, html) => {
     if (!game.user.hasRole(4)) return;
     if (element.length !== 1) return;
 
     let button = $(`<a class="popout" style><i class="fas fa-ruler"></i>Metrificator</a>`);
     button.on('click', () => {
         ui.notifications.warn(`Metrifying the ${type}, hold on tight.`);
-        entityUpdater[game.system.id][type](actor).then(() => ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
+        entityUpdater[game.system.id][type](entity).then(() => ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
         if (type === 'compendium') html.close();
     });
 

@@ -9,6 +9,7 @@ import {
     onRenderSideBar
 } from "./MetricModule.js";
 import {consoleLog} from "./Utils/Utils.js";
+import {convertStringFromImperialToMetric, convertText, convertValueToMetric} from "./Utils/ConversionEngineNew.js";
 
 /**
  * Defines distance units and sets encumbrance
@@ -25,12 +26,46 @@ Hooks.on('init', () => {
     registerSettings();
 });
 
+const convertTranslations = (text) => {
+    text = convertText(text);
+    text = convertStringFromImperialToMetric(text);
+    return text;
+}
+
+const addNewTranslationsForMetric = (object, prop) => {
+    const match = prop.match(/Trait([A-Za-z]+)([0-9]+)/);
+    if (match) {
+        const newProp = `Trait${match[1]}${convertValueToMetric(match[2], 'ft')}`;
+        object[newProp] = object[prop];
+    }
+    const weaponMatch = prop.match(/WeaponRange([0-9]+)/);
+    if (weaponMatch) {
+        const newProp = `WeaponRange${convertValueToMetric(weaponMatch[1], 'ft')}`;
+        object[newProp] = object[prop];
+    }
+}
+
+const convertI18NObject = (obj) => {
+    for (const prop in obj) {
+        const value = obj[prop];
+        if (typeof value === 'string') {
+            obj[prop] = convertTranslations(obj[prop]);
+            addNewTranslationsForMetric(obj, prop);
+        }
+        else {
+            convertI18NObject(value);
+        }
+    }
+}
+
 /**
  * Changes labels from lbs. to kg.
  */
 Hooks.on('ready', () => {
     consoleLog("Changing label 'lbs.' to 'kg'.");
-    game.i18n.translations.DND5E["AbbreviationLbs"] = 'kg';
+    if (game.system.id === 'dnd5e') game.i18n.translations.DND5E["AbbreviationLbs"] = 'kg';
+
+    if (game.system.id === 'pf2e') convertI18NObject(game.i18n.translations.PF2E);
 });
 
 /**

@@ -55,4 +55,6 @@ const cache = () => {
     }
 }
 
-export {cache, getRandomItemFromList, loading, consoleLog, moduleName, moduleTitle};
+const copyObject = (object) => JSON.parse(JSON.stringify(object));
+
+export {cache, getRandomItemFromList, loading, consoleLog, moduleName, moduleTitle, copyObject};

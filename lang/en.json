@@ -1,5 +1,6 @@
 {
   "metricsystem.meters": "Meters",
   "metricsystem.kilometers": "Kilometers",
-  "lbs.": "kg."
+  "lbs.": "kg.",
+  "FeetAcronym": "m"
 }

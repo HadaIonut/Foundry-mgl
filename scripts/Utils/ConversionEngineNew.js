@@ -91,7 +91,7 @@ const convertValueToMetric = (value, unit) => {
 }
 
 const convertText = (text) => {
-    return text.replace(/(\b[^\d\W]+\b )?(\b[^\d\W]+\b)([ -])(feet|foot)/g, (_0, wordNumber1, wordNumber2, separator, unit) => {
+    return text?.replace(/(\b[^\d\W]+\b )?(\b[^\d\W]+\b)([ -])(feet|foot)/g, (_0, wordNumber1, wordNumber2, separator, unit) => {
         const capitalized = wordNumber1 !== wordNumber1?.toLowerCase();
         const selectedNumber = numberSelector(wordNumber1 ? wordNumber1?.toLowerCase().trim() : '', wordNumber2?.toLowerCase());
         if (selectedNumber.number) {
