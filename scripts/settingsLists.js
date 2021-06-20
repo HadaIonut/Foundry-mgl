@@ -96,5 +96,16 @@ export default {
             }
 
         },
+        {
+            key: 'buttonHidden',
+            data: {
+                name: 'Hide metrify button',
+                hint: 'Check this box if you want the metrify button to be hidden',
+                type: Boolean,
+                default: false,
+                scope: 'client',
+                config: true
+            }
+        }
     ]
 }

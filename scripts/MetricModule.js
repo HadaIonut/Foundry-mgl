@@ -7,7 +7,18 @@ import {
     batchCompendiumUpdater
 } from "./Dnd5e/Dnd5eConverterNew.js";
 import {initBatchConversion} from "./Dnd5e/BatchConversion.js";
-import {relinkCompendiums, relinkCompendium} from "./Dnd5e/Compendium5eConverter.js";
+import {getSetting} from "./Settings.js";
+
+const entityUpdater = {
+    'pf2e': {},
+    'dnd5e': {
+        'actor': actorUpdater,
+        'item': itemUpdater,
+        'sheet': journalUpdater,
+        'rolltable': rollTableUpdater,
+        'compendium': compendiumUpdater
+    }
+}
 
 const addButton = (element, actor, type, html) => {
     if (!game.user.hasRole(4)) return;
@@ -16,31 +27,11 @@ const addButton = (element, actor, type, html) => {
     let button = $(`<a class="popout" style><i class="fas fa-ruler"></i>Metrificator</a>`);
     button.on('click', () => {
         ui.notifications.warn(`Metrifying the ${type}, hold on tight.`);
-        switch (type) {
-            case 'actor':
-                actorUpdater(actor).then(() =>
-                    ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
-                break;
-            case 'item':
-                itemUpdater(actor).then(() =>
-                    ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
-                break;
-            case 'sheet':
-                journalUpdater(actor).then(() =>
-                    ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
-                break;
-            case 'rolltable':
-                rollTableUpdater(actor).then(() =>
-                    ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
-                break;
-            case 'compendium':
-                html.close();
-                compendiumUpdater(actor).then(() =>
-                    ui.notifications.info(`Metrification complete, enjoy a better ${type}`))
-                break;
-        }
+        entityUpdater[game.system.id][type](actor).then(() => ui.notifications.info(`Metrification complete, enjoy a better ${type}`));
+        if (type === 'compendium') html.close();
     });
-    element.after(button);
+
+    if (!getSetting('buttonHidden')) element.after(button);
 }
 
 const onRenderActorSheet = (obj, html) => {
@@ -128,4 +119,11 @@ const onCompendiumRender = (obj, html) => {
     */
 }
 
-export {onCompendiumRender, onRenderActorSheet, onRenderItemSheet, onRenderJurnalSheet, onRenderRollTable, onRenderSideBar}
+export {
+    onCompendiumRender,
+    onRenderActorSheet,
+    onRenderItemSheet,
+    onRenderJurnalSheet,
+    onRenderRollTable,
+    onRenderSideBar
+}
