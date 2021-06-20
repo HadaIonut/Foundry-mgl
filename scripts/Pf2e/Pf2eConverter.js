@@ -3,7 +3,7 @@ import {copyObject} from "../Utils/Utils.js";
 
 const convertTrait = (trait) => trait.replace(/reach-([0-9]+)/, (_0, value) => `Reach ${convertValueToMetric(value, 'ft')} m`);
 
-const convertInconsistentText = (speed) => speed.replace(/([0-9]+)(\W|&nbsp;| cubic |-)?(feet|inch|foot|ft\.|pounds|lbs\.|pound|lbs|lb|ft)?/, (_0, number, separator, label) => {
+const convertInconsistentText = (speed) => speed?.replace(/([0-9]+)(\W|&nbsp;| cubic |-)?(feet|inch|foot|ft\.|pounds|lbs\.|pound|lbs|lb|ft)?/, (_0, number, separator, label) => {
     return `${convertValueToMetric(number, label ? label : 'ft')}${separator || ''}${label ? convertStringFromImperialToMetric(label): ''}`
 })
 
@@ -21,6 +21,7 @@ const updateItems = async (items) => {
 
 const updateItem = async (item) => {
     const itemCopy = copyObject(item.data);
+    if (item.getFlag("Foundry-MGL", "converted")) return;
 
     if (itemCopy.data.area) itemCopy.data.area.value = convertValueToMetric(itemCopy.data.area.value, 'ft');
     if (itemCopy.data.areasize) itemCopy.data.areasize.value = convertText(itemCopy.data.areasize.value);
@@ -28,6 +29,7 @@ const updateItem = async (item) => {
     if (itemCopy.data.range) itemCopy.data.range.value = convertInconsistentText(itemCopy.data.range.value);
     if (itemCopy.data.traits.value) itemCopy.data.traits.value = itemCopy.data.traits.value.map((trait) => convertTrait(trait));
 
+    item.setFlag("Foundry-MGL", "converted", true);
     await item.update(itemCopy);
 }
 
@@ -43,4 +45,4 @@ const updateActor = async (actor) => {
     await updateItems(actor.data.items);
 }
 
-export {updateActor, updateItem}
+export {updateActor, updateItem, speedConverter, convertInconsistentText, convertTrait}

@@ -9,12 +9,14 @@ import {
 import {initBatchConversion} from "./Dnd5e/BatchConversion.js";
 import {getSetting} from "./Settings.js";
 import {updateActor, updateItem} from "./Pf2e/Pf2eConverter.js";
+import {convertCompendium} from "./Pf2e/CompendiumPf2eConverter.js";
 
 const entityUpdater = {
     'pf2e': {
         'actor': updateActor,
         'item': updateItem,
         'sheet': journalUpdater,
+        'compendium': convertCompendium
     },
     'dnd5e': {
         'actor': actorUpdater,

@@ -10,6 +10,7 @@ import {
 } from "./MetricModule.js";
 import {consoleLog} from "./Utils/Utils.js";
 import {convertStringFromImperialToMetric, convertText, convertValueToMetric} from "./Utils/ConversionEngineNew.js";
+import pf2ePack from "./Pf2e/TranslationPack.js"
 
 /**
  * Defines distance units and sets encumbrance
@@ -65,7 +66,7 @@ Hooks.on('ready', () => {
     consoleLog("Changing label 'lbs.' to 'kg'.");
     if (game.system.id === 'dnd5e') game.i18n.translations.DND5E["AbbreviationLbs"] = 'kg';
 
-    if (game.system.id === 'pf2e') convertI18NObject(game.i18n.translations.PF2E);
+    if (game.system.id === 'pf2e') game.i18n.translations.PF2E = pf2ePack;
 });
 
 /**

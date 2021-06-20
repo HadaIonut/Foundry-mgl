@@ -131,4 +131,4 @@ const relinkCompendiums = async () => {
 }
 
 
-export {typeSelector, createNewCompendium, relinkCompendiums, relinkCompendium, createNewCompendiumMeta}
+export {typeSelector, createNewCompendium, relinkCompendiums, relinkCompendium, createNewCompendiumMeta, journalUpdater}
