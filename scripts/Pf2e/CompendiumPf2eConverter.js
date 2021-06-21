@@ -5,7 +5,7 @@ import {convertInconsistentText, convertTrait, speedConverter} from "./Pf2eConve
 import {journalUpdater} from "../Dnd5e/Compendium5eConverter.js";
 
 const itemConverter = (item) => {
-    if (item.data.area) item.data.area.value = convertValueToMetric(item.data.area.value, 'ft');
+    if (item.data.area) item.data.area.value = String(convertValueToMetric(item.data.area.value, 'ft'));
     if (item.data.areasize) item.data.areasize.value = convertText(item.data.areasize.value);
     item.data.description.value = convertText(item.data.description.value);
     if (item.data.range) item.data.range.value = convertInconsistentText(item.data.range.value);
@@ -29,7 +29,14 @@ const actorConverter = (actor) => {
 }
 
 const classConverter = (entity) => {
-    console.log(`i'll implement this at some point`);
+    Object.keys(entity.data.items).forEach((key) => {
+        const item = entity.data.items[key];
+        const packLabel = game.packs.get(item.pack)?.metadata?.label;
+        if (!packLabel) return;
+        const metrifiedLabel = `${packLabel} Metrified`;
+        entity.data.items[key].pack = `world.${metrifiedLabel.slugify({strict: true})}`;
+    })
+    entity.data.description.value = convertText(entity.data.description.value);
 }
 
 const typeMap = {
@@ -55,7 +62,6 @@ const typeMap = {
 const typeSelector = (entity, type) => typeMap[type](entity) || entity;
 
 const convertCompendium = async (compendium) => {
-    const types = new Map();
     try {
         const pack = game.packs.get(compendium.collection || compendium);
         await pack.getIndex();
@@ -71,7 +77,7 @@ const convertCompendium = async (compendium) => {
                 let entityClone = JSON.parse(JSON.stringify(entity.data));
 
                 entityClone = typeSelector(entityClone, entity.constructor.name);
-                types.set(entity.constructor.name);
+
                 await entity.update(entityClone);
 
                 loadingBar();
@@ -82,7 +88,6 @@ const convertCompendium = async (compendium) => {
     } catch (e) {
         createErrorMessage(e, 'compendiumUpdater', compendium);
     }
-    console.log(types);
 }
 
 export {convertCompendium}

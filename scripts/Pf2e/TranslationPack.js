@@ -219,6 +219,7 @@ export default  {
     "AreaSize40": "40 Foot",
     "AreaSize45": "45 Foot",
     "AreaSize5": "5 Foot",
+    "AreaSize1.5": "1.5 meters",
     "AreaSize50": "50 Foot",
     "AreaSize60": "60 Foot",
     "AreaSize75": "75 Foot",
