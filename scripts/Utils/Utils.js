@@ -57,4 +57,6 @@ const cache = () => {
 
 const copyObject = (object) => JSON.parse(JSON.stringify(object));
 
-export {cache, getRandomItemFromList, loading, consoleLog, moduleName, moduleTitle, copyObject};
+const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1);
+
+export {cache, getRandomItemFromList, loading, consoleLog, moduleName, moduleTitle, copyObject, capitalize};

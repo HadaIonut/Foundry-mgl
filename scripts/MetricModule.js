@@ -27,6 +27,40 @@ const entityUpdater = {
     }
 }
 
+const batchConversionManager = (data, type, button) => {
+    let batchConvert = initBatchConversion(data, type);
+    button.on('click', () => createWarningDialog(batchConvert));
+}
+
+const batchCompendiumManager = (data, type, button) => {
+    let batchConvert = batchCompendiumUpdater(game.packs.keys());
+    button.on('click', () => createWarningDialog(batchConvert));
+}
+
+const batchCompendiumUpdaterMap = {
+    'dnd5e': {
+        'scenes': batchConversionManager,
+        'actors': batchConversionManager,
+        'items': batchConversionManager,
+        'tables': batchConversionManager,
+        'journal': batchConversionManager,
+        'compendium': batchCompendiumManager
+    },
+    'pf2e': {
+
+    }
+}
+
+const onRenderSideBar = (app, html) => {
+    if (!game.user.hasRole(4)) return;
+    let button = $(`<button><i class='fas fa-exchange-alt'></i>Metrify all the ${app?.options?.id}</button>`);
+    const type = app?.options?.id;
+    if (batchCompendiumUpdaterMap[game.system.id][type])
+        batchCompendiumUpdaterMap[game.system.id][type](type === 'compendium' ? game.packs.keys() : game[type], type, button);
+    if (app?.options?.id !== 'combat' && app?.options?.id !== 'playlists' && !app?.options?.id.includes('popout'))
+        html.find(".directory-footer").append(button);
+}
+
 const addButton = (element, entity, type, html) => {
     if (!game.user.hasRole(4)) return;
     if (element.length !== 1) return;
@@ -56,38 +90,21 @@ const onRenderJurnalSheet = (obj, html) => {
     addButton(element, obj.object, "sheet");
 }
 
-const onRenderSideBar = (app, html) => {
-    if (!game.user.hasRole(4)) return;
-    let button = $(`<button><i class='fas fa-exchange-alt'></i>Metrify all the ${app?.options?.id}</button>`);
-    let batchConvert
-    switch (app?.options?.id) {
-        case "scenes":
-            batchConvert = initBatchConversion(game.scenes, app?.options?.id);
-            button.on('click', () => createWarningDialog(batchConvert));
-            break;
-        case "compendium":
-            batchConvert = batchCompendiumUpdater(game.packs.keys());
-            button.on('click', () => createWarningDialog(batchConvert));
-            break;
-        case "actors":
-            batchConvert = initBatchConversion(game.actors, app?.options?.id);
-            button.on('click', () => createWarningDialog(batchConvert));
-            break;
-        case "items":
-            batchConvert = initBatchConversion(game.items, app?.options?.id);
-            button.on('click', () => createWarningDialog(batchConvert));
-            break;
-        case "tables":
-            batchConvert = initBatchConversion(game.tables, app?.options?.id);
-            button.on('click', () => createWarningDialog(batchConvert));
-            break;
-        case "journal":
-            batchConvert = initBatchConversion(game.journal, app?.options?.id);
-            button.on('click', () => createWarningDialog(batchConvert));
-            break;
-    }
-    if (app?.options?.id !== 'combat' && app?.options?.id !== 'playlists' && !app?.options?.id.includes('popout'))
-        html.find(".directory-footer").append(button);
+const onRenderRollTable = (obj, html) => {
+    let element = html.find(".window-header .window-title");
+    addButton(element, obj.object, 'rolltable')
+}
+
+const onCompendiumRender = (obj, html) => {
+    let element = html.find(".window-header .window-title");
+    addButton(element, obj.collection, 'compendium', obj);
+
+    /*
+    Intended for debugging the relinking function
+    let button = $(`<a class="popout" style><i class="fas fa-ruler"></i>Relink</a>`);
+    button.on('click', () => relinkCompendium(obj.collection))
+    element.after(button)
+    */
 }
 
 const createWarningDialog = (callFunction) => {
@@ -107,23 +124,6 @@ const createWarningDialog = (callFunction) => {
         },
         default: 'ok',
     }).render(true);
-}
-
-const onRenderRollTable = (obj, html) => {
-    let element = html.find(".window-header .window-title");
-    addButton(element, obj.object, 'rolltable')
-}
-
-const onCompendiumRender = (obj, html) => {
-    let element = html.find(".window-header .window-title");
-    addButton(element, obj.collection, 'compendium', obj);
-
-    /*
-    Intended for debugging the relinking function
-    let button = $(`<a class="popout" style><i class="fas fa-ruler"></i>Relink</a>`);
-    button.on('click', () => relinkCompendium(obj.collection))
-    element.after(button)
-    */
 }
 
 export {

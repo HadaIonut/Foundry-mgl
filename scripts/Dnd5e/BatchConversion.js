@@ -6,7 +6,6 @@ import {
     labelConverter
 } from "../Utils/ConversionEngineNew.js";
 import {createErrorMessage} from "../Utils/ErrorHandler.js";
-import {createNewCompendium, typeSelector} from "./Compendium5eConverter.js";
 import {loading} from "../Utils/Utils.js";
 
 const itemUpdater = (item, loading) => {

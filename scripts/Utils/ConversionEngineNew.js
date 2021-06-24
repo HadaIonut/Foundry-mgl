@@ -8,6 +8,7 @@ const imperialToMetricMap = {
     "feet": "meters",
     "Feet": "Meters",
     "foot": "meter",
+    "Foot": "Meter",
     "mile": "kilometres",
     "miles": "kilometres",
     "yards": "meters",
@@ -24,6 +25,7 @@ const typesOfUnitsMap = {
     "feet": "feet",
     "Feet": "feet",
     "foot": "feet",
+    "Foot": "feet",
     "mile": "mile",
     "Mile": "mile",
     "Miles": "mile",
@@ -91,7 +93,7 @@ const convertValueToMetric = (value, unit) => {
 }
 
 const convertText = (text) => {
-    return text?.replace(/(\b[^\d\W]+\b )?(\b[^\d\W]+\b)([ -])(feet|foot)/g, (_0, wordNumber1, wordNumber2, separator, unit) => {
+    return text?.replace(/(\b[^\d\W]+\b )?(\b[^\d\W]+\b)([ -])(feet|foot|Foot)/g, (_0, wordNumber1, wordNumber2, separator, unit) => {
         const capitalized = wordNumber1 !== wordNumber1?.toLowerCase();
         const selectedNumber = numberSelector(wordNumber1 ? wordNumber1?.toLowerCase().trim() : '', wordNumber2?.toLowerCase());
         if (selectedNumber.number) {
@@ -106,7 +108,7 @@ const convertText = (text) => {
         return `${convertValueToMetric(number, label)}${separator}${convertStringFromImperialToMetric(label)}`;
     }).replace(/([0-9]+)\/([0-9]+) (feet|inch|foot|ft\.)/g, (_0, firstNumber, secondNumber, label) => {
         return `${convertValueToMetric(firstNumber, label)}/${convertValueToMetric(secondNumber, label)} ${convertStringFromImperialToMetric(label)}`;
-    }).replace(/([0-9]+)(\W|&nbsp;| cubic |-){1,2}(feet|inch|foot|ft\.|pounds|lbs\.|pound|lbs|lb|ft)/g, (_0, number, separator, label) => {
+    }).replace(/([0-9]+)(\W|&nbsp;| cubic |-){1,2}(feet|inch|foot|ft\.|pounds|lbs\.|pound|lbs|lb|ft|Foot)/g, (_0, number, separator, label) => {
         return `${convertValueToMetric(number, label)}${separator}${convertStringFromImperialToMetric(label)}`;
     }).replace(/(several \w+ )(feet|yards)/g, (_0, several, unit) => {
         return `${several}${convertStringFromImperialToMetric(unit)}`;
