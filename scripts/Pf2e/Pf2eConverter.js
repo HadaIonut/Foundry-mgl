@@ -92,7 +92,13 @@ const updateActor = async (actor) => {
     const actorCopy = copyObject(actor.data);
     if (actor.getFlag("Foundry-MGL", "converted")) return;
 
-    actorCopy.data.traits.senses.value = convertText(actorCopy?.data?.traits?.senses?.value);
+    if (Array.isArray(actorCopy.data.traits.senses))
+        actorCopy.data.traits.senses.map((sense)=> {
+            sense.value = convertInconsistentText(sense.value);
+            return sense;
+        })
+    else actorCopy.data.traits.senses.value = convertText(actorCopy?.data?.traits?.senses?.value);
+
     actorCopy.data.attributes.speed = speedConverter(actorCopy?.data?.attributes?.speed);
 
     await actor.setFlag("Foundry-MGL", "converted", true);
