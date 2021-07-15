@@ -4,7 +4,7 @@ export default {
             key: "conversionMultipliers",
             data: {
                 type: String,
-                default: "{\"inch\": 2.5, \"feet\": 0.3, \"mile\": 1.6, \"pound\": 0.5}",
+                default: "{\"inch\": 2.5, \"feet\": 0.3, \"mile\": 1.6, \"pound\": 0.5, \"gallon\": 3.5}",
                 scope: "world",
                 config: false,
                 restricted: true,
@@ -53,6 +53,18 @@ export default {
                 hint: "1 pound = this many kilograms",
                 type: Number,
                 default: 0.5,
+                scope: "world",
+                config: true,
+                restricted: true,
+            },
+        },
+        {
+            key: "gallonConversionMultiplier",
+            data: {
+                name: "Gallon Conversion Multiplier: ",
+                hint: "1 gallon = this many liters",
+                type: Number,
+                default: 3.5,
                 scope: "world",
                 config: true,
                 restricted: true,

@@ -16,7 +16,11 @@ const imperialToMetricMap = {
     "lb.": "kg.",
     "lbs.": "kg.",
     "pounds": "kilograms",
-    "pound": "kilogram"
+    "pound": "kilogram",
+    "gallon": "liter",
+    "gallons": "liters",
+    "Gallon": "Liter",
+    "Gallons": "Liters",
 };
 
 const typesOfUnitsMap = {
@@ -34,7 +38,12 @@ const typesOfUnitsMap = {
     "pound": "pound",
     "lb.": "pound",
     "lbs.": "pound",
-    "pounds": "pound"
+    "pounds": "pound",
+    "gallon": "gallon",
+    "gallons": "gallon",
+    "Gallon": "gallon",
+    "Gallons": "gallon",
+
 };
 
 
@@ -82,18 +91,22 @@ const convertDistanceFromImperialToMetric = (distance, unit) => {
     }
 }
 
+const convertVolumeFromImperialToMetric = (volume) => convertUsingMultiplier(volume, getMultiplier('gallon'));
+
 const convertValueToMetric = (value, unit) => {
     const convertedToStandard = convertUnitStringToStandard(unit);
     switch (convertedToStandard) {
         case 'pound':
             return convertWeightFromPoundsToKilograms(value);
+        case 'gallon':
+            return convertVolumeFromImperialToMetric(value);
         default:
             return convertDistanceFromImperialToMetric(value, unit);
     }
 }
 
 const convertText = (text) => {
-    return text?.replace(/(\b[^\d\W]+\b )?(\b[^\d\W]+\b)([ -])(feet|foot|Foot)/g, (_0, wordNumber1, wordNumber2, separator, unit) => {
+    return text?.replace(/(\b[^\d\W]+\b )?(\b[^\d\W]+\b)([ -])(feet|foot|Foot|gallons|gallon)/gi, (_0, wordNumber1, wordNumber2, separator, unit) => {
         const capitalized = wordNumber1 !== wordNumber1?.toLowerCase();
         const selectedNumber = numberSelector(wordNumber1 ? wordNumber1?.toLowerCase().trim() : '', wordNumber2?.toLowerCase());
         if (selectedNumber.number) {
@@ -102,15 +115,15 @@ const convertText = (text) => {
             return capitalized ? `${returnText.charAt(0).toUpperCase()}${returnText.slice(1)}` : returnText;
         }
         return `${selectedNumber.text}${separator}${unit}`;
-    }).replace(/([0-9]+) (to|and) ([0-9]+) (feet|inch|foot|ft\.)/g, (_0, number1, separatorWord, number2, units) => {
+    }).replace(/([0-9]+) (to|and) ([0-9]+) (feet|inch|foot|ft\.|gallons|gallon)/gi, (_0, number1, separatorWord, number2, units) => {
         return `${convertValueToMetric(number1, units)} ${separatorWord} ${convertValueToMetric(number2, units)} ${convertStringFromImperialToMetric(units)}`
-    }).replace(/([0-9]{1,3}(,[0-9]{3})+)([ -])(feet|foot|pounds)/g, (_0, number, _1, separator, label) => {
+    }).replace(/([0-9]{1,3}(,[0-9]{3})+)([ -])(feet|foot|pounds|gallons|gallon)/gi, (_0, number, _1, separator, label) => {
         return `${convertValueToMetric(number, label)}${separator}${convertStringFromImperialToMetric(label)}`;
     }).replace(/([0-9]+)\/([0-9]+) (feet|inch|foot|ft\.)/g, (_0, firstNumber, secondNumber, label) => {
         return `${convertValueToMetric(firstNumber, label)}/${convertValueToMetric(secondNumber, label)} ${convertStringFromImperialToMetric(label)}`;
-    }).replace(/([0-9]+)(\W|&nbsp;| cubic |-){1,2}(feet|inch|foot|ft\.|pounds|lbs\.|pound|lbs|lb|ft|Foot)/g, (_0, number, separator, label) => {
+    }).replace(/([0-9]+)(\W|&nbsp;| cubic |-){1,2}(feet|inch|foot|ft\.|pounds|lbs\.|pound|lbs|lb|ft|Foot|gallons|gallon)/gi, (_0, number, separator, label) => {
         return `${convertValueToMetric(number, label)}${separator}${convertStringFromImperialToMetric(label)}`;
-    }).replace(/(several \w+ )(feet|yards)/g, (_0, several, unit) => {
+    }).replace(/(several \w+ )(feet|yards|gallons|gallon)/gi, (_0, several, unit) => {
         return `${several}${convertStringFromImperialToMetric(unit)}`;
     })
 }

@@ -10,7 +10,12 @@
       "url": "https://github.com/HadaIonut"
     }
   ],
-  "version": "1.1.4",
+  "url": "https://github.com/HadaIonut/Foundry-mgl",
+  "flags": {},
+  "version": "1.1.5",
+  "minimumCoreVersion": "0.8.2",
+  "compatibleCoreVersion": "0.8.8",
+  "scripts": [],
   "esmodules": [
     "scripts/foundry-mgl.js"
   ],
@@ -24,11 +29,15 @@
       "path": "lang/en.json"
     }
   ],
-  "system": ["dnd5e", "pf2e"],
-  "minimumCoreVersion": "0.8.2",
-  "compatibleCoreVersion": "0.8.3",
-  "url": "https://github.com/HadaIonut/Foundry-mgl",
-  "manifest": "https://github.com/HadaIonut/Foundry-mgl/releases/download/v1.1.4/module.json",
-  "download": "https://github.com/HadaIonut/Foundry-mgl/releases/download/v1.1.4/module.zip",
-  "changelog": ""
+  "packs": [],
+  "system": [
+    "dnd5e",
+    "pf2e"
+  ],
+  "dependencies": [],
+  "socket": false,
+  "manifest": "https://github.com/HadaIonut/Foundry-mgl/releases/download/v1.1.5/module.json",
+  "download": "https://github.com/HadaIonut/Foundry-mgl/releases/download/v1.1.5/module.zip",
+  "protected": false,
+  "coreTranslation": false
 }

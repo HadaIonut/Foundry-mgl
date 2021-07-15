@@ -1,4 +1,3 @@
-import {DND5E} from "../../../systems/dnd5e/module/config.js";
 import {getSetting, registerSettings} from "./Settings.js";
 import {
     onCompendiumRender,
@@ -11,24 +10,21 @@ import {
 import {consoleLog} from "./Utils/Utils.js";
 import {addNewSizes, convertI18NObject} from "./Pf2e/Pf2eConverter.js";
 
-/**
- * Defines distance units and sets encumbrance
- */
 Hooks.on('init', () => {
     CONFIG.debug.hooks = true;
-    consoleLog("Changing labels 'Feet' and 'Miles' to 'Meters' and 'Kilometers'.")
-    DND5E.distanceUnits["m"] = game.i18n.localize("metricsystem.meters");
-    DND5E.distanceUnits["km"] = game.i18n.localize("metricsystem.kilometers");
-    consoleLog("Changing encumbrance calculation.")
-    DND5E.encumbrance["currencyPerWeight"] = 100;
-    DND5E.encumbrance["strMultiplier"] = 7.5;
+    if (game.system.id === 'dnd5e') {
+        consoleLog("Changing labels 'Feet' and 'Miles' to 'Meters' and 'Kilometers'.")
+        CONFIG.DND5E.distanceUnits["m"] = game.i18n.localize("metricsystem.meters");
+        CONFIG.DND5E.distanceUnits["km"] = game.i18n.localize("metricsystem.kilometers");
+        consoleLog("Changing encumbrance calculation.")
+        CONFIG.DND5E.encumbrance["currencyPerWeight"] = 100;
+        CONFIG.DND5E.encumbrance["strMultiplier"] = 7.5;
+    }
+
 
     registerSettings();
 });
 
-/**
- * Changes labels from lbs. to kg.
- */
 Hooks.on('ready', () => {
     consoleLog("Changing label 'lbs.' to 'kg'.");
     if (game.system.id === 'dnd5e') game.i18n.translations.DND5E["AbbreviationLbs"] = 'kg';
@@ -41,9 +37,6 @@ Hooks.on('ready', () => {
     }
 });
 
-/**
- * Makes default scene settings to be converted
- */
 Hooks.on('createScene', (scene) => {
     const gridDist = getSetting("sceneGridDistance");
     const gridUnits = getSetting("sceneGridUnits");
@@ -55,7 +48,6 @@ Hooks.on('createScene', (scene) => {
     sceneClone.gridUnits = gridUnits;
     scene.update(sceneClone)
 })
-
 
 Hooks.on('renderActorSheet', onRenderActorSheet);
 
