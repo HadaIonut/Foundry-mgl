@@ -102,4 +102,4 @@ const batchConversionMap = {
 const initBatchConversion = (elements, type) => () => batchConversion(elements, batchConversionMap[type]);
 
 
-export {initBatchConversion}
+export {initBatchConversion, sceneUpdater}

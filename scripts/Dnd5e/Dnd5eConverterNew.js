@@ -98,7 +98,7 @@ const rollTableUpdater = async (rollTable) => {
     }
 }
 
-const compendiumUpdater = async (compendium) => {
+const compendiumUpdater = (typeSelector) => async (compendium) => {
     try {
         const pack = game.packs.get(compendium.collection || compendium);
         await pack.getIndex();
@@ -130,7 +130,7 @@ const compendiumUpdater = async (compendium) => {
 
 const batchCompendiumUpdater = (compendiums) => async () => {
     for (const compendium of compendiums)
-        if (!compendium.includes('metrified')) await compendiumUpdater(compendium);
+        if (!compendium.includes('metrified')) await compendiumUpdater(typeSelector)(compendium);
     await relinkCompendiums();
 }
 

@@ -2,7 +2,7 @@ import {loading} from "../Utils/Utils.js";
 import {createErrorMessage} from "../Utils/ErrorHandler.js";
 import {convertText, convertValueToMetric} from "../Utils/ConversionEngineNew.js";
 import {convertInconsistentText, convertTrait, speedConverter} from "./Pf2eConverter.js";
-import {journalUpdater} from "../Dnd5e/Compendium5eConverter.js";
+import {journalUpdater, typeSelector} from "../Dnd5e/Compendium5eConverter.js";
 
 const itemConverter = (item) => {
     if (item.data.area) item.data.area.value = String(convertValueToMetric(item.data.area.value, 'ft'));
@@ -56,38 +56,10 @@ const typeMap = {
     'TreasurePF2e': itemConverter,
     'ContainerPF2e': itemConverter,
     'SpellPF2e': itemConverter,
-    'JournalEntry': journalUpdater
+    'JournalEntry': journalUpdater,
+    'CharacterPF2e': actorConverter
 }
 
-const typeSelector = (entity, type) => typeMap[type](entity) || entity;
+const typeSelectorPf2e = (entity, type) => typeMap[type](entity) || entity;
 
-const convertCompendium = async (compendium) => {
-    try {
-        const pack = game.packs.get(compendium.collection || compendium);
-        await pack.getIndex();
-        const newPack = await pack.duplicateCompendium({
-            label: `${pack.metadata.label} Metrified`
-        })
-        await newPack.getIndex();
-
-        const loadingBar = loading(`Converting compendium ${pack.metadata.label}`)(0)(pack.index.size - 1);
-        for (const index of newPack.index) {
-            try {
-                const entity = await newPack.getDocument(index._id);
-                let entityClone = JSON.parse(JSON.stringify(entity.data));
-
-                entityClone = typeSelector(entityClone, entity.constructor.name);
-
-                await entity.update(entityClone);
-
-                loadingBar();
-            } catch (e) {
-                createErrorMessage(e, 'compendiumUpdater', compendium);
-            }
-        }
-    } catch (e) {
-        createErrorMessage(e, 'compendiumUpdater', compendium);
-    }
-}
-
-export {convertCompendium}
+export {typeSelectorPf2e}

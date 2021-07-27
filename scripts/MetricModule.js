@@ -9,45 +9,51 @@ import {
 import {initBatchConversion} from "./Dnd5e/BatchConversion.js";
 import {getSetting} from "./Settings.js";
 import {updateActor, updateItem} from "./Pf2e/Pf2eConverter.js";
-import {convertCompendium} from "./Pf2e/CompendiumPf2eConverter.js";
+import {typeSelectorPf2e} from "./Pf2e/CompendiumPf2eConverter.js";
+import {typeSelector} from "./Dnd5e/Compendium5eConverter.js";
+import {pf2eInitBatchConversion} from "./Pf2e/Pf2eBatchConversion.js";
 
 const entityUpdater = {
     'pf2e': {
         'actor': updateActor,
         'item': updateItem,
         'sheet': journalUpdater,
-        'compendium': convertCompendium
+        'compendium': compendiumUpdater(typeSelectorPf2e)
     },
     'dnd5e': {
         'actor': actorUpdater,
         'item': itemUpdater,
         'sheet': journalUpdater,
         'rolltable': rollTableUpdater,
-        'compendium': compendiumUpdater
+        'compendium': compendiumUpdater(typeSelector)
     }
 }
 
-const batchConversionManager = (data, type, button) => {
-    let batchConvert = initBatchConversion(data, type);
+const batchConversionManager = (method) => (data, type, button) => {
+    let batchConvert = method(data, type);
     button.on('click', () => createWarningDialog(batchConvert));
 }
 
-const batchCompendiumManager = (data, type, button) => {
-    let batchConvert = batchCompendiumUpdater(game.packs.keys());
+const batchCompendiumManager = (method) => (data, type, button) => {
+    let batchConvert = method(game.packs.keys());
     button.on('click', () => createWarningDialog(batchConvert));
 }
 
 const batchCompendiumUpdaterMap = {
     'dnd5e': {
-        'scenes': batchConversionManager,
-        'actors': batchConversionManager,
-        'items': batchConversionManager,
-        'tables': batchConversionManager,
-        'journal': batchConversionManager,
-        'compendium': batchCompendiumManager
+        'scenes': batchConversionManager(initBatchConversion),
+        'actors': batchConversionManager(initBatchConversion),
+        'items': batchConversionManager(initBatchConversion),
+        'tables': batchConversionManager(initBatchConversion),
+        'journal': batchConversionManager(initBatchConversion),
+        'compendium': batchCompendiumManager(batchCompendiumUpdater)
     },
     'pf2e': {
-
+        'scenes': batchConversionManager(pf2eInitBatchConversion),
+        'actors': batchConversionManager(pf2eInitBatchConversion),
+        'items': batchConversionManager(pf2eInitBatchConversion),
+        'tables': batchConversionManager(pf2eInitBatchConversion),
+        'journal': batchConversionManager(pf2eInitBatchConversion),
     }
 }
 
