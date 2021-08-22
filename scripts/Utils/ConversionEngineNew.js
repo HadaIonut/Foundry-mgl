@@ -114,7 +114,7 @@ const convertValueToMetric = (value, unit) => {
 }
 
 const convertText = (text) => {
-    return !text ? '' : text.replace(/(\b[^\d\W]+\b )?(\b[^\d\W]+\b)([ -])(feet|foot)/g, (_0, wordNumber1, wordNumber2, separator, unit) => {
+    return text?.replace(/(\b[^\d\W]+\b )?(\b[^\d\W]+\b)([ -])(feet|foot)/g, (_0, wordNumber1, wordNumber2, separator, unit) => {
         const capitalized = wordNumber1 !== wordNumber1?.toLowerCase();
         const selectedNumber = numberSelector(wordNumber1 ? wordNumber1?.toLowerCase().trim() : '', wordNumber2?.toLowerCase());
         if (selectedNumber.number) {
@@ -123,15 +123,15 @@ const convertText = (text) => {
             return capitalized ? `${returnText.charAt(0).toUpperCase()}${returnText.slice(1)}` : returnText;
         }
         return `${selectedNumber.text}${separator}${unit}`;
-    }).replace(/([0-9]+) (to|and) ([0-9]+) (feet|inch|foot|ft\.)/g, (_0, number1, separatorWord, number2, units) => {
+    })?.replace(/([0-9]+) (to|and) ([0-9]+) (feet|inch|foot|ft\.)/g, (_0, number1, separatorWord, number2, units) => {
         return `${convertValueToMetric(number1, units)} ${separatorWord} ${convertValueToMetric(number2, units)} ${convertStringFromImperialToMetric(units)}`
-    }).replace(/([0-9]{1,3}(,[0-9]{3})+)([ -])(feet|foot|pounds)/g, (_0, number, _1, separator, label) => {
+    })?.replace(/([0-9]{1,3}(,[0-9]{3})+)([ -])(feet|foot|pounds)/g, (_0, number, _1, separator, label) => {
         return `${convertValueToMetric(number, label)}${separator}${convertStringFromImperialToMetric(label)}`;
-    }).replace(/([0-9]+)\/([0-9]+) (feet|inch|foot|ft\.)/g, (_0, firstNumber, secondNumber, label) => {
+    })?.replace(/([0-9]+)\/([0-9]+) (feet|inch|foot|ft\.)/g, (_0, firstNumber, secondNumber, label) => {
         return `${convertValueToMetric(firstNumber, label)}/${convertValueToMetric(secondNumber, label)} ${convertStringFromImperialToMetric(label)}`;
-    }).replace(/([0-9]+)(\W|&nbsp;| cubic |-|){1,2}(feet|inch|foot|ft\.|pounds|lbs\.|pound|lbs|lb|ft|mile)/g, (_0, number, separator, label) => {
+    })?.replace(/([0-9]+)(\W|&nbsp;| cubic |-|){1,2}(feet|inch|foot|ft\.|pounds|lbs\.|pound|lbs|lb|ft|mile)/g, (_0, number, separator, label) => {
         return `${convertValueToMetric(number, label)}${separator}${convertStringFromImperialToMetric(label)}`;
-    }).replace(/(several \w+ )(feet|yards)/g, (_0, several, unit) => {
+    })?.replace(/(several \w+ )(feet|yards)/g, (_0, several, unit) => {
         return `${several}${convertStringFromImperialToMetric(unit)}`;
     })
 }

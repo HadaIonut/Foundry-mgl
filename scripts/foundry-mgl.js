@@ -14,7 +14,6 @@ import {consoleLog} from "./Utils/Utils.js";
  * Defines distance units and sets encumbrance
  */
 Hooks.on('init', () => {
-    CONFIG.debug.hooks = true;
     consoleLog("Changing labels 'Feet' and 'Miles' to 'Meters' and 'Kilometers'.")
     DND5E.distanceUnits["m"] = game.i18n.localize("metricsystem.meters");
     DND5E.distanceUnits["km"] = game.i18n.localize("metricsystem.kilometers");
