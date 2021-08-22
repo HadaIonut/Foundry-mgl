@@ -1,21 +1,40 @@
-import {getMultiplier} from "../Settings.js";
+import {getMultiplier, getSetting} from "../Settings.js";
 import {numberSelector, numberToWords} from "./WordsToNumbers.js";
 
 const imperialToMetricMap = {
-    "inch": "centimeters",
-    "ft.": "m.",
-    "ft": "m",
-    "feet": "meters",
-    "Feet": "Meters",
-    "foot": "meter",
-    "mile": "kilometres",
-    "miles": "kilometres",
-    "yards": "meters",
-    "lb": "kg",
-    "lb.": "kg.",
-    "lbs.": "kg.",
-    "pounds": "kilograms",
-    "pound": "kilogram"
+    "shortened": {
+        "inch": "cm",
+        "ft.": "m.",
+        "ft": "m",
+        "feet": "meters",
+        "Feet": "Meters",
+        "foot": "meter",
+        "mile": "km",
+        "miles": "km",
+        "yards": "meters",
+        "lb": "kg",
+        "lb.": "kg.",
+        "lbs.": "kg.",
+        "pounds": "kg",
+        "pound": "kg"
+    },
+    "unshortened": {
+        "inch": "centimeters",
+        "ft.": "m.",
+        "ft": "m",
+        "feet": "meters",
+        "Feet": "Meters",
+        "foot": "meter",
+        "mile": "kilometres",
+        "miles": "kilometres",
+        "yards": "meters",
+        "lb": "kg",
+        "lb.": "kg.",
+        "lbs.": "kg.",
+        "pounds": "kilograms",
+        "pound": "kilogram"
+    }
+
 };
 
 const typesOfUnitsMap = {
@@ -24,6 +43,7 @@ const typesOfUnitsMap = {
     "feet": "feet",
     "Feet": "feet",
     "foot": "feet",
+    'inch': 'inch',
     "mile": "mile",
     "Mile": "mile",
     "Miles": "mile",
@@ -31,6 +51,7 @@ const typesOfUnitsMap = {
     "lb": "pound",
     "pound": "pound",
     "lb.": "pound",
+    'lbs': 'pound',
     "lbs.": "pound",
     "pounds": "pound"
 };
@@ -52,7 +73,7 @@ const convertUsingMultiplier = (toBeConverted, multiplier) => {
     return roundUp(toConvert * multiplier);
 }
 
-const isMetric = (checkString) => !!imperialToMetricMap[checkString];
+const isMetric = (checkString) => !!imperialToMetricMap['unshortened'][checkString];
 
 const convertWeightFromPoundsToKilograms = (weightString) => convertUsingMultiplier(weightString, getMultiplier('pound'));
 
@@ -64,7 +85,9 @@ const convertDistanceFromMilesToKilometers = (distance) => convertUsingMultiplie
 
 const convertUnitStringToStandard = (unit) => typesOfUnitsMap[unit];
 
-const convertStringFromImperialToMetric = (imperialString) => imperialToMetricMap[imperialString] || imperialString;
+const shouldShortenUnitNames = () => getSetting('forceShortening') ? 'shortened' : 'unshortened';
+
+const convertStringFromImperialToMetric = (imperialString) => imperialToMetricMap[shouldShortenUnitNames()][imperialString] || imperialString;
 
 const convertDistanceFromImperialToMetric = (distance, unit) => {
     const convertedToStandard = convertUnitStringToStandard(unit);
@@ -106,7 +129,7 @@ const convertText = (text) => {
         return `${convertValueToMetric(number, label)}${separator}${convertStringFromImperialToMetric(label)}`;
     }).replace(/([0-9]+)\/([0-9]+) (feet|inch|foot|ft\.)/g, (_0, firstNumber, secondNumber, label) => {
         return `${convertValueToMetric(firstNumber, label)}/${convertValueToMetric(secondNumber, label)} ${convertStringFromImperialToMetric(label)}`;
-    }).replace(/([0-9]+)(\W|&nbsp;| cubic |-){1,2}(feet|inch|foot|ft\.|pounds|lbs\.|pound|lbs|lb|ft)/g, (_0, number, separator, label) => {
+    }).replace(/([0-9]+)(\W|&nbsp;| cubic |-|){1,2}(feet|inch|foot|ft\.|pounds|lbs\.|pound|lbs|lb|ft|mile)/g, (_0, number, separator, label) => {
         return `${convertValueToMetric(number, label)}${separator}${convertStringFromImperialToMetric(label)}`;
     }).replace(/(several \w+ )(feet|yards)/g, (_0, several, unit) => {
         return `${several}${convertStringFromImperialToMetric(unit)}`;

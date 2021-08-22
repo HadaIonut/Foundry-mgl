@@ -96,5 +96,18 @@ export default {
             }
 
         },
+        {
+            key: "forceShortening",
+            data: {
+                name: "Force unit shortening?",
+                hint: "Force units to be abbreviated (pound -> kg)",
+                type: Boolean,
+                default: false,
+                scope: "world",
+                config: true,
+                restricted: true,
+            }
+
+        },
     ]
 }
