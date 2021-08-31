@@ -82,7 +82,7 @@ const createNewCompendiumMeta = (metadata) => {
         system: "dnd5e"
     };
 }
-const relinkActor = async (entity, cache) => {
+export const relinkActor = async (entity, cache) => {
     for (const item in entity.items) {
         if (!entity.items.hasOwnProperty(item)) continue;
         entity.items[item].data.description.value = await relinkText(entity.items[item].data.description.value, cache)
@@ -90,17 +90,17 @@ const relinkActor = async (entity, cache) => {
     return entity;
 }
 
-const relinkItem = async (entity, cache) => {
+export const relinkItem = async (entity, cache) => {
     entity.data.description.value = await relinkText(entity.data.description.value, cache)
     return entity;
 }
 
-const relinkJournals = async (entity, cache) => {
+export const relinkJournals = async (entity, cache) => {
     entity.content = await relinkText(entity.content, cache);
     return entity;
 }
 
-const relinkTypeMap = {
+export const relinkTypeMap = {
     'Actor5e': relinkActor,
     'Item5e': relinkItem,
     'JournalEntry': relinkJournals
@@ -108,7 +108,7 @@ const relinkTypeMap = {
 
 const relinkTypeSelector = async (entity, type, cache) => relinkTypeMap[type](entity, cache);
 
-const relinkCompendium = async (compendium, cache) => {
+const relinkCompendium = async (compendium, cache, relinkTypeSelector) => {
     const sourcePack = game.packs.get(compendium);
     await sourcePack.getIndex();
 
@@ -123,12 +123,19 @@ const relinkCompendium = async (compendium, cache) => {
     }
 }
 
-const relinkCompendiums = async () => {
+const relinkCompendiums = async (relinkTypeSelector) => {
     const compendiums = game.packs.keys();
     const localCache = cache();
-    for (const compendium of compendiums)
-        if (compendium.includes('metrified')) await relinkCompendium(compendium, localCache);
-}
+    for (const compendium of compendiums) {
+        try {
+            if (compendium.includes('metrified')) await relinkCompendium(compendium, localCache, relinkTypeSelector);
+        }
+        catch (e) {
+            console.error(e);
+        }
+        }
+    }
 
 
-export {typeSelector, createNewCompendium, relinkCompendiums, relinkCompendium, createNewCompendiumMeta, journalUpdater}
+
+export {typeSelector, createNewCompendium, relinkCompendiums, relinkCompendium, createNewCompendiumMeta, journalUpdater, relinkTypeSelector}

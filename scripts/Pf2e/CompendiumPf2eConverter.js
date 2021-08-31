@@ -1,8 +1,8 @@
 import {loading} from "../Utils/Utils.js";
 import {createErrorMessage} from "../Utils/ErrorHandler.js";
-import {convertText, convertValueToMetric} from "../Utils/ConversionEngineNew.js";
+import {convertText, convertValueToMetric, relinkText} from '../Utils/ConversionEngineNew.js';
 import {convertInconsistentText, convertTrait, convertVehicleSizes, speedConverter} from './Pf2eConverter.js';
-import {journalUpdater, typeSelector} from "../Dnd5e/Compendium5eConverter.js";
+import {journalUpdater, relinkActor, relinkItem, relinkJournals, typeSelector} from '../Dnd5e/Compendium5eConverter.js';
 
 const itemConverter = (item) => {
     if (item.data.area) item.data.area.value = String(convertValueToMetric(item.data.area.value, 'ft'));
@@ -44,6 +44,7 @@ const classConverter = (entity) => {
     entity.data.description.value = convertText(entity.data.description.value);
 }
 
+
 const typeMap = {
     'NPCPF2e': actorConverter,
     'FeatPF2e': itemConverter,
@@ -66,6 +67,30 @@ const typeMap = {
     'VehiclePF2e': vehicleConverter,
 }
 
+const PF2eRelinkTypeMap = {
+    'NPCPF2e': relinkActor,
+    'FeatPF2e': relinkItem,
+    'ActionPF2e': relinkItem,
+    'AncestryPF2e': relinkItem,
+    'BackgroundPF2e': relinkItem,
+    'EffectPF2e': relinkItem,
+    'ClassPF2e': relinkJournals,
+    'ConditionPF2e': relinkItem,
+    'EquipmentPF2e': relinkItem,
+    'WeaponPF2e': relinkItem,
+    'ArmorPF2e': relinkItem,
+    'ConsumablePF2e': relinkItem,
+    'KitPF2e': relinkItem,
+    'TreasurePF2e': relinkItem,
+    'ContainerPF2e': relinkItem,
+    'SpellPF2e': relinkItem,
+    'JournalEntry': relinkJournals,
+    'CharacterPF2e': relinkActor,
+    'VehiclePF2e': relinkActor,
+}
+
+const relinkTypeSelectorPf2e = (entity, type) => PF2eRelinkTypeMap?.[type]?.(entity) || entity;
+
 const typeSelectorPf2e = (entity, type) => typeMap[type](entity) || entity;
 
-export {typeSelectorPf2e}
+export {typeSelectorPf2e, relinkTypeSelectorPf2e}

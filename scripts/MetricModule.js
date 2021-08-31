@@ -9,8 +9,8 @@ import {
 import {initBatchConversion} from "./Dnd5e/BatchConversion.js";
 import {getSetting} from "./Settings.js";
 import {updateActor, updateItem} from "./Pf2e/Pf2eConverter.js";
-import {typeSelectorPf2e} from "./Pf2e/CompendiumPf2eConverter.js";
-import {typeSelector} from "./Dnd5e/Compendium5eConverter.js";
+import {relinkTypeSelectorPf2e, typeSelectorPf2e} from './Pf2e/CompendiumPf2eConverter.js';
+import {relinkTypeSelector, typeSelector} from './Dnd5e/Compendium5eConverter.js';
 import {pf2eInitBatchConversion} from "./Pf2e/Pf2eBatchConversion.js";
 
 const entityUpdater = {
@@ -46,7 +46,7 @@ const batchCompendiumUpdaterMap = {
         'items': batchConversionManager(initBatchConversion),
         'tables': batchConversionManager(initBatchConversion),
         'journal': batchConversionManager(initBatchConversion),
-        'compendium': batchCompendiumManager(batchCompendiumUpdater(typeSelector))
+        'compendium': batchCompendiumManager(batchCompendiumUpdater(typeSelector, relinkTypeSelector))
     },
     'pf2e': {
         'scenes': batchConversionManager(pf2eInitBatchConversion),
@@ -54,7 +54,7 @@ const batchCompendiumUpdaterMap = {
         'items': batchConversionManager(pf2eInitBatchConversion),
         'tables': batchConversionManager(pf2eInitBatchConversion),
         'journal': batchConversionManager(pf2eInitBatchConversion),
-        'compendium': batchCompendiumManager(batchCompendiumUpdater(typeSelectorPf2e))
+        'compendium': batchCompendiumManager(batchCompendiumUpdater(typeSelectorPf2e, relinkTypeSelectorPf2e))
     }
 }
 

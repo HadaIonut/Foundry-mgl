@@ -128,10 +128,10 @@ const compendiumUpdater = (typeSelector) => async (compendium) => {
     }
 }
 
-const batchCompendiumUpdater = (typeSelector) => (compendiums) =>  async () => {
+const batchCompendiumUpdater = (typeSelector, relinkTypeSelector) => (compendiums) =>  async () => {
     for (const compendium of compendiums)
         if (!compendium.includes('metrified')) await compendiumUpdater(typeSelector)(compendium);
-    await relinkCompendiums();
+    await relinkCompendiums(relinkTypeSelector);
 }
 
 export {actorUpdater, itemUpdater, journalUpdater, rollTableUpdater, compendiumUpdater, allScenesUpdater, batchCompendiumUpdater}
