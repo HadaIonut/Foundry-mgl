@@ -1,6 +1,6 @@
 {
   "name": "Foundry-MGL",
-  "title": "Foundry Meters, Grams & Liters",
+  "title": "Foundry Meters, Grams and Liters",
   "description": "An expandable module that allows for easy and quick conversion of any data in the imperial system to the metric system.",
   "author": "HadaIonut",
   "authors": [
@@ -27,7 +27,7 @@
   "system": [
     "dnd5e",
     "pf2e"
-  ],,
+  ],
   "minimumCoreVersion": "0.8.2",
   "compatibleCoreVersion": "0.8.3",
   "url": "https://github.com/HadaIonut/Foundry-mgl",
