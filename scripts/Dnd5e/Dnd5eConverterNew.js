@@ -128,7 +128,7 @@ const compendiumUpdater = (typeSelector) => async (compendium) => {
     }
 }
 
-const batchCompendiumUpdater = (compendiums) => async () => {
+const batchCompendiumUpdater = (typeSelector) => (compendiums) =>  async () => {
     for (const compendium of compendiums)
         if (!compendium.includes('metrified')) await compendiumUpdater(typeSelector)(compendium);
     await relinkCompendiums();

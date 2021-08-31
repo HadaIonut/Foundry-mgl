@@ -1,7 +1,7 @@
 import {loading} from "../Utils/Utils.js";
 import {createErrorMessage} from "../Utils/ErrorHandler.js";
 import {convertText, convertValueToMetric} from "../Utils/ConversionEngineNew.js";
-import {convertInconsistentText, convertTrait, speedConverter} from "./Pf2eConverter.js";
+import {convertInconsistentText, convertTrait, convertVehicleSizes, speedConverter} from './Pf2eConverter.js';
 import {journalUpdater, typeSelector} from "../Dnd5e/Compendium5eConverter.js";
 
 const itemConverter = (item) => {
@@ -26,6 +26,11 @@ const actorConverter = (actor) => {
     actor.data.attributes.speed = speedConverter(actor?.data?.attributes?.speed);
 
     itemsConverter(actor.items);
+}
+
+const vehicleConverter = (vehicle) => {
+    vehicle.data.details.space = convertVehicleSizes(vehicle.data.details.space);
+    vehicle.data.details.speed = convertText(vehicle?.data?.details?.speed);
 }
 
 const classConverter = (entity) => {
@@ -57,7 +62,8 @@ const typeMap = {
     'ContainerPF2e': itemConverter,
     'SpellPF2e': itemConverter,
     'JournalEntry': journalUpdater,
-    'CharacterPF2e': actorConverter
+    'CharacterPF2e': actorConverter,
+    'VehiclePF2e': vehicleConverter,
 }
 
 const typeSelectorPf2e = (entity, type) => typeMap[type](entity) || entity;

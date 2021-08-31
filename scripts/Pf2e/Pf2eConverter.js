@@ -8,9 +8,10 @@ const convertInconsistentText = (speed) => speed?.replace(/([0-9]+)(\W|&nbsp;| c
 })
 
 const speedConverter = (speedObject) => {
-    speedObject.value = convertInconsistentText(speedObject.value);
+    if (!speedObject) return speedObject;
+    speedObject.value = convertInconsistentText(speedObject?.value);
     speedObject.otherSpeeds.map((otherSpeed) => {
-        otherSpeed.value = convertInconsistentText(otherSpeed.value);
+        otherSpeed.value = convertInconsistentText(otherSpeed?.value);
     })
     return speedObject;
 }
@@ -43,6 +44,13 @@ const addNewTranslationsForMetric = (object, prop) => {
     }
     object[prop] = convertedProp;
 }
+
+const convertVehicleSizes = (obj) => ({
+    high: convertInconsistentText(obj.high),
+    long: convertInconsistentText(obj.long),
+    wide: convertInconsistentText(obj.wide)
+})
+
 
 const convertI18NObject = (obj) => {
     for (const prop in obj) {
@@ -97,13 +105,15 @@ const updateActor = async (actor) => {
             sense.value = convertInconsistentText(sense.value);
             return sense;
         })
-    else actorCopy.data.traits.senses.value = convertText(actorCopy?.data?.traits?.senses?.value);
+    else if (actorCopy?.data?.traits?.senses?.value) actorCopy.data.traits.senses.value = convertText(actorCopy?.data?.traits?.senses?.value);
 
     actorCopy.data.attributes.speed = speedConverter(actorCopy?.data?.attributes?.speed);
+    if (actorCopy?.data?.details?.speed) actorCopy.data.details.speed = convertText(actorCopy?.data?.details?.speed);
+    if (actorCopy.type === 'vehicle') actorCopy.data.details.space = convertVehicleSizes(actorCopy?.data?.details?.space)
 
     await actor.setFlag("Foundry-MGL", "converted", true);
     await actor.update(actorCopy);
     await updateItems(actor.data.items);
 }
 
-export {updateActor, updateItem, speedConverter, convertInconsistentText, convertTrait, convertI18NObject, addNewSizes}
+export {updateActor, updateItem, speedConverter, convertInconsistentText, convertTrait, convertI18NObject, addNewSizes, convertVehicleSizes}

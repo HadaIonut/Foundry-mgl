@@ -46,7 +46,7 @@ const batchCompendiumUpdaterMap = {
         'items': batchConversionManager(initBatchConversion),
         'tables': batchConversionManager(initBatchConversion),
         'journal': batchConversionManager(initBatchConversion),
-        'compendium': batchCompendiumManager(batchCompendiumUpdater)
+        'compendium': batchCompendiumManager(batchCompendiumUpdater(typeSelector))
     },
     'pf2e': {
         'scenes': batchConversionManager(pf2eInitBatchConversion),
@@ -54,6 +54,7 @@ const batchCompendiumUpdaterMap = {
         'items': batchConversionManager(pf2eInitBatchConversion),
         'tables': batchConversionManager(pf2eInitBatchConversion),
         'journal': batchConversionManager(pf2eInitBatchConversion),
+        'compendium': batchCompendiumManager(batchCompendiumUpdater(typeSelectorPf2e))
     }
 }
 
