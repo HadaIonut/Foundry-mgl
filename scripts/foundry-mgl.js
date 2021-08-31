@@ -16,10 +16,9 @@ Hooks.on('init', () => {
         CONFIG.DND5E.distanceUnits["m"] = game.i18n.localize("metricsystem.meters");
         CONFIG.DND5E.distanceUnits["km"] = game.i18n.localize("metricsystem.kilometers");
         consoleLog("Changing encumbrance calculation.")
-        CONFIG.DND5E.encumbrance["currencyPerWeight"] = 100;
-        CONFIG.DND5E.encumbrance["strMultiplier"] = 7.5;
+        CONFIG.DND5E.encumbrance["currencyPerWeight"].imperial = 100;
+        CONFIG.DND5E.encumbrance["strMultiplier"].imperial = 7.5;
     }
-
 
     registerSettings();
 });
