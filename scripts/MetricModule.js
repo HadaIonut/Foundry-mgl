@@ -64,8 +64,11 @@ const onRenderSideBar = (app, html) => {
     const type = app?.options?.id;
     if (batchCompendiumUpdaterMap[game.system.id][type])
         batchCompendiumUpdaterMap[game.system.id][type](type === 'compendium' ? game.packs.keys() : game[type], type, button);
-    if (app?.options?.id !== 'combat' && app?.options?.id !== 'playlists' && !app?.options?.id.includes('popout'))
+    if (app?.options?.id !== 'combat' && app?.options?.id !== 'playlists' && !app?.options?.id.includes('popout')) {
         html.find(".directory-footer").append(button);
+        html.find(".directory-footer").removeClass('action-buttons')
+    }
+
 }
 
 const addButton = (element, entity, type, html) => {
