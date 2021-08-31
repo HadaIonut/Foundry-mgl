@@ -11,7 +11,6 @@ import {consoleLog} from "./Utils/Utils.js";
 import {addNewSizes, convertI18NObject} from "./Pf2e/Pf2eConverter.js";
 
 Hooks.on('init', () => {
-    CONFIG.debug.hooks = true;
     if (game.system.id === 'dnd5e') {
         consoleLog("Changing labels 'Feet' and 'Miles' to 'Meters' and 'Kilometers'.")
         CONFIG.DND5E.distanceUnits["m"] = game.i18n.localize("metricsystem.meters");
