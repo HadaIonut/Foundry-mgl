@@ -213,7 +213,7 @@ const detailsConverter = (details) => {
 const actorDataConverter = (data) => {
     if (data.attributes.movement) data.attributes.movement = movementConverter(data.attributes.movement);
     if (data.attributes.speed) data.attributes.speed = speedConverter(data.attributes.speed);
-    data.attributes.senses = sensesConverter(data.attributes.senses);
+    if (data.attributes.senses) data.attributes.senses = sensesConverter(data.attributes.senses);
     //data.traits.senses = imperialReplacer(data.traits.senses || '', /(?<value>[0-9]+ ?)(?<unit>[\w]+)/g)
     data.details = detailsConverter(data.details);
 
