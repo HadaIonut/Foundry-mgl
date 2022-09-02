@@ -10,7 +10,7 @@
       "url": "https://github.com/HadaIonut"
     }
   ],
-  "version": "1.1.5",
+  "version": "1.1.8",
   "esmodules": [
     "scripts/foundry-mgl.js"
   ],
@@ -31,7 +31,7 @@
   "minimumCoreVersion": "10",
   "compatibleCoreVersion": "10",
   "url": "https://github.com/HadaIonut/Foundry-mgl",
-  "manifest": "https://github.com/HadaIonut/Foundry-mgl/releases/download/v1.1.5/module.json",
-  "download": "https://github.com/HadaIonut/Foundry-mgl/releases/download/v1.1.5/module.zip",
+  "manifest": "https://github.com/HadaIonut/Foundry-mgl/releases/download/v1.1.8/module.json",
+  "download": "https://github.com/HadaIonut/Foundry-mgl/releases/download/v1.1.8/module.zip",
   "changelog": ""
 }
