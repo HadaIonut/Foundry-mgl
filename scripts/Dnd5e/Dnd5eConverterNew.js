@@ -12,11 +12,11 @@ const itemUpdater = async (item, onlyLabel, onlyUnit) => {
     if (item.getFlag("Foundry-MGL", "converted")) return;
     const itemClone = JSON.parse(JSON.stringify(item));
 
-    if (!onlyLabel) itemClone.data.description.value = convertText(itemClone.data.description.value);
-    if (!onlyLabel) itemClone.data.weight = convertValueToMetric(itemClone.data.weight, 'pound');
+    if (!onlyLabel) itemClone.system.description.value = convertText(itemClone.system.description.value);
+    if (!onlyLabel) itemClone.system.weight = convertValueToMetric(itemClone.system.weight, 'pound');
 
-    itemClone.data.target = convertDistance(itemClone.data.target, onlyUnit);
-    itemClone.data.range = convertDistance(itemClone.data.range, onlyUnit);
+    itemClone.system.target = convertDistance(itemClone.system.target, onlyUnit);
+    itemClone.system.range = convertDistance(itemClone.system.range, onlyUnit);
 
     if (item.labels.range) item.labels.range = labelConverter(item.labels.range);
 
@@ -40,8 +40,8 @@ const actorUpdater = async (actor, onlyLabel, onlyUnit) => {
     const actorClone = JSON.parse(JSON.stringify(actor));
 
     if (!actor.getFlag("Foundry-MGL", "converted")) {
-        actorClone.data = actorDataConverter(actorClone.data);
-        actorClone.token = actorTokenConverter(actorClone.token);
+        actorClone.system = actorDataConverter(actorClone.system);
+        actorClone.prototypeToken = actorTokenConverter(actorClone.prototypeToken);
     }
 
     try {
@@ -57,15 +57,16 @@ const actorUpdater = async (actor, onlyLabel, onlyUnit) => {
 const journalUpdater = async (journal) => {
     const journalClone = JSON.parse(JSON.stringify(journal));
 
-    journalClone.content = convertText(journalClone.content);
-    journalClone.content = await relinkText(journalClone.content)
+    for (const page of journalClone.pages) {
+        page.text.content = convertText(page.text.content);
+        page.text.content = await relinkText(page.text.content)
 
-    try {
-        await journal.update(journalClone);
-    } catch (e) {
-        createErrorMessage(e, journalClone.name, journal);
+        try {
+            await journal.pages.get(page._id).update(page);
+        } catch (e) {
+            createErrorMessage(e, page.name, journal);
+        }
     }
-
 }
 
 const allScenesUpdater = async () => {
@@ -108,10 +109,10 @@ const compendiumUpdater = (typeSelector) => async (compendium) => {
         await newPack.getIndex();
 
         const loadingBar = loading(`Converting compendium ${pack.metadata.label}`)(0)(pack.index.size - 1);
-        for (const index of newPack.index) {
+        for (const index of pack.index) {
             try {
                 const entity = await newPack.getDocument(index._id);
-                let entityClone = JSON.parse(JSON.stringify(entity.data));
+                let entityClone = JSON.parse(JSON.stringify(entity));
 
                 entityClone = typeSelector(entityClone, entity.constructor.name);
 

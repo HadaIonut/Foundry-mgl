@@ -20,6 +20,8 @@ Hooks.on('init', () => {
         CONFIG.DND5E.encumbrance["strMultiplier"].imperial = 7.5;
     }
 
+    CONFIG.debug.hooks = true
+
     registerSettings();
 });
 

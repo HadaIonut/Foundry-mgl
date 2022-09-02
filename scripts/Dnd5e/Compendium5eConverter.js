@@ -8,11 +8,11 @@ import {
 import {loading, cache} from "../Utils/Utils.js";
 
 const itemUpdater = (item, onlyLabel, onlyUnit) => {
-    item.data.description.value = convertText(item.data.description.value);
-    item.data.weight = convertValueToMetric(item.data.weight, 'pound');
+    item.system.description.value = convertText(item.system.description.value);
+    item.system.weight = convertValueToMetric(item.system.weight, 'pound');
 
-    item.data.target = convertDistance(item.data.target, onlyUnit);
-    item.data.range = convertDistance(item.data.range, onlyUnit);
+    item.system.target = convertDistance(item.system.target, onlyUnit);
+    item.system.range = convertDistance(item.system.range, onlyUnit);
 
     return item;
 }
@@ -25,8 +25,8 @@ const itemsUpdater = (items) => {
 }
 
 const actorUpdater = (actor) => {
-    actor.data = actorDataConverter(actor.data);
-    actor.token = actorTokenConverter(actor.token);
+    actor.system = actorDataConverter(actor.system);
+    actor.prototypeToken = actorTokenConverter(actor.prototypeToken);
     actor.items = itemsUpdater(actor.items);
     return actor;
 }
@@ -39,8 +39,8 @@ const rollTableUpdater = (rollTable) => {
 }
 
 const scenesUpdater = (scene) => {
-    scene.gridDistance = convertValueToMetric(scene.gridDistance, scene.gridUnits);
-    scene.gridUnits = convertStringFromImperialToMetric(scene.gridUnits);
+    scene.grid.distance = convertValueToMetric(scene.grid.distance, scene.grid.units);
+    scene.grid.units = convertStringFromImperialToMetric(scene.grid.units);
     return scene;
 }
 

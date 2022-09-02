@@ -12,11 +12,11 @@ const itemUpdater = (item, loading) => {
     if (item.getFlag("Foundry-MGL", "converted")) return;
     const itemClone = JSON.parse(JSON.stringify(item));
 
-    itemClone.data.description.value = convertText(itemClone.data.description.value);
+    itemClone.system.description.value = convertText(itemClone.system.description.value);
 
-    itemClone.data.target = convertDistance(itemClone.data.target);
-    itemClone.data.range = convertDistance(itemClone.data.range);
-    itemClone.data.weight = convertValueToMetric(itemClone.data.weight, 'pound');
+    itemClone.system.target = convertDistance(itemClone.system.target);
+    itemClone.system.range = convertDistance(itemClone.system.range);
+    itemClone.system.weight = convertValueToMetric(itemClone.system.weight, 'pound');
 
     if (item.labels.range) item.labels.range = labelConverter(item.labels.range);
 
@@ -38,8 +38,8 @@ const actorUpdater = (actor, loading) => {
     const actorClone = JSON.parse(JSON.stringify(actor));
 
     if (!actor.getFlag("Foundry-MGL", "converted")) {
-        actorClone.data = actorDataConverter(actorClone.data);
-        actorClone.token = actorTokenConverter(actorClone.token);
+        actorClone.system = actorDataConverter(actorClone.system);
+        actorClone.prototypeToken = actorTokenConverter(actorClone.prototypeToken);
     }
 
     actor.setFlag("Foundry-MGL", "converted", true)
@@ -56,7 +56,15 @@ const actorUpdater = (actor, loading) => {
 const journalUpdater = (journal, loading) => {
     const journalClone = JSON.parse(JSON.stringify(journal));
 
-    journalClone.content = convertText(journalClone.content);
+    for (const page of journalClone.pages) {
+        page.text.content = convertText(page.text.content);
+
+        try {
+            journal.pages.get(page._id).update(page);
+        } catch (e) {
+            createErrorMessage(e, page.name, journal);
+        }
+    }
 
     journal.update(journalClone)
         .then(() => loading())
@@ -65,8 +73,8 @@ const journalUpdater = (journal, loading) => {
 
 const sceneUpdater = (scene, loading) => {
     const sceneClone = JSON.parse(JSON.stringify(scene));
-    sceneClone.gridDistance = convertValueToMetric(sceneClone.gridDistance, sceneClone.gridUnits);
-    sceneClone.gridUnits = convertStringFromImperialToMetric(sceneClone.gridUnits);
+    sceneClone.grid.distance = convertValueToMetric(sceneClone.grid.distance, sceneClone.grid.units);
+    sceneClone.grid.units = convertStringFromImperialToMetric(sceneClone.grid.units);
 
     scene.update(sceneClone)
         .then(() => loading())
