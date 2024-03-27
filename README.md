@@ -1,7 +1,7 @@
 # Foundry Metrics, Grams and Liters
-![downloads](https://img.shields.io/github/downloads/HadaIonut/Foundry-mgl/latest/module.zip?style=for-the-badge)
-![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Installs&query=package.installs&suffix=%25&url=https%3A%2F%2Fforge-vtt.com%2Fapi%2Fbazaar%2Fpackage%2FFoundry-MGL&colorB=4aa94a&style=for-the-badge)
-[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/A0A32J9GM)
+
+## THIS MODULE IS DEPRECATED AND WILL NO LONGER BE MAINTAINED. 
+## Willumz is currently maintaining a fork of this repository, for more infomation go [here](https://github.com/willumz/foundry-mgl)
 
 Foundry-mgl is intended to be the ultimate tool for playing dnd5e in the metric system.
 The core concept behind Foundry-MGL is the idea of expandability this is why it is able to convert all types of text and labels that are found on the dnd5e system.
